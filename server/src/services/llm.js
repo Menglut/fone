@@ -13,7 +13,7 @@ const client = new OpenAI({
 export async function generateCoverLetter({ resume, jobPost, options }) {
   const system = `
 너는 한국어 자기소개서 코치이자 편집자다.
-과장/허위 금지, 지원자의 실제 경험을 기반으로 정량지표 중심으로 작성해라.
+과장/허위 절대 금지, 지원자의 실제 경험을 기반으로 정량지표 중심으로 작성해라.
 문장 길이는 15~28자로 유지하고, 중복 표현을 줄여라.
   `.trim();
 

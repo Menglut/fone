@@ -1,0 +1,486 @@
+:root{
+    --bg:#f7f9fc;
+    --text:#0f172a;
+    --muted:#64748b;
+
+    --card:#ffffff;
+    --stroke: rgba(15,23,42,.08);
+
+    --blue:#3182f6;
+    --blue2:#2563eb;
+
+    --shadow: 0 12px 32px rgba(15,23,42,.08);
+    --shadow2: 0 8px 18px rgba(15,23,42,.06);
+    --r: 22px;
+    --max: 1120px;
+}
+
+.rwPage{
+    min-height:100vh;
+    background:
+            radial-gradient(900px 600px at 20% 0%, rgba(49,130,246,.10), transparent 60%),
+            radial-gradient(900px 600px at 90% 10%, rgba(49,130,246,.06), transparent 60%),
+            var(--bg);
+    color: var(--text);
+}
+
+.rwTop{
+    background: rgba(255,255,255,.96);
+    border-bottom: 1px solid rgba(15,23,42,.08);
+    box-shadow: 0 10px 26px rgba(15,23,42,.06);
+}
+.rwTopInner{
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 14px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 12px;
+}
+
+.rwBrand{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    cursor:pointer;
+}
+.rwLogo{
+    width: 40px; height: 40px;
+    border-radius: 14px;
+    display:grid; place-items:center;
+    font-weight: 900;
+    color: #fff;
+    background: linear-gradient(180deg, var(--blue), var(--blue2));
+    box-shadow: 0 10px 24px rgba(49,130,246,.25);
+}
+.rwLogo.sm{ width:34px; height:34px; border-radius:12px; }
+
+.rwBrandText{ line-height: 1.05; }
+.rwBrandName{ font-weight: 900; }
+.rwBrandSub{ font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+.rwTopRight{ display:flex; align-items:center; gap: 10px; }
+
+.rwWrap{
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 22px 18px 60px;
+}
+
+.rwBtn{
+    border: 1px solid rgba(15,23,42,.10);
+    background: rgba(255,255,255,.78);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-weight: 900;
+    cursor:pointer;
+    transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+    box-shadow: var(--shadow2);
+}
+.rwBtn:hover{ transform: translateY(-1px); }
+.rwBtn:active{ transform: translateY(0) scale(.99); }
+.rwBtn:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
+
+.rwBtn.primary{
+    border: none;
+    color: #fff;
+    background: linear-gradient(180deg, var(--blue), var(--blue2));
+    box-shadow: 0 14px 30px rgba(49,130,246,.28);
+}
+.rwBtn.ghost{
+    background: rgba(255,255,255,.55);
+}
+.rwBtn.sm{ padding: 8px 10px; border-radius: 12px; font-size: 13px; }
+.rwBtn.full{ width:100%; }
+
+.rwIntro{
+    display:grid;
+    grid-template-columns: 1.2fr .8fr;
+    gap: 14px;
+    padding: 22px;
+    border-radius: 24px;
+    background: rgba(255,255,255,.62);
+    border: 1px solid rgba(15,23,42,.08);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(14px);
+}
+
+.rwChip{
+    display:inline-flex;
+    padding: 7px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 900;
+    color: rgba(37,99,235,.95);
+    background: rgba(49,130,246,.10);
+}
+
+.rwTitle{
+    margin: 14px 0 10px;
+    font-size: 36px;
+    line-height: 1.08;
+    letter-spacing: -1px;
+}
+.rwAccent{ color: var(--blue2); }
+
+.rwDesc{
+    margin: 0;
+    color: rgba(51,65,85,.92);
+    line-height: 1.7;
+    font-size: 15px;
+}
+
+.rwMiniRow{
+    margin-top: 14px;
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 10px;
+}
+.rwMini{
+    padding: 12px;
+    border-radius: 16px;
+    background: rgba(255,255,255,.78);
+    border: 1px solid rgba(15,23,42,.08);
+}
+.rwMiniKey{ font-weight: 950; }
+.rwMiniVal{ margin-top: 2px; color: var(--muted); font-size: 13px; }
+
+.rwTipCard{
+    height:100%;
+    padding: 14px;
+    border-radius: 18px;
+    background: rgba(255,255,255,.78);
+    border: 1px solid rgba(15,23,42,.08);
+    box-shadow: var(--shadow2);
+}
+.rwTipTitle{ font-weight: 950; }
+.rwTipList{
+    margin: 10px 0 0;
+    padding-left: 18px;
+    color: rgba(51,65,85,.92);
+    line-height: 1.7;
+    font-size: 13.5px;
+}
+.rwTipNote{
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.rwGrid{
+    margin-top: 16px;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.rwCol{ display:flex; flex-direction:column; gap: 14px; }
+
+.rwCard{
+    padding: 14px;
+    border-radius: 22px;
+    background: rgba(255,255,255,.82);
+    border: 1px solid rgba(15,23,42,.08);
+    box-shadow: var(--shadow2);
+}
+.rwCard.preview{
+    height: 100%;
+    display:flex;
+    flex-direction:column;
+}
+.rwCardHead{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+.rwCardTitle{ font-weight: 950; }
+.rwCardSub{ margin-top: 3px; font-size: 12.5px; color: var(--muted); }
+
+.rwCount{
+    font-size: 12px;
+    font-weight: 900;
+    color: rgba(15,23,42,.65);
+    background: rgba(15,23,42,.05);
+    border: 1px solid rgba(15,23,42,.08);
+    padding: 6px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.rwTextarea{
+    width: 100%;
+    resize: none;
+    border-radius: 18px;
+    border: 1px solid rgba(15,23,42,.10);
+    background: rgba(255,255,255,.92);
+    padding: 12px 12px;
+    outline: none;
+    line-height: 1.65;
+    font-size: 14px;
+    color: var(--text);
+}
+.rwTextarea:focus{
+    border-color: rgba(49,130,246,.35);
+    box-shadow: 0 0 0 4px rgba(49,130,246,.14);
+}
+
+.previewArea{
+    flex: 1;
+    min-height: 380px;
+}
+
+.rwActions{
+    display:flex;
+    gap: 8px;
+    align-items:center;
+}
+
+.rwBottom{
+    margin-top: 12px;
+    display:flex;
+    flex-direction:column;
+    gap: 8px;
+}
+.rwBottomHint{
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.rwFooter{ margin-top: 18px; }
+.rwFooterInner{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap: 10px;
+    padding: 14px 6px 4px;
+}
+.rwFootLeft{ display:flex; align-items:center; gap:10px; }
+.rwFootRight a{
+    font-size: 13px;
+    color: rgba(15,23,42,.75);
+}
+.rwFootSub{ font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+@media (max-width: 980px){
+    .rwIntro{ grid-template-columns: 1fr; }
+    .rwGrid{ grid-template-columns: 1fr; }
+    .rwMiniRow{ grid-template-columns: 1fr; }
+}
+
+/* =========================
+   Preview (textarea -> text)
+   ========================= */
+.rwPreviewBox{
+    width: 100%;
+    border-radius: 18px;
+    border: 1px solid rgba(15,23,42,.10);
+    background: rgba(255,255,255,.92);
+    padding: 12px 12px;
+    line-height: 1.75;
+    font-size: 14px;
+    color: var(--text);
+
+    /* 줄바꿈/공백 유지: textarea처럼 보여줌 */
+    white-space: pre-wrap;
+    word-break: break-word;
+
+    /* 스크롤만 허용 */
+    overflow: auto;
+}
+
+.rwPreviewPlaceholder{
+    color: rgba(100,116,139,.95);
+}
+
+/* previewArea는 기존처럼 높이 확보 */
+.previewArea{
+    min-height: 380px;
+}
+
+/* =========================
+   Loading Overlay (F1 car)
+   ========================= */
+.rwLoading{
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(15,23,42,.18);
+    backdrop-filter: blur(6px);
+    display: grid;
+    place-items: center;
+    padding: 18px;
+}
+
+.rwLoadingCard{
+    width: min(520px, 92vw);
+    border-radius: 22px;
+    background: rgba(255,255,255,.92);
+    border: 1px solid rgba(15,23,42,.10);
+    box-shadow: 0 18px 50px rgba(15,23,42,.18);
+    padding: 16px;
+}
+
+.rwLoadingTrack{
+    position: relative;
+    height: 80px;
+    border-radius: 18px;
+    background: rgba(49,130,246,.08);
+    border: 1px solid rgba(49,130,246,.12);
+    overflow: hidden;
+}
+
+/* 도로 라인 */
+.rwRoad{
+    position:absolute;
+    left: -40%;
+    right: -40%;
+    top: 50%;
+    height: 2px;
+    background: repeating-linear-gradient(
+            90deg,
+            rgba(37,99,235,.45) 0 24px,
+            rgba(37,99,235,0) 24px 44px
+    );
+    transform: translateY(-50%);
+    animation: roadMove 0.7s linear infinite;
+    opacity: .75;
+}
+
+@keyframes roadMove{
+    from{ transform: translate(-10%, -50%); }
+    to{ transform: translate(10%, -50%); }
+}
+
+/* =========================
+   Racing Car (CSS only)
+   ========================= */
+
+.rwCar{
+    position:absolute;
+    top: 50%;
+    left: -35%;
+    width: 150px;
+    height: 44px;
+    transform: translateY(-50%);
+    animation: carGo 1.2s ease-in-out infinite;
+    filter: drop-shadow(0 12px 18px rgba(15,23,42,.25));
+}
+
+/* 메인 바디 */
+.carBody{
+    position:absolute;
+    left: 26px;
+    right: 26px;
+    top: 8px;
+    height: 28px;
+    border-radius: 16px 16px 12px 12px;
+    background:
+            linear-gradient(
+                    180deg,
+                    var(--blue),
+                    var(--blue2)
+            );
+    display:grid;
+    place-items:center;
+}
+
+.carLogo{
+    font-weight: 950;
+    font-size: 13px;
+    color:#fff;
+    letter-spacing:.5px;
+}
+
+/* 콕핏 */
+.carCockpit{
+    position:absolute;
+    left: 50%;
+    top: 2px;
+    width: 26px;
+    height: 16px;
+    transform: translateX(-50%);
+    border-radius: 12px 12px 6px 6px;
+    background: rgba(15,23,42,.85);
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.15);
+}
+
+/* 윙 */
+.carWing{
+    position:absolute;
+    top: 14px;
+    width: 22px;
+    height: 16px;
+    background: rgba(15,23,42,.9);
+}
+
+.carWing.front{
+    left: 0;
+    border-radius: 6px 2px 2px 6px;
+}
+
+.carWing.rear{
+    right: 0;
+    border-radius: 2px 6px 6px 2px;
+}
+
+/* 바퀴 */
+.rwWheel{
+    position:absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    background: #0f172a;
+    bottom: -6px;
+    animation: wheelSpin .35s linear infinite;
+}
+
+.rwWheel::after{
+    content:"";
+    position:absolute;
+    inset: 3px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.15);
+}
+
+.rwWheel.w1{ left: 34px; }
+.rwWheel.w2{ right: 34px; }
+
+/* 주행 애니메이션 */
+@keyframes carGo{
+    0%   { left: -40%; opacity: 0; transform: translateY(-50%) scale(.98); }
+    10%  { opacity: 1; }
+    50%  { left: 45%; transform: translateY(-50%) scale(1); }
+    90%  { opacity: 1; }
+    100% { left: 120%; opacity: 0; transform: translateY(-50%) scale(.98); }
+}
+
+@keyframes wheelSpin{
+    from{ transform: rotate(0deg); }
+    to{ transform: rotate(360deg); }
+}
+
+/*로딩 문구*/
+.rwLoadingText{
+    margin-top: 12px;
+    font-weight: 950;
+    color: rgba(2,6,23,.90);
+    display:flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.rwLoadingSub{
+    font-size: 12px;
+    font-weight: 900;
+    color: rgba(100,116,139,.95);
+}
+
+/* 접근성: 모션 줄이기 */
+@media (prefers-reduced-motion: reduce){
+    .rwCar, .rwRoad, .rwWheel{ animation: none !important; }
+}

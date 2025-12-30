@@ -1,0 +1,391 @@
+:root{
+    --bg:#f7f9fc;
+    --text:#0f172a;
+    --muted:#64748b;
+
+    --card:#ffffff;
+    --stroke: rgba(15,23,42,.08);
+
+    --blue:#3182f6;      /* 토스 느낌 메인 블루 */
+    --blue2:#2563eb;
+
+    --shadow: 0 10px 30px rgba(15,23,42,.08);
+    --shadow2: 0 6px 18px rgba(15,23,42,.06);
+
+    --r:18px;
+    --max: 1080px;
+}
+
+*{box-sizing:border-box;}
+html,body,#root{height:100%;}
+body{
+    margin:0;
+    background:
+            radial-gradient(900px 600px at 20% 0%, rgba(49,130,246,.12), transparent 60%),
+            radial-gradient(900px 600px at 90% 10%, rgba(49,130,246,.07), transparent 60%),
+            var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+    "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    letter-spacing:-.2px;
+}
+
+a{color:inherit;text-decoration:none;}
+a:hover{opacity:.92;}
+
+.page{min-height:100vh;}
+
+/* NAV */
+.nav{
+    position: sticky;
+    top:0;
+    z-index:10;
+
+    /* ✅ 완전 화이트 */
+    background: rgba(255,255,255,.96);
+
+    /* 배경과 자연스럽게 */
+    border-bottom: 1px solid rgba(15,23,42,.08);
+    box-shadow: 0 10px 26px rgba(15,23,42,.06);
+
+    /* blur는 너무 유리 느낌 나면 끄는게 토스스럽다 */
+    backdrop-filter: none;
+}
+.navInner{
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 14px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 14px;
+}
+.brand{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    cursor:pointer;
+}
+.logo{
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+    display:grid;
+    place-items:center;
+    font-weight: 900;
+    color: #fff;
+    background: linear-gradient(180deg, var(--blue), var(--blue2));
+    box-shadow: 0 10px 24px rgba(49,130,246,.25);
+}
+.logo.sm{
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+}
+.brandText{line-height:1.05;}
+.brandName{font-weight: 900;}
+.brandSub{font-size: 12px; color: var(--muted); margin-top: 2px;}
+
+.navRight{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+}
+.navLink{
+    font-size: 14px;
+    color: rgba(15,23,42,.75);
+}
+
+/* WRAP */
+.wrap{
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 22px 18px 60px;
+}
+
+/* BUTTONS */
+.btn{
+    border: 1px solid rgba(15,23,42,.10);
+    background: rgba(255,255,255,.75);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-weight: 900;
+    cursor:pointer;
+    transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+    box-shadow: var(--shadow2);
+}
+.btn:hover{transform: translateY(-1px);}
+.btn:active{transform: translateY(0) scale(.99);}
+.btn.primary{
+    border: none;
+    color: #fff;
+    background: linear-gradient(180deg, var(--blue), var(--blue2));
+    box-shadow: 0 14px 30px rgba(49,130,246,.28);
+}
+.btn.ghost{
+    background: rgba(255,255,255,.55);
+}
+.btn.big{padding: 12px 16px; border-radius: 16px;}
+
+/* HERO */
+.hero{
+    display:grid;
+    grid-template-columns: 1.1fr .9fr;
+    gap: 14px;
+    padding: 22px;
+    background: rgba(255,255,255,.62);
+    border: 1px solid rgba(15,23,42,.08);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(14px);
+}
+
+.chip{
+    display:inline-flex;
+    padding: 7px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 900;
+    color: rgba(37,99,235,.95);
+    background: rgba(49,130,246,.10);
+}
+
+.title{
+    margin: 14px 0 10px;
+    font-size: 44px;
+    line-height: 1.06;
+    letter-spacing: -1px;
+}
+.accent{
+    color: var(--blue2);
+}
+
+.desc{
+    margin: 0 0 16px;
+    color: rgba(51,65,85,.92);
+    line-height: 1.7;
+    font-size: 15.5px;
+}
+
+.ctaRow{
+    display:flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.miniRow{
+    margin-top: 14px;
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 10px;
+}
+.mini{
+    padding: 12px;
+    border-radius: 16px;
+    background: rgba(255,255,255,.78);
+    border: 1px solid rgba(15,23,42,.08);
+}
+.miniKey{font-weight: 950;}
+.miniVal{margin-top:2px; color: var(--muted); font-size: 13px;}
+
+/* HERO CARDS */
+.heroCards{
+    display:flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.card{
+    text-align:left;
+    padding: 14px;
+    border-radius: 18px;
+    background: rgba(255,255,255,.82);
+    border: 1px solid rgba(15,23,42,.08);
+    box-shadow: var(--shadow2);
+    cursor:pointer;
+    transition: transform .12s ease, box-shadow .12s ease;
+}
+.card:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px rgba(15,23,42,.10);
+}
+.cardTop{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap: 10px;
+}
+.cardTitle{font-weight: 950; font-size: 16px;}
+.pill{
+    font-size: 11px;
+    font-weight: 950;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(15,23,42,.06);
+    color: rgba(15,23,42,.70);
+}
+.cardDesc{
+    margin-top: 8px;
+    color: rgba(71,85,105,.95);
+    font-size: 13.5px;
+    line-height: 1.5;
+}
+.cardCta{
+    margin-top: 12px;
+    font-weight: 950;
+    color: rgba(37,99,235,.95);
+}
+
+.hint{
+    margin-top: 2px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: rgba(49,130,246,.07);
+    border: 1px solid rgba(49,130,246,.12);
+    color: rgba(15,23,42,.70);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* FLOW */
+.flow{
+    margin-top: 16px;
+    padding: 20px 22px;
+    border-radius: 24px;
+    background: rgba(255,255,255,.60);
+    border: 1px solid rgba(15,23,42,.08);
+    box-shadow: var(--shadow2);
+}
+.flowHead{display:flex;flex-direction:column;gap:6px;}
+.h2{margin:0;font-size:20px;letter-spacing:-.5px;}
+.p{margin:0;color: rgba(71,85,105,.92);}
+
+.steps{
+    margin-top: 14px;
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 10px;
+}
+.step{
+    display:flex;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 18px;
+    background: rgba(255,255,255,.82);
+    border: 1px solid rgba(15,23,42,.08);
+}
+.num{
+    width: 36px;
+    height: 36px;
+    border-radius: 14px;
+    display:grid;
+    place-items:center;
+    font-weight: 950;
+    color: #fff;
+    background: linear-gradient(180deg, var(--blue), var(--blue2));
+}
+.stepTitle{font-weight: 950;}
+.stepDesc{margin-top:4px;color: var(--muted);font-size: 13.5px;line-height: 1.45;}
+
+.flowCtas{
+    margin-top: 14px;
+    display:flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* FOOTER */
+.footer{margin-top: 18px;}
+.footerInner{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap: 10px;
+    padding: 14px 6px 4px;
+}
+.footLeft{display:flex;align-items:center;gap:10px;}
+.footSub{font-size:12px;color: var(--muted); margin-top: 2px;}
+.footRight{display:flex;gap: 12px;}
+
+/* Responsive */
+@media (max-width: 980px){
+    .navLink{display:none;}
+    .hero{grid-template-columns: 1fr;}
+    .title{font-size: 38px;}
+    .miniRow{grid-template-columns: 1fr;}
+    .steps{grid-template-columns: 1fr;}
+}
+@media (prefers-reduced-motion: reduce){
+    .btn, .card{transition:none;}
+}
+
+/* =========================
+   Appbar Tabs (hover + sliding indicator)
+   ========================= */
+
+.navCenter{
+    flex: 1;
+    display:flex;
+    justify-content:center;
+}
+
+/* 하이잡 느낌: 둥근 캡슐 컨테이너 */
+.tabBar{
+    position: relative;
+    display:flex;
+    align-items:center;
+    gap: 4px;
+
+    /* ✅ padding을 내부 탭에만 영향을 주게 */
+    padding: 6px;
+    border-radius: 999px;
+
+    background: rgba(248,250,252,1); /* 거의 흰색 */
+    border: 1px solid rgba(15,23,42,.08);
+    box-shadow: 0 6px 18px rgba(15,23,42,.06);
+}
+
+/* ✅ 인디케이터는 tabBar의 padding 안쪽 기준으로 움직이게 */
+.tabIndicator{
+    position:absolute;
+    top: 6px;
+    bottom: 6px;
+
+    /* ✅ left는 0으로 두고, JS offsetLeft가 정확히 맞추게 */
+    left: 0;
+
+    border-radius: 999px;
+    background: rgba(49,130,246,.14);
+    box-shadow: inset 0 0 0 1px rgba(49,130,246,.18);
+    transition: transform .18s ease, width .18s ease, opacity .18s ease;
+    opacity: 0;
+    pointer-events:none;
+}
+.tabIndicator.on{ opacity: 1; }
+
+/* 탭 */
+.tab{
+    position: relative;
+    z-index: 1;
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 999px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-weight: 900;
+    font-size: 14px;
+    color: rgba(15,23,42,.70);
+    transition: transform .12s ease, color .12s ease;
+}
+
+/* hover 시 살짝 떠오르는 느낌 */
+.tab:hover{
+    transform: translateY(-1px);
+    color: rgba(15,23,42,.86);
+}
+
+/* 모바일에서는 탭바 숨기고(혹은 줄이기) */
+@media (max-width: 980px){
+    .navCenter{display:none;}
+}
