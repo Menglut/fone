@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import "./Resume.css";
+import "../css/Resume.css";
 
 function Resume() {
   const [resume, setResume] = useState("");

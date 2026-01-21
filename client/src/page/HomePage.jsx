@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import "./HomePage.css";
+import "../css/HomePage.css";
 
 export default function HomePage() {
     const go = (path) => (window.location.href = path);
