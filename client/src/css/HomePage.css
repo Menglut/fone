@@ -52,39 +52,73 @@ body {
 }
 
 /* 1. Left: Logo */
-.nav-logo {
-  display: flex;
-  align-items: center;
-  gap: 12px; /* 점과 글자 사이 간격 살짝 늘림 */
-  text-decoration: none; /* 링크 밑줄 제거 */
-  color: #fff;
-  z-index: 10;
-  cursor: pointer;
-  transition: opacity 0.3s;
+/* 로고 전체 컨테이너: 버튼 형태 */
+.nav-logo-btn {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    text-decoration: none;
+
+    /* 버튼 느낌을 주는 핵심 스타일 */
+    padding: 8px 16px;
+    background: rgba(0, 0, 0, 0.4); /* 반투명 배경 */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* 얇고 세련된 테두리 */
+    border-radius: 2px; /* 아주 살짝만 둥글게 (F1의 기계적인 느낌) */
+    backdrop-filter: blur(5px); /* 배경 흐림 효과 */
+
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-.nav-logo:hover {
-  opacity: 0.8; /* 마우스 올렸을 때 살짝 반응 */
+/* 마우스 올렸을 때 효과 */
+.nav-logo-btn:hover {
+    border-color: var(--f1-red); /* 테두리가 빨간색으로 변함 */
+    background: rgba(0, 0, 0, 0.8); /* 배경이 진해짐 */
+    transform: translateY(1px); /* 클릭할 것 같은 느낌 */
+    box-shadow: 0 4px 15px rgba(225, 6, 0, 0.2); /* 붉은 그림자 살짝 */
 }
 
-/* 로고 텍스트: FSN처럼 꽉 차고 단단한 느낌 */
-.logo-text {
-  font-family: 'Oswald', sans-serif; /* 강렬한 고딕체 */
-  font-weight: 700; /* 두께감 있게 */
-  font-size: 1.4rem; /* 크기 살짝 키움 */
-  letter-spacing: -0.5px; /* 자간을 좁혀서(Minus Tracking) 단단한 느낌 연출 */
-  text-transform: uppercase;
-  line-height: 1; /* 라인 높이 압축 */
+/* 왼쪽 심볼 (KP 박스) */
+.logo-symbol {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* 1. 박스 크기를 조금 키웁니다 (기존 32px -> 38px) */
+    width: 38px;
+    height: 38px;
+
+    background-color: #fff;
+    color: #000;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+
+    /* 2. 글씨 크기를 키웁니다 (기존 0.9rem -> 1.3rem) */
+    font-size: 1.2rem;
+
+    letter-spacing: -1px;
 }
 
-/* 레드 닷: F1 스타일 포인트 */
-.red-dot {
-  width: 10px; /* 점 크기 살짝 키움 */
-  height: 10px;
-  background-color: var(--f1-red);
-  border-radius: 50%;
-  box-shadow: 0 0 10px var(--f1-red); /* 붉은 빛 번짐 유지 */
-  margin-top: -2px; /* 텍스트 중심과 시각적 정렬 맞춤 */
+/* 오른쪽 텍스트 그룹 */
+.logo-text-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.logo-title {
+    color: #fff;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+/* 호버 시 서브타이틀 색상 변경 */
+.nav-logo-btn:hover .logo-subtitle {
+    color: #fff;
 }
 
 /* 2. Center: Menu (절대 위치로 화면 정중앙 고정) */
@@ -242,7 +276,7 @@ body {
 }
 
 .hero-footer { display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid var(--border-color); padding-top: 30px; }
-.hero-desc { max-width: 400px; line-height: 1.6; color: var(--text-gray); }
+.hero-desc { max-width: 400px; line-height: 1.6; color: #fff; }
 .scroll-indicator { font-size: 0.8rem; font-weight: 600; animation: bounce 2s infinite; color: #fff; display: flex; align-items: center; gap: 5px; }
 @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(10px); } }
 
