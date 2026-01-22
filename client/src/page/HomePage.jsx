@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
-// CSS 파일 경로가 정확한지 꼭 확인하세요. 
-// 만약 jsx와 css가 같은 폴더에 있다면 './HomePage.css' 로 바꿔야 합니다.
+import { useNavigate } from 'react-router-dom';
 import '../css/HomePage.css'; 
 
 const Homepage = () => {
   const [scrollY, setScrollY] = useState(0);
+    const navigate = useNavigate(); // [추가] navigate 함수 생성
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+    const handleSmartResumeClick = () => {
+        navigate('/resume/input');
+    };
 
     return (
         <div className="container">
@@ -19,19 +23,17 @@ const Homepage = () => {
                 {/* 1. Logo: 서비스 이름에 맞게 수정 */}
                 <a href="/" className="nav-logo-btn">
                     <div className="logo-symbol">
-                        <span>KP</span>
-                        <div className="red-dot-in-symbol"></div>
+                        <span>F1</span>
                     </div>
                     <div className="logo-text-group">
-                        <span className="logo-title">KIM'S PADDOCK</span>
-                        <span className="logo-subtitle">CAREER BUILDER</span> {/* 서브타이틀 변경 */}
+                        <span className="logo-title">F1ND THE WAY</span>
                     </div>
                 </a>
 
                 {/* 2. Menu */}
                 <div className="nav-menu center-menu">
-                    <a href="#about">WHY US</a>        {/* 메뉴명 변경 */}
-                    <a href="#features">SOLUTIONS</a>  {/* 메뉴명 변경 */}
+                    <a href="#about">RESUME</a>        {/* 메뉴명 변경 */}
+                    <a href="#features">PORTFOLIO</a>  {/* 메뉴명 변경 */}
                     <a href="#pricing">PLANS</a>       {/* 메뉴명 변경 */}
                 </div>
 
@@ -58,13 +60,16 @@ const Homepage = () => {
                         </div>
                         <p className="hero-desc">
                             0.01초의 차이로 승부가 갈리는 F1처럼,<br />
-                            당신의 서류가 합격선(Pole Position)을 통과하도록<br />
+                            당신의 서류가 합격선을 통과하도록<br />
                             최적의 구조와 논리로 튜닝해 드립니다.
                         </p>
                     </div>
                 </div>
             </header>
 
+            {/* 아래 구역은 잠시 주석 처리 */}
+            {false && (
+                <>
             {/* --- MARQUEE (서비스 키워드로 변경) --- */}
             <div className="marquee-section">
                 <div className="track">
@@ -113,6 +118,8 @@ const Homepage = () => {
                     </div>
                 </div>
             </section>
+            </>
+            )}
 
             {/* --- SOLUTIONS (Features) --- */}
             <section id="features" className="section-container">
@@ -123,7 +130,7 @@ const Homepage = () => {
 
                 {/* 기능 소개 그리드 */}
                 <div className="fsn-grid">
-                    <div className="grid-card">
+                    <div className="grid-card" onClick={handleSmartResumeClick}>
                         <div className="card-top">
                             <span className="card-num">S1</span>
                             <span className="card-cat">RESUME TUNING</span>
