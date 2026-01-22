@@ -29,5 +29,7 @@ git push origin main
 🎉 끝. 이제 GitHub의 main에 반영됨
 
 [불러오는 방법]
+
 git checkout feature/front
+
 git pull origin main
