@@ -6,6 +6,9 @@ function Resume() {
   const [jobPost, setJobPost] = useState("");
   const [preview, setPreview] = useState("");
   const [loading, setLoading] = useState(false);
+  const [followupQs, setFollowupQs] = useState([]); // [{id, category, text}]
+  const [followupAns, setFollowupAns] = useState({}); // { q1: "답", ... }
+  const [qLoading, setQLoading] = useState(false);
 
   const canGenerate = useMemo(() => {
     return resume.trim().length > 10 && jobPost.trim().length > 10 && !loading;
@@ -14,11 +17,20 @@ function Resume() {
   const generate = async () => {
     setLoading(true);
     try {
+      const interviewAnswers = followupQs.map((q) => ({
+        id: q.id,
+        category: q.category,
+        answer: followupAns[q.id] || "",
+      }));
+
       const res = await fetch("http://localhost:5000/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          resume: { experience: resume },
+          resume: {
+            experience: resume,
+            interviewAnswers, // ✅ 추가
+          },
           jobPost,
           options: { tone: "담백", length: "1500자", type: "자유형" },
         }),
@@ -43,6 +55,34 @@ function Resume() {
       alert("자소서 생성 중 오류가 발생했습니다.\n" + e.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const makeFollowupQuestions = async () => {
+    setQLoading(true);
+    try {
+      const res = await fetch("http://localhost:5000/api/interview/questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          experienceText: resume,
+          companyQuestion: jobPost,
+        }),
+      });
+
+      if (!res.ok) {
+        const t = await res.text();
+        throw new Error(`추가 질문 생성 실패 (${res.status}) : ${t}`);
+      }
+
+      const data = await res.json();
+      setFollowupQs(data.questions || []);
+      setFollowupAns({}); // 질문 새로 만들면 답변 초기화
+    } catch (e) {
+      console.error(e);
+      alert("추가 질문 생성 중 오류가 발생했습니다.\n" + e.message);
+    } finally {
+      setQLoading(false);
     }
   };
 
@@ -79,196 +119,254 @@ function Resume() {
   };
 
   return (
-      <div className="rwPage">
-        {/* 로딩 */}
-        {loading && (
-            <div className="rwLoading" role="status" aria-live="polite" aria-busy="true">
-              <div className="rwLoadingCard">
-                <div className="rwLoadingTrack">
-                  <div className="rwCar" aria-hidden="true">
-                    <div className="carWing front" />
-                    <div className="carBody">
-                      <span className="carLogo">F1</span>
-                    </div>
-                    <div className="carCockpit" />
-                    <div className="carWing rear" />
-                    <span className="rwWheel w1" />
-                    <span className="rwWheel w2" />
-                  </div>
-                  <div className="rwRoad" aria-hidden="true" />
-                </div>
-                <div className="rwLoadingText">
-                  자소서를 생성 중입니다…
-                  <span className="rwLoadingSub">잠시만 기다려주세요</span>
-                </div>
+  <div className="rwPage">
+    {/* 로딩 */}
+    {loading && (
+      <div className="rwLoading" role="status" aria-live="polite" aria-busy="true">
+        <div className="rwLoadingCard">
+          <div className="rwLoadingTrack">
+            <div className="rwCar" aria-hidden="true">
+              <div className="carWing front" />
+              <div className="carBody">
+                <span className="carLogo">F1</span>
               </div>
+              <div className="carCockpit" />
+              <div className="carWing rear" />
+              <span className="rwWheel w1" />
+              <span className="rwWheel w2" />
             </div>
-        )}
-        {/* 헤더 */}
-        <header className="rwTop">
-          <div className="rwTopInner">
-            <div className="rwBrand" onClick={() => (window.location.href = "/")}>
-              <div className="rwLogo">F1</div>
-            </div>
+            <div className="rwRoad" aria-hidden="true" />
+          </div>
+          <div className="rwLoadingText">
+            자소서를 생성 중입니다…
+            <span className="rwLoadingSub">잠시만 기다려주세요</span>
+          </div>
+        </div>
+      </div>
+    )}
 
-            <div className="rwTopRight">
-              <button className="rwBtn ghost" onClick={clearAll} disabled={loading}>
-                초기화
-              </button>
-              <button className="rwBtn primary" onClick={generate} disabled={!canGenerate}>
-                {loading ? "생성 중..." : "자소서 생성"}
-              </button>
+    {/* 헤더 */}
+    <header className="rwTop">
+      <div className="rwTopInner">
+        <div className="rwBrand" onClick={() => (window.location.href = "/")}>
+          <div className="rwLogo">F1</div>
+        </div>
+
+        <div className="rwTopRight">
+          <button className="rwBtn ghost" onClick={clearAll} disabled={loading}>
+            초기화
+          </button>
+          <button className="rwBtn primary" onClick={generate} disabled={!canGenerate}>
+            {loading ? "생성 중..." : followupQs.length ? "답변 반영해서 생성" : "자소서 생성"}
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main className="rwWrap">
+      {/* 안내 카드 */}
+      <section className="rwIntro">
+        <div className="rwIntroLeft">
+          <div className="rwChip">AI로 빠르게 초안 생성</div>
+          <h1 className="rwTitle">
+            경험과 공고를 넣으면,
+            <br />
+            <span className="rwAccent">담백한 톤</span>으로 초안을 만들어줘요.
+          </h1>
+          <p className="rwDesc">
+            아래 2가지만 입력하면 됩니다. 생성된 텍스트는 바로 수정하거나 PDF로 저장할 수 있어요.
+          </p>
+
+          <div className="rwMiniRow">
+            <div className="rwMini">
+              <div className="rwMiniKey">경험</div>
+              <div className="rwMiniVal">프로젝트/인턴/활동</div>
+            </div>
+            <div className="rwMini">
+              <div className="rwMiniKey">공고</div>
+              <div className="rwMiniVal">요구역량/업무</div>
+            </div>
+            <div className="rwMini">
+              <div className="rwMiniKey">출력</div>
+              <div className="rwMiniVal">미리보기/PDF</div>
             </div>
           </div>
-        </header>
+        </div>
 
-        <main className="rwWrap">
-          {/* 안내 카드 */}
-          <section className="rwIntro">
-            <div className="rwIntroLeft">
-              <div className="rwChip">AI로 빠르게 초안 생성</div>
-              <h1 className="rwTitle">
-                경험과 공고를 넣으면,
-                <br />
-                <span className="rwAccent">담백한 톤</span>으로 초안을 만들어줘요.
-              </h1>
-              <p className="rwDesc">
-                아래 2가지만 입력하면 됩니다. 생성된 텍스트는 바로 수정하거나 PDF로 저장할 수 있어요.
-              </p>
+        <div className="rwIntroRight">
+          <div className="rwTipCard">
+            <div className="rwTipTitle">입력 팁</div>
+            <ul className="rwTipList">
+              <li>경험은 “역할 → 행동 → 성과(수치)” 순서로 적기</li>
+              <li>공고는 “업무/자격요건/우대사항”을 통째로 붙여넣기</li>
+              <li>생성 후 어색한 문장만 짧게 수정해도 충분</li>
+            </ul>
+            <div className="rwTipNote">* 최소 10자 이상 입력해야 생성 버튼이 활성화돼요.</div>
+          </div>
+        </div>
+      </section>
 
-              <div className="rwMiniRow">
-                <div className="rwMini">
-                  <div className="rwMiniKey">경험</div>
-                  <div className="rwMiniVal">프로젝트/인턴/활동</div>
-                </div>
-                <div className="rwMini">
-                  <div className="rwMiniKey">공고</div>
-                  <div className="rwMiniVal">요구역량/업무</div>
-                </div>
-                <div className="rwMini">
-                  <div className="rwMiniKey">출력</div>
-                  <div className="rwMiniVal">미리보기/PDF</div>
-                </div>
+      {/* 입력/미리보기 */}
+      <section className="rwGrid">
+        <div className="rwCol">
+          <div className="rwCard">
+            <div className="rwCardHead">
+              <div>
+                <div className="rwCardTitle">경험/이력</div>
+                <div className="rwCardSub">프로젝트·활동을 자유롭게 적어주세요.</div>
               </div>
+              <div className="rwCount">{resume.trim().length}자</div>
             </div>
 
-            <div className="rwIntroRight">
-              <div className="rwTipCard">
-                <div className="rwTipTitle">입력 팁</div>
-                <ul className="rwTipList">
-                  <li>경험은 “역할 → 행동 → 성과(수치)” 순서로 적기</li>
-                  <li>공고는 “업무/자격요건/우대사항”을 통째로 붙여넣기</li>
-                  <li>생성 후 어색한 문장만 짧게 수정해도 충분</li>
-                </ul>
-                <div className="rwTipNote">
-                  * 최소 10자 이상 입력해야 생성 버튼이 활성화돼요.
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* 입력/미리보기 */}
-          <section className="rwGrid">
-            <div className="rwCol">
-              <div className="rwCard">
-                <div className="rwCardHead">
-                  <div>
-                    <div className="rwCardTitle">경험/이력</div>
-                    <div className="rwCardSub">프로젝트·활동을 자유롭게 적어주세요.</div>
-                  </div>
-                  <div className="rwCount">{resume.trim().length}자</div>
-                </div>
-
-                <textarea
-                    className="rwTextarea"
-                    placeholder="예) 백엔드 API 개발 / 성능 개선 / 협업 경험 등
+            <textarea
+              className="rwTextarea"
+              placeholder={`예) 백엔드 API 개발 / 성능 개선 / 협업 경험 등
 - 무엇을 했는지(역할)
 - 어떻게 했는지(행동)
-- 결과가 어땠는지(성과, 수치)"
-                    rows={10}
-                    value={resume}
-                    onChange={(e) => setResume(e.target.value)}
-                />
+- 결과가 어땠는지(성과, 수치)`}
+              rows={10}
+              value={resume}
+              onChange={(e) => setResume(e.target.value)}
+            />
+          </div>
+
+          <div className="rwCard">
+            <div className="rwCardHead">
+              <div>
+                <div className="rwCardTitle">채용 공고</div>
+                <div className="rwCardSub">업무/요구역량/우대사항을 붙여넣기.</div>
+              </div>
+              <div className="rwCount">{jobPost.trim().length}자</div>
+            </div>
+
+            <textarea
+              className="rwTextarea"
+              placeholder="예) 담당 업무 / 자격 요건 / 우대 사항 / 기술 스택..."
+              rows={10}
+              value={jobPost}
+              onChange={(e) => setJobPost(e.target.value)}
+            />
+          </div>
+
+          {/* ✅ 추가 질문 카드 */}
+          <div className="rwCard">
+            <div className="rwCardHead">
+              <div>
+                <div className="rwCardTitle">추가 질문(완성도 올리기)</div>
+                <div className="rwCardSub">
+                  AI가 부족한 정보를 물어봐요. 답변 후 생성하면 품질이 좋아져요.
+                </div>
               </div>
 
-              <div className="rwCard">
-                <div className="rwCardHead">
-                  <div>
-                    <div className="rwCardTitle">채용 공고</div>
-                    <div className="rwCardSub">업무/요구역량/우대사항을 붙여넣기.</div>
-                  </div>
-                  <div className="rwCount">{jobPost.trim().length}자</div>
-                </div>
+              <button
+                className="rwBtn ghost sm"
+                onClick={makeFollowupQuestions}
+                disabled={
+                  loading ||
+                  qLoading ||
+                  resume.trim().length <= 10 ||
+                  jobPost.trim().length <= 10
+                }
+              >
+                {qLoading ? "질문 생성 중..." : "추가 질문 만들기"}
+              </button>
+            </div>
 
-                <textarea
-                    className="rwTextarea"
-                    placeholder="예) 담당 업무 / 자격 요건 / 우대 사항 / 기술 스택..."
-                    rows={10}
-                    value={jobPost}
-                    onChange={(e) => setJobPost(e.target.value)}
-                />
+            {followupQs.length === 0 ? (
+              <div className="rwPreviewPlaceholder">
+                아직 추가 질문이 없어요. ‘추가 질문 만들기’를 눌러보세요.
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {followupQs.map((q) => (
+                  <div key={q.id} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div style={{ fontWeight: 900 }}>
+                      [{q.category}] {q.text}
+                    </div>
+                    <textarea
+                      className="rwTextarea"
+                      rows={2}
+                      placeholder="여기에 답변을 입력하세요"
+                      value={followupAns[q.id] || ""}
+                      onChange={(e) =>
+                        setFollowupAns((prev) => ({ ...prev, [q.id]: e.target.value }))
+                      }
+                    />
+                  </div>
+                ))}
+                <div style={{ fontSize: 12, color: "rgba(100,116,139,.95)" }}>
+                  * 답변을 적을수록 결과가 더 구체적이고 설득력 있게 나와요.
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="rwCol">
+          <div className="rwCard preview">
+            <div className="rwCardHead">
+              <div>
+                <div className="rwCardTitle">미리보기</div>
+                <div className="rwCardSub">생성된 자소서를 바로 다듬을 수 있어요.</div>
+              </div>
+
+              <div className="rwActions">
+                <button className="rwBtn ghost sm" onClick={copyPreview} disabled={!preview.trim()}>
+                  복사
+                </button>
+                <button className="rwBtn ghost sm" onClick={downloadPdf} disabled={!preview.trim()}>
+                  PDF
+                </button>
               </div>
             </div>
 
-            <div className="rwCol">
-              <div className="rwCard preview">
-                <div className="rwCardHead">
-                  <div>
-                    <div className="rwCardTitle">미리보기</div>
-                    <div className="rwCardSub">생성된 자소서를 바로 다듬을 수 있어요.</div>
-                  </div>
+            <div className="rwPreviewBox previewArea" aria-label="미리보기">
+              {preview.trim() ? (
+                preview
+              ) : (
+                <span className="rwPreviewPlaceholder">
+                  아직 생성된 내용이 없어요. 하단의 ‘자소서 생성’을 눌러보세요.
+                </span>
+              )}
+            </div>
 
-                  <div className="rwActions">
-                    <button className="rwBtn ghost sm" onClick={copyPreview} disabled={!preview.trim()}>
-                      복사
-                    </button>
-                    <button className="rwBtn ghost sm" onClick={downloadPdf} disabled={!preview.trim()}>
-                      PDF
-                    </button>
-                  </div>
-                </div>
-
-                <div className="rwPreviewBox previewArea" aria-label="미리보기">
-                  {preview.trim() ? (
-                      preview
-                  ) : (
-                      <span className="rwPreviewPlaceholder">
-                        아직 생성된 내용이 없어요. 하단의 ‘자소서 생성’을 눌러보세요.
-                      </span>
-                  )}
-                </div>
-
-                <div className="rwBottom">
-                  <button className="rwBtn primary full" onClick={generate} disabled={!canGenerate}>
-                    {loading ? "생성 중..." : "자소서 생성"}
-                  </button>
-                  <div className="rwBottomHint">
-                    {canGenerate ? "준비 완료" : "경험/공고를 10자 이상 입력하면 생성할 수 있어요."}
-                  </div>
-                </div>
+            <div className="rwBottom">
+              <button className="rwBtn primary full" onClick={generate} disabled={!canGenerate}>
+                {loading ? "생성 중..." : followupQs.length ? "답변 반영해서 생성" : "자소서 생성"}
+              </button>
+              <div className="rwBottomHint">
+                {canGenerate ? "준비 완료" : "경험/공고를 10자 이상 입력하면 생성할 수 있어요."}
               </div>
             </div>
-          </section>
+          </div>
+        </div>
+      </section>
 
-          <footer className="rwFooter">
-            <div className="rwFooterInner">
-              <div className="rwFootLeft">
-                <div className="rwLogo sm">F1</div>
-                <div>
-                  <div className="rwBrandName">F1nd The Way</div>
-                  <div className="rwFootSub">© {new Date().getFullYear()}</div>
-                </div>
-              </div>
-              <div className="rwFootRight">
-                <a href="#top" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
-                  맨 위로
-                </a>
-              </div>
+      <footer className="rwFooter">
+        <div className="rwFooterInner">
+          <div className="rwFootLeft">
+            <div className="rwLogo sm">F1</div>
+            <div>
+              <div className="rwBrandName">F1nd The Way</div>
+              <div className="rwFootSub">© {new Date().getFullYear()}</div>
             </div>
-          </footer>
-        </main>
-      </div>
-  );
+          </div>
+          <div className="rwFootRight">
+            <a
+              href="#top"
+              onClick={(e) => {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+            >
+              맨 위로
+            </a>
+          </div>
+        </div>
+      </footer>
+    </main>
+  </div>
+);
 }
 
 export default Resume;
