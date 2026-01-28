@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/Resume.css";
 import { useResumeFlow } from "../context/ResumeFlowContext";
@@ -8,8 +8,19 @@ const API_BASE = "http://localhost:5000";
 export default function ResumeResult() {
   const nav = useNavigate();
   const { preview, setPreview, resetAll } = useResumeFlow();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  // 스크롤 감지
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
+    // 결과가 없으면 입력 페이지로 리다이렉트
     if (!preview || !preview.trim()) {
       nav("/resume/input", { replace: true });
     }
@@ -18,36 +29,34 @@ export default function ResumeResult() {
   const copyPreview = async () => {
     try {
       await navigator.clipboard.writeText(preview);
-      alert("미리보기를 클립보드에 복사했어요.");
+      alert("클립보드에 복사되었습니다. (Ctrl+V로 붙여넣기)");
     } catch {
-      alert("복사에 실패했어요. 브라우저 권한을 확인해주세요.");
+      alert("복사 실패: 브라우저 권한을 확인해주세요.");
     }
   };
 
   const downloadPdf = async () => {
     if (!preview.trim()) return;
-    const res = await fetch(`${API_BASE}/api/pdf`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: "자기소개서", content: preview }),
-    });
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "coverletter.pdf";
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const clearResultOnly = () => {
-    if (!window.confirm("결과를 지우고 다시 생성할까요?")) return;
-    setPreview("");
-    nav("/resume/interview");
+    try {
+      const res = await fetch(`${API_BASE}/api/pdf`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: "자기소개서", content: preview }),
+      });
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "coverletter.pdf";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert("PDF 다운로드 중 오류가 발생했습니다.");
+    }
   };
 
   const startOver = () => {
-    if (!window.confirm("전체를 초기화하고 처음부터 시작할까요?")) return;
+    if (!window.confirm("WARNING: 모든 데이터를 삭제하고 처음으로 돌아가시겠습니까?")) return;
     resetAll();
     nav("/resume/input");
   };
@@ -55,133 +64,116 @@ export default function ResumeResult() {
   return (
     <div className="rwPage">
       {/* 헤더 */}
-      <header className="rwTop">
+      <header className={`rwTop ${isScrolled ? "scrolled" : ""}`}>
         <div className="rwTopInner">
-          <div className="rwBrand" onClick={() => nav("/resume/input")}>
+          <div className="rwBrand" onClick={() => nav("/")}>
             <div className="rwLogo">F1</div>
           </div>
 
           <div className="rwTopRight">
-            <button className="rwBtn ghost" onClick={() => nav("/resume/interview")}>
-              답변 수정
-            </button>
-            <button className="rwBtn ghost" onClick={startOver}>
-              새로 작성
-            </button>
+
           </div>
         </div>
       </header>
 
       <main className="rwWrap">
+        {/* Intro Section */}
         <section className="rwIntro">
-          <div className="rwIntroLeft">
-            <div className="rwChip">Step 3 / 3</div>
-            <h1 className="rwTitle">
-              자소서가 완성됐어요.
-              <br />
-              <span className="rwAccent">복사/PDF</span>로 저장할 수 있어요.
-            </h1>
-            <p className="rwDesc">
-              마음에 안 드는 부분은 “답변 수정”으로 돌아가서 다시 생성해보세요.
-            </p>
-          </div>
-
-          <div className="rwIntroRight">
-            <div className="rwTipCard">
-              <div className="rwTipTitle">추천 사용법</div>
-              <ul className="rwTipList">
-                <li>문장 톤/길이만 가볍게 다듬어도 완성도가 올라가요</li>
-                <li>성과 수치가 있으면 설득력이 더 좋아져요</li>
-                <li>PDF 저장 후 제출용으로 활용할 수 있어요</li>
-              </ul>
-              <div className="rwTipNote">* 필요하면 인터뷰 답변을 더 채우고 재생성해보세요.</div>
-            </div>
-          </div>
+          <div className="rwChip">PHASE 03 : FINAL LAP</div>
+          <h1 className="rwTitle">
+            FINAL : <span className="rwAccent">최종 결과물</span>
+          </h1>
+          <p className="rwDesc">
+            설계가 완료되었습니다. 최종 결과물을 확인하세요.<br/>
+            텍스트를 복사하거나 PDF로 추출하여 제출할 수 있습니다.
+          </p>
         </section>
 
-        <section className="rwGrid">
-          <div className="rwCol">
-            <div className="rwCard preview">
-              <div className="rwCardHead">
-                <div>
-                  <div className="rwCardTitle">미리보기</div>
-                  <div className="rwCardSub">생성된 자소서를 바로 복사/저장할 수 있어요.</div>
-                </div>
+        {/* Document View Section (Full Width) */}
+        {/* 기존 maxWidth: 900px 제거 -> width: 100% 적용 */}
+        <section style={{ width: '100%', margin: '0 auto' }}>
+          <div className="rwCard" style={{ minHeight: '600px', padding: '40px' }}>
 
-                <div className="rwActions">
-                  <button className="rwBtn ghost sm" onClick={copyPreview} disabled={!preview.trim()}>
-                    복사
-                  </button>
-                  <button className="rwBtn ghost sm" onClick={downloadPdf} disabled={!preview.trim()}>
-                    PDF
-                  </button>
-                </div>
+            {/* Card Header with Actions */}
+            <div className="rwCardHead" style={{ marginBottom: '30px', borderBottom: '2px solid #eee' }}>
+              <div>
+                <div className="rwCardTitle">FINAL OUTPUT DOCUMENT</div>
+                <div className="rwCardSub">생성 완료된 자기소개서</div>
               </div>
 
-              <div className="rwPreviewBox previewArea" aria-label="미리보기">
-                {preview.trim() ? (
-                  preview
-                ) : (
-                  <span className="rwPreviewPlaceholder">
-                    아직 생성된 내용이 없어요. 다시 생성해보세요.
-                  </span>
-                )}
-              </div>
-
-              <div className="rwBottom">
-                <button className="rwBtn ghost full" onClick={clearResultOnly} disabled={!preview.trim()}>
-                  결과 지우고 다시 생성
+              <div className="rwActions" style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  className="rwBtn ghost sm"
+                  onClick={copyPreview}
+                  disabled={!preview.trim()}
+                  title="텍스트 복사"
+                >
+                  COPY TEXT
                 </button>
-                <div className="rwBottomHint">원하면 Step 2로 돌아가 답변을 수정할 수 있어요.</div>
+                <button
+                  className="rwBtn primary sm"
+                  onClick={downloadPdf}
+                  disabled={!preview.trim()}
+                  title="PDF 다운로드"
+                >
+                  EXPORT PDF
+                </button>
               </div>
             </div>
-          </div>
 
-          <div className="rwCol">
-            <div className="rwCard">
-              <div className="rwCardHead">
-                <div>
-                  <div className="rwCardTitle">다음 액션</div>
-                  <div className="rwCardSub">원하는 방식으로 마무리하세요.</div>
+            {/* Content Area */}
+            <div
+              className="rwPreviewBox previewArea"
+              aria-label="미리보기"
+              style={{
+                background: 'white',
+                border: 'none',
+                padding: '10px',
+                fontSize: '1.05rem',
+                lineHeight: '1.8',
+                color: '#222',
+                fontFamily: "'Pretendard', serif", // 본문 가독성 폰트
+                whiteSpace: 'pre-wrap' // 줄바꿈 보존
+              }}
+            >
+              {preview.trim() ? (
+                preview
+              ) : (
+                <div className="rwPreviewPlaceholder" style={{ height: '300px' }}>
+                  데이터 로딩 실패. 다시 생성해주세요.
                 </div>
-              </div>
-
-              <div className="rwPreviewBox previewArea">
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  <button className="rwBtn primary" onClick={() => nav("/resume/interview")}>
-                    답변 수정해서 재생성
-                  </button>
-                  <button className="rwBtn ghost" onClick={startOver}>
-                    처음부터 다시 작성
-                  </button>
-                  <span className="rwPreviewPlaceholder">
-                    “답변 수정”은 결과 품질을 빠르게 올리는 가장 좋은 방법이에요.
-                  </span>
-                </div>
-              </div>
+              )}
             </div>
+
           </div>
+
+          {/* Bottom Actions */}
+          <div style={{ textAlign: 'center', marginTop: '40px', display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'center' }}>
+            <p style={{ color: '#666', fontSize: '0.95rem' }}>
+              결과물이 만족스럽지 않나요? <br/><br/>
+              데이터를 유지한 채 인터뷰 단계로 돌아가 답변을 수정할 수 있습니다.
+            </p>
+
+            <button
+              className="rwBtn primary smno"
+              onClick={() => nav("/resume/interview")}
+              style={{ width: '300px' }}
+            >
+              RETUNE ENGINE (답변 수정)
+            </button>
+          </div>
+
         </section>
 
         <footer className="rwFooter">
           <div className="rwFooterInner">
             <div className="rwFootLeft">
-              <div className="rwLogo sm">F1</div>
-              <div>
-                <div className="rwBrandName">F1nd The Way</div>
-                <div className="rwFootSub">© {new Date().getFullYear()}</div>
-              </div>
+              <span style={{fontFamily: 'Rajdhani', fontWeight: 700}}>F1ND THE WAY</span>
+              <span style={{margin: '0 10px'}}>|</span>
+              <span>ENGINEERED FOR SUCCESS</span>
             </div>
             <div className="rwFootRight">
-              <a
-                href="#top"
-                onClick={(e) => {
-                  e.preventDefault();
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }}
-              >
-                맨 위로
-              </a>
+              © {new Date().getFullYear()} KIM'S PADDOCK
             </div>
           </div>
         </footer>

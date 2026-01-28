@@ -1,486 +1,447 @@
-:root{
-    --bg:#f7f9fc;
-    --text:#0f172a;
-    --muted:#64748b;
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Pretendard:wght@300;400;500;600;700&display=swap');
 
-    --card:#ffffff;
-    --stroke: rgba(15,23,42,.08);
+:root {
+  /* 라이트 모드 베이스 */
+  --rw-bg: #ffffff;
+  --rw-card-bg: #ffffff;
+  --rw-text-main: #111111;
+  --rw-text-sub: #666666;
+  --rw-border: #e0e0e0;
 
-    --blue:#3182f6;
-    --blue2:#2563eb;
+  /* 포인트 컬러 (F1 Red) */
+  --rw-primary: #e10600;
+  --rw-primary-dark: #b30500;
 
-    --shadow: 0 12px 32px rgba(15,23,42,.08);
-    --shadow2: 0 8px 18px rgba(15,23,42,.06);
-    --r: 22px;
-    --max: 1120px;
-}
-
-.rwPage{
-    min-height:100vh;
-    background:
-            radial-gradient(900px 600px at 20% 0%, rgba(49,130,246,.10), transparent 60%),
-            radial-gradient(900px 600px at 90% 10%, rgba(49,130,246,.06), transparent 60%),
-            var(--bg);
-    color: var(--text);
+  /* 헤더 전용 (다크 유지) */
+  --rw-header-bg: #121212;
+  --rw-header-text: #ffffff;
 }
 
-.rwTop{
-    background: rgba(255,255,255,.96);
-    border-bottom: 1px solid rgba(15,23,42,.08);
-    box-shadow: 0 10px 26px rgba(15,23,42,.06);
-}
-.rwTopInner{
-    max-width: var(--max);
-    margin: 0 auto;
-    padding: 14px 18px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap: 12px;
+body {
+  background-color: var(--rw-bg);
+  color: var(--rw-text-main);
+  font-family: 'Pretendard', -apple-system, sans-serif;
+  margin: 0;
 }
 
-.rwBrand{
-    display:flex;
-    align-items:center;
-    gap: 10px;
-    cursor:pointer;
-}
-.rwLogo{
-    width: 40px; height: 40px;
-    border-radius: 14px;
-    display:grid; place-items:center;
-    font-weight: 900;
-    color: #fff;
-    background: linear-gradient(180deg, var(--blue), var(--blue2));
-    box-shadow: 0 10px 24px rgba(49,130,246,.25);
-}
-.rwLogo.sm{ width:34px; height:34px; border-radius:12px; }
-
-.rwBrandText{ line-height: 1.05; }
-.rwBrandName{ font-weight: 900; }
-.rwBrandSub{ font-size: 12px; color: var(--muted); margin-top: 2px; }
-
-.rwTopRight{ display:flex; align-items:center; gap: 10px; }
-
-.rwWrap{
-    max-width: var(--max);
-    margin: 0 auto;
-    padding: 22px 18px 60px;
+/* --- Layout --- */
+.rwPage {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.rwBtn{
-    border: 1px solid rgba(15,23,42,.10);
-    background: rgba(255,255,255,.78);
-    color: var(--text);
-    padding: 10px 14px;
-    border-radius: 14px;
-    font-weight: 900;
-    cursor:pointer;
-    transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
-    box-shadow: var(--shadow2);
-}
-.rwBtn:hover{ transform: translateY(-1px); }
-.rwBtn:active{ transform: translateY(0) scale(.99); }
-.rwBtn:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
-
-.rwBtn.primary{
-    border: none;
-    color: #fff;
-    background: linear-gradient(180deg, var(--blue), var(--blue2));
-    box-shadow: 0 14px 30px rgba(49,130,246,.28);
-}
-.rwBtn.ghost{
-    background: rgba(255,255,255,.55);
-}
-.rwBtn.sm{ padding: 8px 10px; border-radius: 12px; font-size: 13px; }
-.rwBtn.full{ width:100%; }
-
-.rwIntro{
-    display:grid;
-    grid-template-columns: 1.2fr .8fr;
-    gap: 14px;
-    padding: 22px;
-    border-radius: 24px;
-    background: rgba(255,255,255,.62);
-    border: 1px solid rgba(15,23,42,.08);
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(14px);
+.rwWrap {
+  max-width: 1200px; /* 좌우 배치를 위해 폭을 넓힘 */
+  margin: 0 auto;
+  padding: 60px 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.rwChip{
-    display:inline-flex;
-    padding: 7px 10px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 900;
-    color: rgba(37,99,235,.95);
-    background: rgba(49,130,246,.10);
+/* --- Header (Dark Theme Preserved) --- */
+.rwTop {
+  height: 70px;
+  background: var(--rw-header-bg);
+  border-bottom: 1px solid #333;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--rw-header-text);
 }
 
-.rwTitle{
-    margin: 14px 0 10px;
-    font-size: 36px;
-    line-height: 1.08;
-    letter-spacing: -1px;
-}
-.rwAccent{ color: var(--blue2); }
-
-.rwDesc{
-    margin: 0;
-    color: rgba(51,65,85,.92);
-    line-height: 1.7;
-    font-size: 15px;
+.rwTopInner {
+  width: 100%;
+  max-width: 1400px;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.rwMiniRow{
-    margin-top: 14px;
-    display:grid;
-    grid-template-columns: repeat(3, minmax(0,1fr));
-    gap: 10px;
-}
-.rwMini{
-    padding: 12px;
-    border-radius: 16px;
-    background: rgba(255,255,255,.78);
-    border: 1px solid rgba(15,23,42,.08);
-}
-.rwMiniKey{ font-weight: 950; }
-.rwMiniVal{ margin-top: 2px; color: var(--muted); font-size: 13px; }
-
-.rwTipCard{
-    height:100%;
-    padding: 14px;
-    border-radius: 18px;
-    background: rgba(255,255,255,.78);
-    border: 1px solid rgba(15,23,42,.08);
-    box-shadow: var(--shadow2);
-}
-.rwTipTitle{ font-weight: 950; }
-.rwTipList{
-    margin: 10px 0 0;
-    padding-left: 18px;
-    color: rgba(51,65,85,.92);
-    line-height: 1.7;
-    font-size: 13.5px;
-}
-.rwTipNote{
-    margin-top: 10px;
-    font-size: 12px;
-    color: var(--muted);
+.rwBrand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
 }
 
-.rwGrid{
-    margin-top: 16px;
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
+.rwLogo {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  color: var(--rw-primary);
+  letter-spacing: 2px;
+  border: 2px solid var(--rw-primary);
+  padding: 0 8px;
+  transform: skew(-10deg);
 }
 
-.rwCol{ display:flex; flex-direction:column; gap: 14px; }
-
-.rwCard{
-    padding: 14px;
-    border-radius: 22px;
-    background: rgba(255,255,255,.82);
-    border: 1px solid rgba(15,23,42,.08);
-    box-shadow: var(--shadow2);
-}
-.rwCard.preview{
-    height: 100%;
-    display:flex;
-    flex-direction:column;
-}
-.rwCardHead{
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap: 12px;
-    margin-bottom: 10px;
-}
-.rwCardTitle{ font-weight: 950; }
-.rwCardSub{ margin-top: 3px; font-size: 12.5px; color: var(--muted); }
-
-.rwCount{
-    font-size: 12px;
-    font-weight: 900;
-    color: rgba(15,23,42,.65);
-    background: rgba(15,23,42,.05);
-    border: 1px solid rgba(15,23,42,.08);
-    padding: 6px 10px;
-    border-radius: 999px;
-    white-space: nowrap;
+.rwBrandName {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+  color: white;
 }
 
-.rwTextarea{
-    width: 100%;
-    resize: none;
-    border-radius: 18px;
-    border: 1px solid rgba(15,23,42,.10);
-    background: rgba(255,255,255,.92);
-    padding: 12px 12px;
-    outline: none;
-    line-height: 1.65;
-    font-size: 14px;
-    color: var(--text);
-}
-.rwTextarea:focus{
-    border-color: rgba(49,130,246,.35);
-    box-shadow: 0 0 0 4px rgba(49,130,246,.14);
+/* --- Typography & Intro --- */
+.rwIntro {
+  margin-bottom: 40px;
+  text-align: center; /* 중앙 정렬로 변경 */
 }
 
-.previewArea{
-    flex: 1;
-    min-height: 380px;
+.rwChip {
+  display: inline-block;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--rw-primary);
+  background: rgba(225, 6, 0, 0.05);
+  padding: 6px 14px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  letter-spacing: 1px;
 }
 
-.rwActions{
-    display:flex;
-    gap: 8px;
-    align-items:center;
+.rwTitle {
+  font-family: 'Pretendard', sans-serif; /* 한글 타이틀은 Pretendard */
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 16px;
+  color: #111;
 }
 
-.rwBottom{
-    margin-top: 12px;
-    display:flex;
-    flex-direction:column;
-    gap: 8px;
-}
-.rwBottomHint{
-    font-size: 12px;
-    color: var(--muted);
+.rwAccent {
+  color: var(--rw-primary);
+  position: relative;
+  z-index: 1;
 }
 
-.rwFooter{ margin-top: 18px; }
-.rwFooterInner{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap: 10px;
-    padding: 14px 6px 4px;
-}
-.rwFootLeft{ display:flex; align-items:center; gap:10px; }
-.rwFootRight a{
-    font-size: 13px;
-    color: rgba(15,23,42,.75);
-}
-.rwFootSub{ font-size: 12px; color: var(--muted); margin-top: 2px; }
-
-@media (max-width: 980px){
-    .rwIntro{ grid-template-columns: 1fr; }
-    .rwGrid{ grid-template-columns: 1fr; }
-    .rwMiniRow{ grid-template-columns: 1fr; }
+/* 형광펜 효과 */
+.rwAccent::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: -2px;
+  width: 105%;
+  height: 10px;
+  background: rgba(225, 6, 0, 0.1);
+  z-index: -1;
 }
 
-/* =========================
-   Preview (textarea -> text)
-   ========================= */
-.rwPreviewBox{
-    width: 100%;
-    border-radius: 18px;
-    border: 1px solid rgba(15,23,42,.10);
-    background: rgba(255,255,255,.92);
-    padding: 12px 12px;
-    line-height: 1.75;
-    font-size: 14px;
-    color: var(--text);
-
-    /* 줄바꿈/공백 유지: textarea처럼 보여줌 */
-    white-space: pre-wrap;
-    word-break: break-word;
-
-    /* 스크롤만 허용 */
-    overflow: auto;
+.rwDesc {
+  color: var(--rw-text-sub);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-.rwPreviewPlaceholder{
-    color: rgba(100,116,139,.95);
+/* --- Cards & Inputs --- */
+.rwCard {
+  background: var(--rw-card-bg);
+  border: 1px solid var(--rw-border);
+  border-radius: 12px;
+  padding: 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04); /* 부드러운 그림자 */
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-/* previewArea는 기존처럼 높이 확보 */
-.previewArea{
-    min-height: 380px;
+.rwCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
 }
 
-/* =========================
-   Loading Overlay (F1 car)
-   ========================= */
-.rwLoading{
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    background: rgba(15,23,42,.18);
-    backdrop-filter: blur(6px);
-    display: grid;
-    place-items: center;
-    padding: 18px;
+.rwCardHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 16px;
 }
 
-.rwLoadingCard{
-    width: min(520px, 92vw);
-    border-radius: 22px;
-    background: rgba(255,255,255,.92);
-    border: 1px solid rgba(15,23,42,.10);
-    box-shadow: 0 18px 50px rgba(15,23,42,.18);
-    padding: 16px;
+.rwCardTitle {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #111;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.rwLoadingTrack{
-    position: relative;
-    height: 80px;
-    border-radius: 18px;
-    background: rgba(49,130,246,.08);
-    border: 1px solid rgba(49,130,246,.12);
-    overflow: hidden;
+.rwCardSub {
+  font-size: 0.9rem;
+  color: #888;
+  margin-top: 4px;
+  font-weight: 400;
 }
 
-/* 도로 라인 */
-.rwRoad{
-    position:absolute;
-    left: -40%;
-    right: -40%;
-    top: 50%;
-    height: 2px;
-    background: repeating-linear-gradient(
-            90deg,
-            rgba(37,99,235,.45) 0 24px,
-            rgba(37,99,235,0) 24px 44px
-    );
-    transform: translateY(-50%);
-    animation: roadMove 0.7s linear infinite;
-    opacity: .75;
+.rwCount {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--rw-primary);
+  background: #fff0f0;
+  padding: 4px 8px;
+  border-radius: 4px;
 }
 
-@keyframes roadMove{
-    from{ transform: translate(-10%, -50%); }
-    to{ transform: translate(10%, -50%); }
+.rwTextarea {
+  width: 100%;
+  background: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #333;
+  resize: none;
+  box-sizing: border-box;
+  font-family: 'Pretendard', sans-serif;
+  transition: all 0.2s;
 }
 
-/* =========================
-   Racing Car (CSS only)
-   ========================= */
-
-.rwCar{
-    position:absolute;
-    top: 50%;
-    left: -35%;
-    width: 150px;
-    height: 44px;
-    transform: translateY(-50%);
-    animation: carGo 1.2s ease-in-out infinite;
-    filter: drop-shadow(0 12px 18px rgba(15,23,42,.25));
+.rwTextarea:focus {
+  outline: none;
+  background: #fff;
+  border-color: var(--rw-primary);
+  box-shadow: 0 0 0 3px rgba(225, 6, 0, 0.1);
 }
 
-/* 메인 바디 */
-.carBody{
-    position:absolute;
-    left: 26px;
-    right: 26px;
-    top: 8px;
-    height: 28px;
-    border-radius: 16px 16px 12px 12px;
-    background:
-            linear-gradient(
-                    180deg,
-                    var(--blue),
-                    var(--blue2)
-            );
-    display:grid;
-    place-items:center;
+.rwTextarea::placeholder {
+  color: #aaa;
 }
 
-.carLogo{
-    font-weight: 950;
-    font-size: 13px;
-    color:#fff;
-    letter-spacing:.5px;
+/* --- Buttons --- */
+.rwBtn {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 12px 28px;
+  border-radius: 4px; /* 살짝 둥글게 */
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1rem;
 }
 
-/* 콕핏 */
-.carCockpit{
-    position:absolute;
-    left: 50%;
-    top: 2px;
-    width: 26px;
-    height: 16px;
-    transform: translateX(-50%);
-    border-radius: 12px 12px 6px 6px;
-    background: rgba(15,23,42,.85);
-    box-shadow: inset 0 0 0 2px rgba(255,255,255,.15);
+.rwBtn.primary {
+  background: var(--rw-primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(225, 6, 0, 0.3);
 }
 
-/* 윙 */
-.carWing{
-    position:absolute;
-    top: 14px;
-    width: 22px;
-    height: 16px;
-    background: rgba(15,23,42,.9);
+.rwBtn.primary:hover:not(:disabled) {
+  background: var(--rw-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(225, 6, 0, 0.4);
 }
 
-.carWing.front{
-    left: 0;
-    border-radius: 6px 2px 2px 6px;
+.rwBtn.primary.smno {
+  background: var(--rw-primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(225, 6, 0, 0.3);
 }
 
-.carWing.rear{
-    right: 0;
-    border-radius: 2px 6px 6px 2px;
+.rwBtn.primary.smno:hover:not(:disabled) {
+  background: var(--rw-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(225, 6, 0, 0.4);
 }
 
-/* 바퀴 */
-.rwWheel{
-    position:absolute;
-    width: 14px;
-    height: 14px;
-    border-radius: 999px;
-    background: #0f172a;
-    bottom: -6px;
-    animation: wheelSpin .35s linear infinite;
+.rwBtn.ghost {
+  background: transparent;
+  border: 1px solid #555;
+  color: #000;
+  /* 부드러운 애니메이션을 위해 transition 필수 */
+  transition: all 0.3s ease;
 }
 
-.rwWheel::after{
-    content:"";
-    position:absolute;
-    inset: 3px;
-    border-radius: 999px;
-    background: rgba(255,255,255,.15);
+.rwBtn.ghost:hover:not(:disabled) {
+  background-color: #ddd;
+  border-color: #ddd;
+  color: #000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.rwWheel.w1{ left: 34px; }
-.rwWheel.w2{ right: 34px; }
-
-/* 주행 애니메이션 */
-@keyframes carGo{
-    0%   { left: -40%; opacity: 0; transform: translateY(-50%) scale(.98); }
-    10%  { opacity: 1; }
-    50%  { left: 45%; transform: translateY(-50%) scale(1); }
-    90%  { opacity: 1; }
-    100% { left: 120%; opacity: 0; transform: translateY(-50%) scale(.98); }
+.rwBtn.full {
+  width: 100%;
+  height: 56px;
+  font-size: 1.1rem;
+  margin-top: 20px;
 }
 
-@keyframes wheelSpin{
-    from{ transform: rotate(0deg); }
-    to{ transform: rotate(360deg); }
+.rwBtn:disabled {
+  background: #ddd;
+  color: #999;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
 }
 
-/*로딩 문구*/
-.rwLoadingText{
-    margin-top: 12px;
-    font-weight: 950;
-    color: rgba(2,6,23,.90);
-    display:flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 10px;
+/* --- Bottom Hint --- */
+.rwBottomHint {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 0.9rem;
+  color: var(--rw-text-sub);
 }
 
-.rwLoadingSub{
-    font-size: 12px;
-    font-weight: 900;
-    color: rgba(100,116,139,.95);
+/* --- Loading (Overlay) --- */
+.rwLoading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* 접근성: 모션 줄이기 */
-@media (prefers-reduced-motion: reduce){
-    .rwCar, .rwRoad, .rwWheel{ animation: none !important; }
+.rwLoadingText {
+  margin-top: 24px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #111;
+}
+
+.rwLoadingSub {
+  display: block;
+  font-size: 1rem;
+  color: var(--rw-text-sub);
+  margin-top: 8px;
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 500;
+}
+
+/* --- Footer --- */
+.rwFooter {
+  border-top: 1px solid #eee;
+  padding: 40px 0;
+  margin-top: 60px;
+  background: #fafafa;
+}
+
+.rwFooterInner {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #888;
+}
+
+.rwLogo.sm {
+  font-size: 18px;
+  padding: 0 6px;
+  border-width: 1.5px;
+}
+
+.rwTop {
+  height: 70px;
+  background: var(--rw-header-bg); /* 기본: Dark */
+  color: var(--rw-header-text);    /* 기본: White */
+  border-bottom: 1px solid #333;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease; /* 부드러운 전환 효과 */
+}
+
+/* --- Progress Bar (Interview Page 전용) --- */
+.rwProgressTrack {
+  width: 100%;
+  height: 4px;
+  background: #eee;
+  border-radius: 2px;
+  margin: 8px 0 20px 0;
+  overflow: hidden;
+}
+
+.rwProgressBar {
+  height: 100%;
+  background: var(--rw-primary);
+  transition: width 0.3s ease;
+}
+
+/* 좌우 배치를 위한 그리드 컨테이너 */
+.rwInputRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 1:1 비율로 나눔 */
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+/* 카드 높이 맞추기 */
+.rwInputRow .rwCard {
+  margin-bottom: 0;
+  height: 100%; /* 카드가 같은 높이를 가지도록 설정 */
+  display: flex;
+  flex-direction: column;
+}
+
+/* 텍스트 영역이 남은 공간을 다 채우도록 설정 */
+.rwInputRow .rwTextarea {
+  flex-grow: 1;
+  min-height: 400px; /* 기본 높이를 조금 더 확보 */
+}
+
+/* 모바일에서는 다시 상하 배치로 변경 */
+@media (max-width: 768px) {
+  .rwInputRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 스킵 버튼: 아스팔트(Dark Grey) 테마 */
+.rwBtn.skip {
+  background-color: #2c2c2c; /* 타이어 색상 같은 진한 회색 */
+  color: #ffffff;            /* 흰색 글씨 */
+  border: 1px solid #2c2c2c; /* 테두리도 같은 색 */
+  font-weight: 600;
+}
+
+/* 마우스 올렸을 때: 더 진한 블랙 */
+.rwBtn.skip:hover:not(:disabled) {
+  background-color: #000000;
+  border-color: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ... 애니메이션 정의 */
+@keyframes rwDots {
+  0% { content: ''; }
+  25% { content: '.'; }
+  50% { content: '..'; }
+  75% { content: '...'; }
+  100% { content: ''; }
+}
+
+/* 애니메이션을 적용할 클래스 */
+.rwDots::after {
+  content: '';
+  display: inline-block;
+  animation: rwDots 1.5s infinite steps(1); /* 1.5초마다 반복 */
+  width: 1.5em; /* 점 3개가 들어갈 공간을 미리 확보하여 글자 흔들림 방지 */
+  text-align: left;
 }

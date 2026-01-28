@@ -26,7 +26,7 @@ const Homepage = () => {
                         <span>F1</span>
                     </div>
                     <div className="logo-text-group">
-                        <span className="logo-title">F1ND THE WAY</span>
+                        <span className="logo-title">F1ND YOUR WAY</span>
                     </div>
                 </a>
 

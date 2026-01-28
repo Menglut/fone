@@ -21,16 +21,28 @@ export default function ResumeInterview() {
   } = useResumeFlow();
 
   const [loading, setLoading] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const total = followupQs.length;
   const current = total > 0 ? followupQs[qIndex] : null;
+
+  // 마지막 질문인지 확인하는 플래그
+  const isLastQuestion = qIndex === total - 1;
+
+  // 스크롤 이벤트 핸들러
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const canGenerate = useMemo(() => {
     return resume.trim().length > 10 && jobPost.trim().length > 10 && !loading && total > 0;
   }, [resume, jobPost, loading, total]);
 
   useEffect(() => {
-    // 질문 없이 접근하면 입력 페이지로
     if (!followupQs || followupQs.length === 0) {
       nav("/resume/input", { replace: true });
     }
@@ -40,6 +52,7 @@ export default function ResumeInterview() {
 
   const onNext = () => setQIndex((i) => Math.min(total - 1, i + 1));
 
+  // Skip 버튼 핸들러
   const onSkip = () => {
     if (!current) return;
 
@@ -49,7 +62,11 @@ export default function ResumeInterview() {
       return next;
     });
 
-    setQIndex((i) => Math.min(total - 1, i + 1));
+    if (isLastQuestion) {
+      generate();
+    } else {
+      setQIndex((i) => Math.min(total - 1, i + 1));
+    }
   };
 
   const generate = async () => {
@@ -72,15 +89,7 @@ export default function ResumeInterview() {
       });
 
       if (!res.ok) {
-        let message = `서버 오류 (${res.status})`;
-        try {
-          const errData = await res.json();
-          if (errData?.error) message += `: ${errData.error}`;
-        } catch {
-          const text = await res.text();
-          message += `: ${text}`;
-        }
-        throw new Error(message);
+        throw new Error(`서버 오류 (${res.status})`);
       }
 
       const data = await res.json();
@@ -96,94 +105,100 @@ export default function ResumeInterview() {
 
   return (
     <div className="rwPage">
+      {/* --- [추가됨] 로딩 화면 (Loading Overlay) --- */}
+      {loading && (
+        <div className="rwLoading" role="status" aria-live="polite" aria-busy="true">
+          <div className="rwLoadingCard">
+            <div className="rwLoadingTrack">
+              <div className="rwCar" aria-hidden="true">
+                <div className="carWing front" />
+                <div className="carBody" />
+                <div className="carCockpit" />
+                <div className="carWing rear" />
+                <span className="rwWheel w1" />
+                <span className="rwWheel w2" />
+              </div>
+            </div>
+            <div className="rwLoadingText">
+              BUILDING MACHINE<span className="rwDots"></span>
+              <span className="rwLoadingSub">
+                답변 데이터를 기반으로 최적의 자소서를 생성 중입니다.
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 헤더 */}
-      <header className="rwTop">
+      <header className={`rwTop ${isScrolled ? "scrolled" : ""}`}>
         <div className="rwTopInner">
-          <div className="rwBrand" onClick={() => nav("/resume/input")}>
+          <div className="rwBrand" onClick={() => nav("/")}>
             <div className="rwLogo">F1</div>
           </div>
 
           <div className="rwTopRight">
             <button className="rwBtn ghost" onClick={() => nav("/resume/input")} disabled={loading}>
-              입력으로
-            </button>
-            <button className="rwBtn primary" onClick={generate} disabled={!canGenerate}>
-              {loading ? "생성 중..." : "답변 반영해서 생성"}
+              BACK
             </button>
           </div>
         </div>
       </header>
 
       <main className="rwWrap">
+        {/* Intro Section */}
         <section className="rwIntro">
-          <div className="rwIntroLeft">
-            <div className="rwChip">Step 2 / 3</div>
-            <h1 className="rwTitle">
-              AI 인터뷰로 경험을
-              <br />
-              <span className="rwAccent">구체화</span>해볼까요?
-            </h1>
-            <p className="rwDesc">질문은 1개씩 보여줘요. 건너뛰기도 가능해요.</p>
-
-            <div className="rwMiniRow">
-              <div className="rwMini">
-                <div className="rwMiniKey">진행</div>
-                <div className="rwMiniVal">
-                  {Math.min(qIndex + 1, total)} / {total}
-                </div>
-              </div>
-              <div className="rwMini">
-                <div className="rwMiniKey">스킵</div>
-                <div className="rwMiniVal">{skipped.size}개</div>
-              </div>
-              <div className="rwMini">
-                <div className="rwMiniKey">팁</div>
-                <div className="rwMiniVal">수치/역할</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="rwIntroRight">
-            <div className="rwTipCard">
-              <div className="rwTipTitle">답변 팁</div>
-              <ul className="rwTipList">
-                <li>가능하면 전/후 비교 수치를 적어주세요</li>
-                <li>“우리 팀”이 아니라 “내가 한 일”을 분리해 주세요</li>
-                <li>정답은 없어요. 떠오르는 만큼만 적어도 좋아요</li>
-              </ul>
-            </div>
-          </div>
+          <div className="rwChip">PHASE 02 : TELEMETRY CHECK</div>
+          <h1 className="rwTitle">
+            심층 질문 : <span className="rwAccent">TUNING SESSION</span>
+          </h1>
+          <p className="rwDesc">
+            AI가 설계한 심층 질문에 답변하여 데이터를 보강하세요.<br />
+            이 과정은 합격 확률을 결정하는 가장 중요한 랩(Lap)입니다.
+          </p>
         </section>
 
-        <section className="rwGrid">
-          <div className="rwCol">
+        {/* 질문 카드 섹션 */}
+        <section style={{ width: '100%', margin: '0 auto' }}>
+
             <div className="rwCard">
               <div className="rwCardHead">
                 <div>
-                  <div className="rwCardTitle">질문</div>
-                  <div className="rwCardSub">한 번에 하나씩 답변해요.</div>
+                  <div className="rwCardTitle">
+                    <span>CURRENT LAP : QUESTION {qIndex + 1}</span>
+                  </div>
+                  <div className="rwCardSub">
+                    CATEGORY: <span style={{ color: 'var(--rw-primary)', fontWeight: 'bold' }}>{current?.category || 'GENERAL'}</span>
+                  </div>
                 </div>
                 <div className="rwCount">
-                  {Math.min(qIndex + 1, total)} / {total}
+                  {qIndex + 1} / {total}
                 </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="rwProgressTrack">
+                <div
+                  className="rwProgressBar"
+                  style={{ width: `${((qIndex + 1) / total) * 100}%` }}
+                />
               </div>
 
               {current ? (
                 <>
-                  <div style={{ fontWeight: 900, marginBottom: 8 }}>
-                    [{current.category}] {current.text}
+                  <div style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: 24, lineHeight: 1.5, color: '#111' }}>
+                    "{current.text}"
                   </div>
 
                   <textarea
                     className="rwTextarea"
-                    rows={8}
-                    placeholder="답변을 입력하세요 (건너뛰기 가능)"
+                    rows={12}
+                    placeholder="[답변 가이드]
+- 구체적인 상황과 나의 행동 위주로 서술하세요.
+- 생각이 나지 않으면 'SKIP' 버튼을 눌러 건너뛰세요."
                     value={followupAns[current.id] || ""}
                     onChange={(e) => {
                       const v = e.target.value;
                       setFollowupAns((prev) => ({ ...prev, [current.id]: v }));
-
-                      // 답변 작성하면 스킵 해제
                       setSkipped((prev) => {
                         const next = new Set(prev);
                         if (v.trim().length > 0) next.delete(current.id);
@@ -193,76 +208,70 @@ export default function ResumeInterview() {
                   />
 
                   {skipped.has(current.id) && (
-                    <div style={{ fontSize: 12, color: "rgba(239,68,68,.9)", marginTop: 8 }}>
-                      이 질문은 건너뛰었어요.
+                    <div style={{ fontSize: '0.9rem', color: "#e10600", marginTop: 12, fontWeight: 500 }}>
+                      ⚠ LAP SKIPPED (이 질문은 반영되지 않습니다)
                     </div>
                   )}
 
-                  <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+                  {/* Navigation Buttons */}
+                  <div style={{ display: "flex", gap: 12, marginTop: 30 }}>
+
+                    {/* 이전 버튼 */}
                     <button className="rwBtn ghost" onClick={onPrev} disabled={qIndex === 0 || loading}>
-                      이전
-                    </button>
-                    <button className="rwBtn ghost" onClick={onSkip} disabled={loading}>
-                      건너뛰기
-                    </button>
-                    <button
-                      className="rwBtn primary"
-                      onClick={onNext}
-                      disabled={qIndex >= total - 1 || loading}
-                    >
-                      다음
+                      PREV
                     </button>
 
-                    {qIndex === total - 1 && (
-                      <button className="rwBtn primary" onClick={generate} disabled={!canGenerate}>
-                        {loading ? "생성 중..." : "자소서 만들기"}
+                    {/* 스킵 버튼 */}
+                      <button className="rwBtn skip" onClick={onSkip} disabled={loading}>
+                        {isLastQuestion ? "SKIP & FINISH" : "SKIP LAP"}
+                      </button>
+
+                    {/* 다음/완료 버튼 */}
+                    {isLastQuestion ? (
+                      <button
+                        className="rwBtn primary"
+                        onClick={generate}
+                        disabled={loading || !canGenerate}
+                        style={{ flex: 1, backgroundColor: 'var(--rw-primary)' }}
+                      >
+                        {loading ? "BUILDING MACHINE..." : "FINISH : BUILD RESUME"}
+                      </button>
+                    ) : (
+                      <button
+                        className="rwBtn primary"
+                        onClick={onNext}
+                        disabled={loading}
+                        style={{ flex: 1 }}
+                      >
+                        NEXT LAP
                       </button>
                     )}
                   </div>
                 </>
               ) : (
-                <div className="rwPreviewPlaceholder">질문을 불러오는 중...</div>
+                <div className="rwPreviewPlaceholder">LOADING TELEMETRY DATA...</div>
               )}
             </div>
-          </div>
 
-          <div className="rwCol">
-            <div className="rwCard preview">
-              <div className="rwCardHead">
-                <div>
-                  <div className="rwCardTitle">요약</div>
-                  <div className="rwCardSub">입력한 답변은 자동 반영돼요.</div>
-                </div>
-              </div>
-
-              <div className="rwPreviewBox previewArea">
-                <span className="rwPreviewPlaceholder">
-                  마지막 질문에서 “자소서 만들기”를 누르면 Step 3로 이동해요.
-                </span>
-              </div>
-
-              <div className="rwBottom">
-                <button className="rwBtn primary full" onClick={generate} disabled={!canGenerate}>
-                  {loading ? "생성 중..." : "답변 반영해서 생성"}
-                </button>
-                <div className="rwBottomHint">
-                  {canGenerate ? "준비 완료" : "질문을 불러온 뒤 생성할 수 있어요."}
-                </div>
-              </div>
+            <div style={{ textAlign: 'center', marginTop: '20px', color: '#888', fontSize: '0.9rem' }}>
+               {isLastQuestion
+                 ? "마지막 질문입니다. 답변을 완료하고 자소서를 생성하세요."
+                 : "답변이 구체적일수록 더 정교한 자소서가 완성됩니다."}
             </div>
-          </div>
+
         </section>
 
         <footer className="rwFooter">
-          <div className="rwFooterInner">
+            <div className="rwFooterInner">
             <div className="rwFootLeft">
-              <div className="rwLogo sm">F1</div>
-              <div>
-                <div className="rwBrandName">F1nd The Way</div>
-                <div className="rwFootSub">© {new Date().getFullYear()}</div>
-              </div>
+                <span style={{fontFamily: 'Rajdhani', fontWeight: 700}}>F1ND THE WAY</span>
+                <span style={{margin: '0 10px'}}>|</span>
+                <span>ENGINEERED FOR SUCCESS</span>
             </div>
-          </div>
+            <div className="rwFootRight">
+                © {new Date().getFullYear()} KIM'S PADDOCK
+            </div>
+            </div>
         </footer>
       </main>
     </div>
