@@ -32,15 +32,15 @@ const Homepage = () => {
 
                 {/* 2. Menu */}
                 <div className="nav-menu center-menu">
-                    <a href="#about">RESUME</a>        {/* 메뉴명 변경 */}
-                    <a href="#features">PORTFOLIO</a>  {/* 메뉴명 변경 */}
-                    <a href="#pricing">PLANS</a>       {/* 메뉴명 변경 */}
+                    <a href="/resume/input">자기소개서</a>        {/* 메뉴명 변경 */}
+                    <a href="#features">포트폴리오</a>  {/* 메뉴명 변경 */}
+                    <a href="#pricing">면접연습</a>       {/* 메뉴명 변경 */}
                 </div>
 
                 {/* 3. Auth */}
                 <div className="nav-auth">
                     <a href="#login" className="login-link">LOGIN</a>
-                    <a href="#signup" className="signup-btn">START BUILDING</a> {/* 문구 변경 */}
+                    <a href="#signup" className="signup-btn">SIGH IN</a> {/* 문구 변경 */}
                 </div>
             </nav>
 
@@ -50,18 +50,17 @@ const Homepage = () => {
                 <div className="hero-content">
                     <div className="hero-label">AI-POWERED CAREER SOLUTION</div>
                     <h1 className="hero-title">
-                        BUILD YOUR <br />
-                        WINNING <span className="outline-text">MACHINE.</span>
+                        F1ND YOUR <span className="outline-text">WAY</span>
                     </h1>
                     <div className="hero-footer">
                         <div className="scroll-indicator">
-                            START YOUR ENGINE
+                            &nbsp;&nbsp;&nbsp;START YOUR RACING
                             <span className="arrow-down">↓</span>
                         </div>
                         <p className="hero-desc">
                             0.01초의 차이로 승부가 갈리는 F1처럼,<br />
-                            당신의 서류가 합격선을 통과하도록<br />
-                            최적의 구조와 논리로 튜닝해 드립니다.
+                            당신의 서류가 합격선에 도달하도록<br />
+                            최적의 서류를 만들어 드립니다.
                         </p>
                     </div>
                 </div>
@@ -125,7 +124,6 @@ const Homepage = () => {
             <section id="features" className="section-container">
                 <div className="section-header">
                     <h2>ENGINEERING SOLUTIONS</h2>
-                    <span className="section-num">02</span>
                 </div>
 
                 {/* 기능 소개 그리드 */}
@@ -133,9 +131,9 @@ const Homepage = () => {
                     <div className="grid-card" onClick={handleSmartResumeClick}>
                         <div className="card-top">
                             <span className="card-num">S1</span>
-                            <span className="card-cat">RESUME TUNING</span>
+                            <span className="card-cat">RESUME SETTING</span>
                         </div>
-                        <h3 className="card-title">SMART RESUME</h3>
+                        <h3 className="card-title">자기소개서</h3>
                         <p className="card-desc">
                             직무별 핵심 키워드 자동 추천 및<br/>
                             가독성을 극대화한 F자형 레이아웃 설계
@@ -148,7 +146,7 @@ const Homepage = () => {
                             <span className="card-num">S2</span>
                             <span className="card-cat">VISUAL SETUP</span>
                         </div>
-                        <h3 className="card-title">PORTFOLIO MAKER</h3>
+                        <h3 className="card-title">포트폴리오</h3>
                         <p className="card-desc">
                             드래그 앤 드롭으로 완성하는<br/>
                             임팩트 있는 프로젝트 쇼케이스 생성
@@ -161,10 +159,10 @@ const Homepage = () => {
                             <span className="card-num">S3</span>
                             <span className="card-cat">AI TELEMETRY</span>
                         </div>
-                        <h3 className="card-title">AI FEEDBACK</h3>
+                        <h3 className="card-title">면접 연습</h3>
                         <p className="card-desc">
-                            작성된 자소서의 논리적 결함 분석 및<br/>
-                            합격 확률을 높이는 문장 실시간 교정
+                            작성된 자소서와 포트폴리오를 기반으로<br/>
+                            실제 면접에 나올 수 있는 질문 생성
                         </p>
                         <div className="card-arrow">↗</div>
                     </div>

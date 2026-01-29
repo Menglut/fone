@@ -213,50 +213,75 @@ body {
 }
 
 /* --- HERO SECTION --- */
+.hero-bg-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  /* [핵심 수정] 배경을 콤마(,)로 구분하여 두 겹으로 쌓습니다 */
+  background:
+    /* 1. 상단 그라데이션: 네비게이션바(로고, 로그인)가 잘 보이도록 위쪽을 어둡게 누름 */
+          linear-gradient(to bottom, rgba(14,14,14,0.8) 0%, rgba(14,14,14,0) 40%),
+
+    /* 2. 좌측 그라데이션: 메인 타이틀(CODE LIKE A RACER)이 잘 보이도록 왼쪽을 어둡게 누름 */
+          linear-gradient(70deg, #0E0E0E 20%, rgba(14,14,14,0) 60%),
+
+    /* 3. [NEW] 하단: 이미지가 아래쪽 배경색(#0E0E0E)으로 자연스럽게 사라지도록 처리 */
+          linear-gradient(to top, #0E0E0E 10%, rgba(14,14,14,0) 50%);
+
+  z-index: 1;
+}
+
 .hero {
   height: 100vh;
   width: 100%;
   position: relative;
   display: flex;
-  align-items: center;
+
   padding: 0 50px;
   /* 이미지 로딩 실패 시를 대비해 배경색 지정 */
-  background-color: #111; 
+  background-color: #111;
   background-image: url('https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=1920&q=80');
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
 }
-.hero-bg-overlay {
-  position: absolute; 
-  top: 0; 
-  left: 0; 
-  width: 100%; 
+
+/* 내부 컨텐츠 영역: 화면 전체 높이를 쓰도록 변경 */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  /* [핵심] Flex 적용하여 위/아래 배치 분리 */
   height: 100%;
-  
-  /* [핵심 수정] 배경을 콤마(,)로 구분하여 두 겹으로 쌓습니다 */
-  background: 
-    /* 1. 상단 그라데이션: 네비게이션바(로고, 로그인)가 잘 보이도록 위쪽을 어둡게 누름 */
-          linear-gradient(to bottom, rgba(14,14,14,0.9) 0%, rgba(14,14,14,0) 30%),
-    
-    /* 2. 좌측 그라데이션: 메인 타이틀(CODE LIKE A RACER)이 잘 보이도록 왼쪽을 어둡게 누름 */
-          linear-gradient(90deg, #0E0E0E 20%, rgba(14,14,14,0) 100%),
+  display: flex;
+  flex-direction: column;
 
-    /* 3. [NEW] 하단: 이미지가 아래쪽 배경색(#0E0E0E)으로 자연스럽게 사라지도록 처리 */
-          linear-gradient(to top, #0E0E0E 10%, rgba(14,14,14,0) 50%);
-    
-  z-index: 1;
+  /* 상단 여백을 주어 타이틀을 원하는 '하늘' 위치로 내림 */
+  padding-top: 20vh; /* 화면 높이의 20% 지점에 타이틀 배치 (조절 가능) */
 }
-.hero-content { position: relative; z-index: 2; width: 100%; max-width: 1400px; margin: 0 auto; }
 
-.hero-label { color: var(--f1-red); font-weight: 700; letter-spacing: 2px; margin-bottom: 20px; font-size: 0.9rem; }
+/* 라벨과 타이틀은 위쪽에 자연스럽게 배치됨 (padding-top 영향 받음) */
+.hero-label {
+  color: var(--f1-red);
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
 .hero-title {
   font-family: 'Oswald', sans-serif;
-  font-size: clamp(3.5rem, 8vw, 8rem); /* 모바일 대응을 위해 최소 크기 조정 */
+  font-size: clamp(3.5rem, 8vw, 8rem);
   line-height: 0.9;
   text-transform: uppercase;
-  margin-bottom: 50px;
   color: #fff;
+  /* margin-bottom 제거 (Flex 구조로 제어) */
 }
 
 .outline-text {
@@ -264,9 +289,21 @@ body {
   -webkit-text-stroke: 1px #fff;
 }
 
-.hero-footer { display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid var(--border-color); padding-top: 30px; }
+/* 푸터: 자동으로 맨 아래로 밀어버림 */
+.hero-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-top: 1px solid var(--border-color);
+  padding-top: 30px;
+
+  /* [핵심] 남은 공간을 모두 차지하여 바닥에 붙음 */
+  margin-top: auto;
+  padding-bottom: 180px; /* 바닥과의 간격 */
+}
+
 .hero-desc { max-width: 400px; line-height: 1.6; color: #fff; }
-.scroll-indicator { font-size: 0.8rem; font-weight: 600; animation: bounce 2s infinite; color: #fff; display: flex; align-items: center; gap: 5px; }
+.scroll-indicator { font-size: 1.2rem; font-weight: 600; animation: bounce 2s infinite; color: #fff; display: flex; align-items: center; gap: 5px; }
 @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(10px); } }
 
 /* --- MARQUEE --- */
@@ -347,12 +384,12 @@ body {
 .card-cat { font-size: 0.8rem; font-weight: 600; letter-spacing: 1px; color: var(--text-gray); transition: color 0.4s; }
 
 .card-title {
-  font-size: 2rem; font-weight: 700; margin-bottom: 20px; line-height: 1.2;
+  font-size: 2.5rem; font-weight: 700; margin-bottom: 30px; line-height: 1.2;
   transition: all 0.4s; color: #fff; margin-top: 30px;
 }
 .card-desc {
   font-size: 1rem; color: var(--text-gray); line-height: 1.6;
-  transition: all 0.4s; margin-bottom: 40px;
+  transition: all 0.4s; margin-bottom: 80px;
 }
 .card-arrow {
   position: absolute; bottom: 40px; right: 40px;

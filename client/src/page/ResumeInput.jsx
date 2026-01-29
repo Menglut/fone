@@ -106,8 +106,13 @@ export default function ResumeInput() {
       {/* 헤더 (Dark Theme) */}
       <header className={`rwTop ${isScrolled ? "scrolled" : ""}`}>
         <div className="rwTopInner">
-          <div className="rwBrand" onClick={() => (window.location.href = "/")}>
-            <div className="rwLogo">F1</div>
+          <div className="nav-logo-btn" onClick={() => (window.location.href = "/")}>
+            <div className="logo-symbol">
+              <span>F1</span>
+            </div>
+            <div className="logo-text-group">
+              <span className="logo-title">F1ND YOUR WAY</span>
+            </div>
           </div>
         </div>
       </header>

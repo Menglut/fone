@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Pretendard:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Pretendard:wght@300;400;500;600;700&family=Oswald:wght@400;700&display=swap');
 
 :root {
   /* 라이트 모드 베이스 */
@@ -55,11 +55,18 @@ body {
 
 .rwTopInner {
   width: 100%;
-  max-width: 1400px;
-  padding: 0 20px;
+  max-width: none;
+  padding: 0 50px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+/* [추가] 모바일 화면에서는 여백을 줄여주는 것이 좋습니다 (HomePage 스타일 참고) */
+@media (max-width: 768px) {
+  .rwTopInner {
+    padding: 0 20px;
+  }
 }
 
 .rwBrand {
@@ -444,4 +451,59 @@ body {
   animation: rwDots 1.5s infinite steps(1); /* 1.5초마다 반복 */
   width: 1.5em; /* 점 3개가 들어갈 공간을 미리 확보하여 글자 흔들림 방지 */
   text-align: left;
+}
+
+/* 로고 버튼 컨테이너 */
+.nav-logo-btn {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  text-decoration: none;
+  cursor: pointer;
+
+  /* 버튼 스타일 */
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.4); /* 헤더 배경에 맞게 투명도 조절 */
+  border: 1px solid transparent;
+  border-radius: 2px;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.nav-logo-btn:hover {
+  border-color: var(--rw-primary);
+  background: rgba(0, 0, 0, 0);
+  transform: translateY(1px);
+}
+
+/* F1 심볼 박스 */
+.logo-symbol {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  color: var(--rw-primary);
+  letter-spacing: 2px;
+  border: 2px solid var(--rw-primary);
+  padding: 0 8px;
+  transform: skew(-10deg);
+  background: transparent;
+}
+
+/* 텍스트 그룹 */
+.logo-text-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* F1ND THE WAY 텍스트 */
+.logo-title {
+  color: #fff;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  text-transform: uppercase;
+  transform: skewX(-10deg);
+  display: inline-block;
 }
