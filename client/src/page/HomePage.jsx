@@ -2,6 +2,28 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/HomePage.css'; 
 
+// 초기값 (나중에 DB에서 불러온 값으로 대체됨)
+const initialData = {
+  profile: {
+    name: '',
+    email: '',
+    jobTitle: '', // 예: Backend Developer
+    github: '',
+    intro: ''     // 한줄 소개
+  },
+  projects: [
+    {
+      id: 1,
+      title: '',
+      period: '',
+      techStack: [], // 예: ['React', 'Node.js']
+      description: '',
+      repoLink: ''
+    }
+  ],
+  education: []
+};
+
 const Homepage = () => {
   const [scrollY, setScrollY] = useState(0);
     const navigate = useNavigate(); // [추가] navigate 함수 생성
@@ -14,6 +36,10 @@ const Homepage = () => {
 
     const handleSmartResumeClick = () => {
         navigate('/resume/input');
+    };
+
+    const handleSmartPortfolioClick = () => {
+        navigate('/portfolio');
     };
 
     return (
@@ -40,7 +66,7 @@ const Homepage = () => {
                 {/* 3. Auth */}
                 <div className="nav-auth">
                     <a href="#login" className="login-link">LOGIN</a>
-                    <a href="#signup" className="signup-btn">SIGH IN</a> {/* 문구 변경 */}
+                    <a href="#signup" className="signup-btn">SIGH UP</a> {/* 문구 변경 */}
                 </div>
             </nav>
 
@@ -141,8 +167,8 @@ const Homepage = () => {
                         <div className="card-arrow">↗</div>
                     </div>
 
-                    <div className="grid-card">
-                        <div className="card-top">
+                    <div className="grid-card" onClick={handleSmartPortfolioClick}> 
+                        <div className="card-top" > 
                             <span className="card-num">S2</span>
                             <span className="card-cat">VISUAL SETUP</span>
                         </div>

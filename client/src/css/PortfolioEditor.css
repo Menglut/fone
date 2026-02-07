@@ -1,0 +1,116 @@
+/* 전체 레이아웃: 화면 꽉 채우기 */
+.editor-container {
+  display: flex;
+  height: 100vh; /* 화면 전체 높이 */
+  background-color: #f4f5f7;
+  font-family: 'Pretendard', sans-serif;
+}
+
+/* 왼쪽: 입력 패널 */
+.editor-panel {
+  width: 40%;
+  min-width: 350px;
+  background: white;
+  border-right: 1px solid #ddd;
+  overflow-y: auto; /* 내용 많으면 스크롤 */
+  padding: 30px;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+  z-index: 10;
+}
+
+/* 입력 폼 스타일 */
+.section-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 30px;
+  margin-bottom: 15px;
+  color: #333;
+  border-bottom: 2px solid #333;
+  padding-bottom: 5px;
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+.input-group input, 
+.input-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e1e1e1;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: 0.2s;
+  box-sizing: border-box; /* 패딩 포함 크기 계산 */
+}
+
+.input-group input:focus,
+.input-group textarea:focus {
+  border-color: #4a90e2;
+  outline: none;
+}
+
+/* 프로젝트 카드 스타일 (입력창 내) */
+.project-item {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.btn-add, .btn-remove, .btn-save {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.btn-add { background: #e9ecef; color: #333; width: 100%; margin-top: 10px; }
+.btn-remove { background: #ff6b6b; color: white; position: absolute; top: 10px; right: 10px; font-size: 11px;}
+.btn-save { background: #4a90e2; color: white; width: 100%; font-size: 16px; margin-top: 30px; padding: 15px; }
+
+/* 오른쪽: 미리보기 패널 */
+.preview-panel {
+  width: 60%;
+  background-color: #525659; /* 어두운 배경 (문서 집중) */
+  padding: 40px;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+}
+
+/* A4 용지 효과 */
+.a4-paper {
+  width: 210mm;
+  min-height: 297mm;
+  background: white;
+  padding: 40px 50px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  box-sizing: border-box;
+}
+
+/* 미리보기 내부 디자인 */
+.preview-header { margin-bottom: 40px; border-bottom: 2px solid #333; padding-bottom: 20px; }
+.preview-name { font-size: 36px; font-weight: 800; margin: 0; color: #222; }
+.preview-job { font-size: 18px; color: #666; margin-top: 5px; }
+.preview-intro { margin-top: 20px; font-size: 15px; line-height: 1.6; color: #444; }
+
+.preview-section-title { font-size: 20px; font-weight: bold; margin-top: 30px; margin-bottom: 15px; color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+
+.preview-project-item { margin-bottom: 25px; }
+.preview-project-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; display: flex; justify-content: space-between; }
+.preview-project-period { font-size: 13px; color: #888; font-weight: normal; }
+.preview-project-desc { font-size: 14px; line-height: 1.6; color: #444; white-space: pre-wrap; }
+.preview-tags span { display: inline-block; background: #eee; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-right: 5px; margin-top: 5px; }
