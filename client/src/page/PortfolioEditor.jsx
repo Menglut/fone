@@ -3,7 +3,7 @@ import axios from 'axios';
 import '../css/PortfolioEditor.css'; 
 
 const PortfolioEditor = () => {
-  // 1. 상태 관리: 프로필 + 프로젝트 리스트 (구조화된 데이터)
+  // 1. 데이터 상태 관리
   const [data, setData] = useState({
     profile: {
       name: '',
@@ -16,7 +16,56 @@ const PortfolioEditor = () => {
     ]
   });
 
-  // 2-1. 프로필 입력 핸들러
+  // ✨ [추가] AI 관련 상태
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [isAiLoading, setIsAiLoading] = useState(false);
+
+  // ----------------------------------------------------
+  // ✨ [추가] AI 포트폴리오 생성 요청 함수
+  // ----------------------------------------------------
+  const handleAiGenerate = async () => {
+    if (!aiPrompt.trim()) {
+      alert("경험 내용을 입력해주세요!");
+      return;
+    }
+
+    setIsAiLoading(true);
+
+    try {
+      // 1. 백엔드로 프롬프트 전송
+      const response = await axios.post('http://localhost:5000/api/generate/portfolio', {
+        userPrompt: aiPrompt
+      });
+
+      if (response.data.success) {
+        const aiData = response.data.data;
+
+        // 2. AI가 준 데이터로 상태 업데이트 (기존 데이터 덮어쓰기 or 병합)
+        setData(prev => ({
+          ...prev,
+          profile: {
+            ...prev.profile,
+            ...aiData.profile // AI가 제안한 프로필 정보
+          },
+          projects: [
+            ...aiData.projects.map(p => ({ ...p, id: Date.now() + Math.random() })), // ID 새로 부여
+            ...prev.projects // 기존 프로젝트는 뒤로 밀거나 삭제 가능
+          ]
+        }));
+
+        alert("✨ AI가 포트폴리오 초안을 작성했습니다!");
+        setAiPrompt(""); // 입력창 초기화
+      }
+    } catch (error) {
+      console.error("AI Error:", error);
+      alert("AI 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+  // ----------------------------------------------------
+
+  // 기존 핸들러들
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
     setData((prev) => ({
@@ -25,7 +74,6 @@ const PortfolioEditor = () => {
     }));
   };
 
-  // 2-2. 프로젝트 입력 핸들러 (배열 내 특정 항목 수정)
   const handleProjectChange = (index, e) => {
     const { name, value } = e.target;
     const newProjects = [...data.projects];
@@ -33,7 +81,6 @@ const PortfolioEditor = () => {
     setData((prev) => ({ ...prev, projects: newProjects }));
   };
 
-  // 2-3. 프로젝트 추가/삭제 기능
   const addProject = () => {
     setData((prev) => ({
       ...prev,
@@ -46,27 +93,23 @@ const PortfolioEditor = () => {
     setData((prev) => ({ ...prev, projects: newProjects }));
   };
 
-  // 3. 저장 기능 (백엔드 전송)
   const handleSave = async () => {
     try {
       if (!data.profile.name) {
         alert("이름은 필수입니다!");
         return;
       }
-
       const response = await axios.post('http://localhost:5000/api/portfolio', {
-        userId: 'test_user_001', 
-        title: `${data.profile.name}의 포트폴리오`, // 제목 자동 생성
-        content: data // 🔥 전체 데이터 객체를 통째로 저장
+        userId: 'test_user_001',
+        title: `${data.profile.name}의 포트폴리오`,
+        content: data
       });
-
       if (response.data.success) {
-        alert('✅ 포트폴리오가 저장되었습니다!');
-        console.log('Saved:', response.data);
+        alert('✅ 저장되었습니다!');
       }
     } catch (error) {
       console.error('Save Error:', error);
-      alert('❌ 저장 실패: 서버 상태를 확인해주세요.');
+      alert('❌ 저장 실패');
     }
   };
 
@@ -74,7 +117,42 @@ const PortfolioEditor = () => {
     <div className="editor-container">
       {/* 👈 왼쪽: 에디터 패널 */}
       <div className="editor-panel">
-        <h2 style={{ marginBottom: '20px' }}>📝 포트폴리오 에디터</h2>
+
+        {/* ✨ [추가] AI 입력 섹션 (가장 상단에 배치) */}
+        <div style={{ background: '#f0f4ff', padding: '20px', borderRadius: '12px', marginBottom: '30px', border: '1px solid #dbeafe' }}>
+          <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#1e40af' }}>🤖 AI 자동 완성</h3>
+          <p style={{ fontSize: '13px', color: '#666', marginBottom: '10px' }}>
+            개발 경험을 줄글로 대충 적어주세요. AI가 포트폴리오 형식으로 변환해줍니다.
+          </p>
+          <textarea
+            placeholder="예시: 나 홍길동이고 백엔드 개발자야. 'Way'라는 데이트 앱을 Node.js랑 MongoDB로 만들었고, 실시간 채팅 기능을 구현해서 사용자 1000명 모았어."
+            value={aiPrompt}
+            onChange={(e) => setAiPrompt(e.target.value)}
+            style={{ width: '100%', height: '100px', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', resize: 'vertical' }}
+            disabled={isAiLoading}
+          />
+          <button
+            onClick={handleAiGenerate}
+            disabled={isAiLoading}
+            style={{
+              width: '100%',
+              marginTop: '10px',
+              padding: '12px',
+              background: isAiLoading ? '#9ca3af' : 'linear-gradient(90deg, #4f46e5, #7c3aed)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: isAiLoading ? 'not-allowed' : 'pointer',
+              fontWeight: 'bold'
+            }}
+          >
+            {isAiLoading ? "AI가 분석 중입니다... ⏳" : "✨ AI로 포트폴리오 생성하기"}
+          </button>
+        </div>
+        {/* ✨ AI 섹션 끝 */}
+
+
+        <h2 style={{ marginBottom: '20px' }}>📝 직접 수정하기</h2>
 
         {/* --- 프로필 섹션 --- */}
         <div className="section-title">기본 정보</div>
@@ -100,7 +178,7 @@ const PortfolioEditor = () => {
         {data.projects.map((project, index) => (
           <div key={project.id} className="project-item">
             <button className="btn-remove" onClick={() => removeProject(index)}>삭제</button>
-            
+
             <div className="input-group">
               <label>프로젝트명</label>
               <input name="title" value={project.title} onChange={(e) => handleProjectChange(index, e)} placeholder="예: 소셜 네트워크 앱 개발" />
@@ -110,7 +188,7 @@ const PortfolioEditor = () => {
               <input name="period" value={project.period} onChange={(e) => handleProjectChange(index, e)} placeholder="예: 2025.08 - 2026.01" />
             </div>
             <div className="input-group">
-              <label>기술 스택 (쉼표로 구분)</label>
+              <label>기술 스택</label>
               <input name="techStack" value={project.techStack} onChange={(e) => handleProjectChange(index, e)} placeholder="React, Node.js, MongoDB" />
             </div>
             <div className="input-group">
@@ -119,17 +197,15 @@ const PortfolioEditor = () => {
             </div>
           </div>
         ))}
-        
+
         <button className="btn-add" onClick={addProject}>+ 프로젝트 추가하기</button>
 
-        {/* 저장 버튼 */}
         <button className="btn-save" onClick={handleSave}>💾 저장하기</button>
       </div>
 
-      {/* 👉 오른쪽: 미리보기 패널 (A4 용지 뷰) */}
+      {/* 👉 오른쪽: 미리보기 패널 */}
       <div className="preview-panel">
         <div className="a4-paper">
-          {/* Header */}
           <header className="preview-header">
             <h1 className="preview-name">{data.profile.name || "이름을 입력하세요"}</h1>
             <div className="preview-job">{data.profile.jobTitle || "직무 정보 없음"}</div>
@@ -137,7 +213,6 @@ const PortfolioEditor = () => {
             <p className="preview-intro">{data.profile.intro || "자기소개가 없습니다."}</p>
           </header>
 
-          {/* Body: Projects */}
           {data.projects.length > 0 && (
             <section>
               <div className="preview-section-title">PROJECTS</div>
@@ -147,8 +222,6 @@ const PortfolioEditor = () => {
                     {project.title || "프로젝트명"}
                     <span className="preview-project-period">{project.period}</span>
                   </div>
-                  
-                  {/* 기술 스택 태그 처리 */}
                   {project.techStack && (
                     <div className="preview-tags">
                       {project.techStack.split(',').map((tag, i) => (
@@ -156,7 +229,6 @@ const PortfolioEditor = () => {
                       ))}
                     </div>
                   )}
-                  
                   <p className="preview-project-desc">
                     {project.description || "프로젝트 설명이 여기에 표시됩니다."}
                   </p>

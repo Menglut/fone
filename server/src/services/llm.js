@@ -116,6 +116,63 @@ ${experienceText}
   }));
 }
 
+/**
+ * ✅ 포트폴리오 생성 (추가된 기능)
+ * - 사용자 입력(userPrompt)을 받아서, 미리 정의된 JSON 구조로 변환
+ */
+export async function generatePortfolioJson({ userPrompt }) {
+  const system = `
+    너는 IT 포트폴리오 전문 컨설턴트다.
+    사용자의 거친(Rough) 입력을 바탕으로, 깔끔하고 전문적인 포트폴리오 데이터를 생성해라.
+
+    [필수 규칙]
+    1. 과장하지 말고 사용자가 입력한 내용을 기반으로 '있어 보이게' 다듬어라.
+    2. 기술 스택이 명시되지 않았으면 문맥을 보고 추론해서 채워라.
+    3. **무조건 아래 JSON 형식으로만 응답해라.** (설명, 마크다운 코드블록 절대 금지)
+
+    [JSON 출력 양식]
+    {
+      "profile": {
+        "name": "입력 없으면 빈칸",
+        "jobTitle": "직무 (예: Backend Developer)",
+        "email": "입력 없으면 빈칸",
+        "intro": "3~4문장의 매력적인 자기소개 (강점 중심)"
+      },
+      "projects": [
+        {
+          "title": "프로젝트명",
+          "period": "기간 (예: 2024.01 - 2024.06)",
+          "techStack": "사용 기술 (쉼표로 구분)",
+          "description": "상세 설명 (문제 해결 -> 과정 -> 성과 순으로 3문장 이상 작성)"
+        }
+      ]
+    }
+  `.trim();
+
+  const user = `[사용자 입력 데이터]\n${userPrompt}`;
+
+  try {
+    const resp = await client.chat.completions.create({
+      model: 'deepseek-chat', // 사용 중인 모델
+      messages: [
+        { role: 'system', content: system },
+        { role: 'user', content: user },
+      ],
+      temperature: 0.3, // 창의성보다는 형식을 지키도록 낮게 설정
+    });
+
+    const content = resp.choices[0]?.message?.content?.trim() || '';
+
+    // 혹시 모를 마크다운(```json ... ```) 제거 로직
+    const jsonStr = content.replace(/^```json/, '').replace(/```$/, '').trim();
+
+    return JSON.parse(jsonStr); // 객체로 변환해서 반환
+  } catch (error) {
+    console.error('DeepSeek API Error:', error);
+    throw new Error('AI 포트폴리오 생성 실패');
+  }
+}
+
 function extractJsonObject(text) {
   const start = text.indexOf('{');
   const end = text.lastIndexOf('}');
