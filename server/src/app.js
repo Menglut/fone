@@ -3,10 +3,11 @@ import cors from 'cors';
 import mongoose from 'mongoose'; // [추가] DB 라이브러리
 import dotenv from 'dotenv';     // [추가] 환경변수 관리
 
-import generateRouter from './routes/generate.js';
-import pdfRouter from './routes/pdf.js';
-import interviewRouter from './routes/interview.js';
-import portfolioRouter from './routes/portfolio.js'; // [추가] 포트폴리오 라우터
+import generateRouter from './routes/generateRoute.js';
+import pdfRouter from './routes/pdfRoute.js';
+import interviewRouter from './routes/interviewRoute.js';
+import portfolioRouter from './routes/portfolioRoute.js';
+import authRouter from './routes/authRoute.js';
 
 // 환경변수 설정 로드 (.env 파일)
 dotenv.config();
@@ -28,6 +29,7 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use('/api/generate', generateRouter);
 app.use('/api/pdf', pdfRouter);
 app.use('/api/interview', interviewRouter);
-app.use('/api/portfolio', portfolioRouter); // [추가] API 경로 설정
+app.use('/api/portfolio', portfolioRouter);
+app.use('/api/auth', authRouter);
 
 export default app;

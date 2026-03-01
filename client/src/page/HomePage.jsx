@@ -25,14 +25,29 @@ const initialData = {
 };
 
 const Homepage = () => {
-  const [scrollY, setScrollY] = useState(0);
-    const navigate = useNavigate(); // [추가] navigate 함수 생성
+  const [isScrolled, setIsScrolled] = useState(false);
+  const navigate = useNavigate(); // navigate 함수 생성
+  const [user, setUser] = useState(null); // 로그인된 유저 정보를 담을 상태
 
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
+    const handleScroll = () => {
+      // 50px 이상 스크롤되었을 때만 상태를 true로 변경 (불필요한 렌더링 방지)
+      setIsScrolled(window.scrollY > 50);
+    };
     window.addEventListener('scroll', handleScroll);
+
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+    const handleLogout = () => {
+      localStorage.removeItem('user'); // 스토리지에서 유저 데이터 삭제
+      setUser(null); // 상태를 다시 null로 돌려 화면 업데이트
+      alert('성공적으로 로그아웃 되었습니다.');
+    };
 
     const handleSmartResumeClick = () => {
         navigate('/resume/input');
@@ -45,7 +60,7 @@ const Homepage = () => {
     return (
         <div className="container">
             {/* --- NAVIGATION --- */}
-            <nav className={`navbar ${scrollY > 50 ? 'scrolled' : ''}`}>
+            <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
                 {/* 1. Logo: 서비스 이름에 맞게 수정 */}
                 <a href="/" className="nav-logo-btn">
                     <div className="logo-symbol">
@@ -64,9 +79,30 @@ const Homepage = () => {
                 </div>
 
                 {/* 3. Auth */}
-                <div className="nav-auth">
-                    <a href="#login" className="login-link">LOGIN</a>
-                    <a href="#signup" className="signup-btn">SIGH UP</a> {/* 문구 변경 */}
+                <div className="nav-auth" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    {user ? (
+                        /* ✨ 로그인 했을 때 (유저 이름, 대시보드, 로그아웃 표시) */
+                        <>
+                            <button
+                                onClick={() => navigate('/mypage')}
+                                className="login-link"
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'Oswald' }}>
+                                MY DASHBOARD
+                            </button>
+                            <button
+                                onClick={handleLogout}
+                                className="signup-btn"
+                                style={{ background: 'transparent', cursor: 'pointer' }}>
+                                LOGOUT
+                            </button>
+                        </>
+                    ) : (
+                        /* ✨ 로그인 안 했을 때 (기존 방식 유지) */
+                        <>
+                            <a href="/auth" className="login-link">LOGIN</a>
+                            <a href="/auth" className="signup-btn">SIGN UP</a>
+                        </>
+                    )}
                 </div>
             </nav>
 
@@ -91,60 +127,6 @@ const Homepage = () => {
                     </div>
                 </div>
             </header>
-
-            {/* 아래 구역은 잠시 주석 처리 */}
-            {false && (
-                <>
-            {/* --- MARQUEE (서비스 키워드로 변경) --- */}
-            <div className="marquee-section">
-                <div className="track">
-                    <div className="content">
-                        &nbsp;RESUME BUILDER ✦ PORTFOLIO MAKER ✦ AI TEXT ANALYSIS ✦ AUTO FORMATTING ✦ CAREER STRATEGY ✦
-                        RESUME BUILDER ✦ PORTFOLIO MAKER ✦ AI TEXT ANALYSIS ✦ AUTO FORMATTING ✦ CAREER STRATEGY ✦
-                    </div>
-                </div>
-            </div>
-
-            {/* --- WHY US (Service Intro) --- */}
-            <section id="about" className="section-container profile-section">
-                <div className="section-header">
-                    <h2>PIT STOP STRATEGY</h2> {/* 피트스탑 전략: 정비를 받고 나가는 곳 */}
-                    <span className="section-num">01</span>
-                </div>
-                <div className="profile-grid">
-                    <div className="profile-image-area">
-                        <div className="placeholder-img">
-                            <span>SERVICE<br/>DASHBOARD</span> {/* 서비스 예시 화면이 들어갈 곳 */}
-                        </div>
-                    </div>
-                    <div className="profile-info-area">
-                        <h3>WE ENGINEER YOUR SUCCESS</h3>
-                        <p className="main-desc">
-                            막막한 빈 화면(Blank Page)은 이제 그만.<br/>
-                            F1 미케닉이 데이터를 기반으로 머신을 세팅하듯,
-                            우리는 합격 데이터를 기반으로 당신의 경험을 재설계합니다.
-                            단순한 작성이 아닌, '합격'을 위한 엔지니어링을 경험하세요.
-                        </p>
-
-                        <div className="stats-grid">
-                            <div className="stat-box">
-                                <span className="stat-label">USERS</span>
-                                <span className="stat-value">5K+</span>
-                            </div>
-                            <div className="stat-box">
-                                <span className="stat-label">PASS RATE</span>
-                                <span className="stat-value">82%</span>
-                            </div>
-                            <div className="stat-box">
-                                <span className="stat-label">TIME SAVED</span>
-                                <span className="stat-value">3.5H</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            </>
-            )}
 
             {/* --- SOLUTIONS (Features) --- */}
             <section id="features" className="section-container">

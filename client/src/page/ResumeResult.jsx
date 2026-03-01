@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import html2pdf from "html2pdf.js"; // ✨ 라이브러리 추가
 import "../css/Resume.css";
 import { useResumeFlow } from "../context/ResumeFlowContext";
-
-const API_BASE = "http://localhost:5000";
 
 export default function ResumeResult() {
   const nav = useNavigate();
@@ -35,24 +34,24 @@ export default function ResumeResult() {
     }
   };
 
-  const downloadPdf = async () => {
+  // ✨ 백엔드 API 호출 대신 화면을 바로 PDF로 저장하도록 수정
+  const downloadPdf = () => {
     if (!preview.trim()) return;
-    try {
-      const res = await fetch(`${API_BASE}/api/pdf`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: "자기소개서", content: preview }),
-      });
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "coverletter.pdf";
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (e) {
-      alert("PDF 다운로드 중 오류가 발생했습니다.");
-    }
+
+    // PDF로 만들 HTML 요소 선택
+    const element = document.getElementById("pdf-content");
+
+    // PDF 변환 옵션 설정
+    const opt = {
+      margin: 15, // 여백 설정 (mm)
+      filename: "F1ND_YOUR_WAY_자기소개서.pdf", // 저장될 파일명
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 }, // 해상도 높이기 (글씨 깨짐 방지)
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    };
+
+    // 생성 및 다운로드 실행
+    html2pdf().set(opt).from(element).save();
   };
 
   const startOver = () => {
@@ -74,10 +73,6 @@ export default function ResumeResult() {
               <span className="logo-title">F1ND YOUR WAY</span>
             </div>
           </div>
-
-          <div className="rwTopRight">
-
-          </div>
         </div>
       </header>
 
@@ -94,12 +89,10 @@ export default function ResumeResult() {
           </p>
         </section>
 
-        {/* Document View Section (Full Width) */}
-        {/* 기존 maxWidth: 900px 제거 -> width: 100% 적용 */}
+        {/* Document View Section */}
         <section style={{ width: '100%', margin: '0 auto' }}>
           <div className="rwCard" style={{ minHeight: '600px', padding: '40px' }}>
 
-            {/* Card Header with Actions */}
             <div className="rwCardHead" style={{ marginBottom: '30px', borderBottom: '2px solid #eee' }}>
               <div>
                 <div className="rwCardTitle">FINAL OUTPUT DOCUMENT</div>
@@ -126,8 +119,9 @@ export default function ResumeResult() {
               </div>
             </div>
 
-            {/* Content Area */}
+            {/* ✨ id="pdf-content" 추가: 이 안의 내용만 PDF로 캡처됩니다 */}
             <div
+              id="pdf-content"
               className="rwPreviewBox previewArea"
               aria-label="미리보기"
               style={{
@@ -137,8 +131,8 @@ export default function ResumeResult() {
                 fontSize: '1.05rem',
                 lineHeight: '1.8',
                 color: '#222',
-                fontFamily: "'Pretendard', serif", // 본문 가독성 폰트
-                whiteSpace: 'pre-wrap' // 줄바꿈 보존
+                fontFamily: "'Pretendard', serif",
+                whiteSpace: 'pre-wrap'
               }}
             >
               {preview.trim() ? (
@@ -167,7 +161,6 @@ export default function ResumeResult() {
               RETUNE ENGINE (답변 수정)
             </button>
           </div>
-
         </section>
 
         <footer className="rwFooter">

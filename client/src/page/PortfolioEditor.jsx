@@ -12,7 +12,7 @@ const PortfolioEditor = () => {
       intro: ''
     },
     projects: [
-      { id: Date.now(), title: '', period: '', description: '', techStack: '' }
+      { id: crypto.randomUUID(), title: '', period: '', description: '', techStack: '' }
     ]
   });
 
@@ -48,7 +48,7 @@ const PortfolioEditor = () => {
             ...aiData.profile // AI가 제안한 프로필 정보
           },
           projects: [
-            ...aiData.projects.map(p => ({ ...p, id: Date.now() + Math.random() })), // ID 새로 부여
+            ...aiData.projects.map(p => ({ ...p, id: crypto.randomUUID() })), // ID 새로 부여
             ...prev.projects // 기존 프로젝트는 뒤로 밀거나 삭제 가능
           ]
         }));
@@ -84,7 +84,7 @@ const PortfolioEditor = () => {
   const addProject = () => {
     setData((prev) => ({
       ...prev,
-      projects: [...prev.projects, { id: Date.now(), title: '', period: '', description: '', techStack: '' }]
+      projects: [...prev.projects, { id: crypto.randomUUID(), title: '', period: '', description: '', techStack: '' }]
     }));
   };
 

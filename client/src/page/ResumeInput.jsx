@@ -26,7 +26,9 @@ export default function ResumeInput() {
   // 스크롤 이벤트 핸들러
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
+      const shouldBeScrolled = window.scrollY > 10;
+      // 현재 상태와 다를 때만 업데이트 (성능 대폭 향상)
+      setIsScrolled(prev => prev !== shouldBeScrolled ? shouldBeScrolled : prev);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);

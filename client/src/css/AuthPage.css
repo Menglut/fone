@@ -1,0 +1,150 @@
+/* src/css/AuthPage.css */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--dark-bg, #0E0E0E);
+  background-image: radial-gradient(circle at 50% 0%, #2a0808 0%, transparent 50%);
+  padding: 20px;
+  font-family: 'Pretendard', sans-serif;
+}
+
+.auth-card {
+  background: var(--card-bg, #141414);
+  width: 100%;
+  max-width: 420px;
+  padding: 50px 40px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.auth-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 2.2rem;
+  color: #fff;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.auth-subtitle {
+  color: #888;
+  font-size: 0.95rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.auth-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.auth-input-group label {
+  color: #aaa;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.auth-input {
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 14px;
+  color: #fff;
+  font-size: 1rem;
+  border-radius: 2px;
+  transition: all 0.3s;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: #E10600;
+  box-shadow: 0 0 10px rgba(225, 6, 0, 0.2);
+}
+
+.auth-btn {
+  background: #E10600;
+  color: #fff;
+  border: none;
+  padding: 16px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.3s;
+}
+
+.auth-btn:hover {
+  background: #b30500;
+  transform: translateY(-2px);
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 30px 0;
+  color: #555;
+  font-size: 0.85rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.auth-divider:not(:empty)::before { margin-right: .25em; }
+.auth-divider:not(:empty)::after { margin-left: .25em; }
+
+.google-btn-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.auth-toggle {
+  text-align: center;
+  margin-top: 30px;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.auth-toggle span {
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: color 0.3s;
+}
+
+.auth-toggle span:hover {
+  color: #E10600;
+}
+
+/* 브라우저 자동완성(Autofill) 기본 배경색 덮어쓰기 */
+.auth-input:-webkit-autofill,
+.auth-input:-webkit-autofill:hover,
+.auth-input:-webkit-autofill:focus,
+.auth-input:-webkit-autofill:active {
+    /* 내부 그림자를 검은색으로 꽉 채워서 하얀 배경을 가림 */
+    -webkit-box-shadow: 0 0 0 30px #000 inset !important;
+    /* 텍스트 색상을 흰색으로 강제 유지 */
+    -webkit-text-fill-color: #fff !important;
+    /* 배경색이 변하는 애니메이션을 엄청나게 느리게 만들어 색상 변화를 막음 */
+    transition: background-color 5000s ease-in-out 0s;
+}
