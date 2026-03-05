@@ -35,8 +35,8 @@ export default function MyPage() {
         {/* 1. 기본 정보 카드 */}
         <div style={{ background: '#141414', padding: '30px', border: '1px solid #333', borderRadius: '8px', flex: '1', minWidth: '300px' }}>
           <h2 style={{ color: '#E10600', marginBottom: '20px', fontFamily: 'Oswald' }}>PROFILE</h2>
-          <p style={{ color: '#fff', fontSize: '1.2rem', marginBottom: '10px' }}>🏎️ 이름: {user.name}</p>
-          <p style={{ color: '#aaa', fontSize: '1rem' }}>📧 이메일: {user.email}</p>
+          <p style={{ color: '#fff', fontSize: '1.2rem', marginBottom: '10px' }}>이름: {user.name}</p>
+          <p style={{ color: '#aaa', fontSize: '1rem' }}>이메일: {user.email}</p>
         </div>
 
         {/* 2. 저장된 자소서 (나중에 DB 연결) */}

@@ -181,8 +181,7 @@ const Homepage = () => {
             <footer id="contact" className="footer">
                 <div className="footer-top">
                     <h2>READY TO RACE?</h2>
-                    {/* 회원가입 유도 버튼 */}
-                    <button className="contact-btn">CREATE MY RESUME ➔</button>
+                    
                 </div>
                 <div className="footer-bottom">
                     <div className="footer-info">
