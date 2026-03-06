@@ -1,116 +1,471 @@
-/* 전체 레이아웃: 화면 꽉 채우기 */
-.editor-container {
-  display: flex;
-  height: 100vh; /* 화면 전체 높이 */
-  background-color: #f4f5f7;
-  font-family: 'Pretendard', sans-serif;
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700;800&display=swap');
+
+/* -----------------------------------------------------------
+   [Common Styles - Dark Header & Modern Clean Cards]
+----------------------------------------------------------- */
+:root {
+  --rw-bg: #f5f7f9;
+  --rw-dark-bg: #111;
+  --rw-accent: #1e40af; /* Blue accented color */
+  --rw-accent-dark: #1e3a8a;
+  --rw-text: #333;
+  --rw-text-sub: #888;
+  --rw-border: #e2e8f0;
 }
 
-/* 왼쪽: 입력 패널 */
-.editor-panel {
-  width: 40%;
-  min-width: 350px;
-  background: white;
-  border-right: 1px solid #ddd;
-  overflow-y: auto; /* 내용 많으면 스크롤 */
-  padding: 30px;
-  box-shadow: 2px 0 10px rgba(0,0,0,0.05);
-  z-index: 10;
+body, html {
+  margin: 0;
+  padding: 0;
+  background-color: var(--rw-bg);
+  color: var(--rw-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
 }
 
-/* 입력 폼 스타일 */
-.section-title {
-  font-size: 18px;
-  font-weight: bold;
-  margin-top: 30px;
-  margin-bottom: 15px;
-  color: #333;
-  border-bottom: 2px solid #333;
-  padding-bottom: 5px;
-}
-
-.input-group {
-  margin-bottom: 15px;
-}
-
-.input-group label {
-  display: block;
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 5px;
-  font-weight: 600;
-}
-
-.input-group input, 
-.input-group textarea {
+.rwPage {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #e1e1e1;
-  border-radius: 6px;
-  font-size: 14px;
-  transition: 0.2s;
-  box-sizing: border-box; /* 패딩 포함 크기 계산 */
-}
-
-.input-group input:focus,
-.input-group textarea:focus {
-  border-color: #4a90e2;
-  outline: none;
-}
-
-/* 프로젝트 카드 스타일 (입력창 내) */
-.project-item {
-  background: #f8f9fa;
-  padding: 15px;
-  border-radius: 8px;
-  border: 1px solid #eee;
-  margin-bottom: 15px;
+  min-height: 100vh;
   position: relative;
 }
 
-.btn-add, .btn-remove, .btn-save {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 13px;
+/* -----------------------------------------------------------
+   [Header - Dark Theme]
+----------------------------------------------------------- */
+.rwTop {
+  width: 100%;
+  height: 80px;
+  background: var(--rw-dark-bg);
+  color: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  transition: background 0.3s ease;
 }
 
-.btn-add { background: #e9ecef; color: #333; width: 100%; margin-top: 10px; }
-.btn-remove { background: #ff6b6b; color: white; position: absolute; top: 10px; right: 10px; font-size: 11px;}
-.btn-save { background: #4a90e2; color: white; width: 100%; font-size: 16px; margin-top: 30px; padding: 15px; }
+.rwTop.scrolled {
+  background: rgba(0,0,0,0.9);
+  backdrop-filter: blur(10px);
+}
 
-/* 오른쪽: 미리보기 패널 */
-.preview-panel {
-  width: 60%;
-  background-color: #525659; /* 어두운 배경 (문서 집중) */
-  padding: 40px;
-  overflow-y: auto;
+.rwTopInner {
+  width: 100%;
+  max-width: 1200px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 20px;
   display: flex;
-  justify-content: center;
-}
-
-/* A4 용지 효과 */
-.a4-paper {
-  width: 210mm;
-  min-height: 297mm;
-  background: white;
-  padding: 40px 50px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  align-items: center;
+  justify-content: space-between;
   box-sizing: border-box;
 }
 
-/* 미리보기 내부 디자인 */
-.preview-header { margin-bottom: 40px; border-bottom: 2px solid #333; padding-bottom: 20px; }
-.preview-name { font-size: 36px; font-weight: 800; margin: 0; color: #222; }
-.preview-job { font-size: 18px; color: #666; margin-top: 5px; }
-.preview-intro { margin-top: 20px; font-size: 15px; line-height: 1.6; color: #444; }
+/* Logo Styles */
+.nav-logo-btn {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 12px;
+}
 
-.preview-section-title { font-size: 20px; font-weight: bold; margin-top: 30px; margin-bottom: 15px; color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+.logo-symbol {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #eee, #aaa);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 800;
+  font-size: 24px;
+  color: black;
+  transform: skewX(-10deg);
+  border: 3px solid #eee;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
 
+.logo-text-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.logo-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: white;
+}
+
+.preview-nav-btns {
+  display: flex;
+  gap: 10px;
+}
+
+/* -----------------------------------------------------------
+   [Main Wrap & Intro]
+----------------------------------------------------------- */
+.rwWrap {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 130px 20px 0 20px;
+  box-sizing: border-box;
+}
+
+.rwIntro {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.rwChip {
+  display: inline-block;
+  background: white;
+  color: var(--rw-accent);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 6px 16px;
+  border-radius: 100px;
+  border: 1px solid var(--rw-border);
+  margin-bottom: 15px;
+}
+
+.rwTitle {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  color: var(--rw-dark-bg);
+  margin: 0 0 15px 0;
+}
+
+.rwAccent {
+  color: var(--rw-accent);
+  position: relative;
+  z-index: 1;
+}
+
+.rwAccent::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 5px;
+  width: 100%;
+  height: 12px;
+  background: #dbeafe;
+  z-index: -1;
+  border-radius: 4px;
+}
+
+.rwDesc {
+  font-size: 17px;
+  color: var(--rw-text-sub);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* -----------------------------------------------------------
+   [Input Area & Cards]
+----------------------------------------------------------- */
+.rwInputArea {
+  width: 100%;
+  margin-bottom: 80px;
+}
+
+.rwInputRow {
+  display: flex;
+  gap: 30px;
+  width: 100%;
+}
+
+.rwInputRow > .rwCard {
+  flex: 1;
+}
+
+.rwCard {
+  background: white;
+  border: 1px solid var(--rw-border);
+  border-radius: 20px;
+  padding: 30px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+.rwCardHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  gap: 15px;
+}
+
+.rwCardTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: black;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rwCardTitle span {
+    border-bottom: 3px solid black;
+    padding-bottom: 3px;
+}
+
+.rwCardSub {
+  font-size: 14px;
+  color: var(--rw-text-sub);
+  margin-top: 8px;
+}
+
+.rwCardAI {
+    background: #f0f4ff;
+    border-color: #dbeafe;
+}
+
+.rwCardAI .rwCardTitle span {
+    border-color: var(--rw-accent);
+    color: var(--rw-accent);
+}
+
+/* -----------------------------------------------------------
+   [Form Inputs - 완벽 적용 파트]
+----------------------------------------------------------- */
+.input-group-rw {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.input-group-rw.fullWidth {
+    grid-column: span 2;
+}
+
+.input-group-rw label {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.rwInputText, 
+.rwTextarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 15px;
+    box-sizing: border-box;
+    background-color: #f8fafc;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    color: #1e293b;
+}
+
+.rwInputText:focus, 
+.rwTextarea:focus {
+    outline: none;
+    border-color: var(--rw-accent);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+    background-color: #ffffff;
+}
+
+.rwTextarea {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.rwTextarea.short {
+    min-height: 80px;
+}
+
+/* 프로젝트 카드의 그리드 레이아웃 (좌우 2칸 배치용) */
+.rwCardBodyGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+/* -----------------------------------------------------------
+   [Buttons]
+----------------------------------------------------------- */
+.rwBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  border-radius: 10px;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.rwBtn.primary {
+  background: var(--rw-accent);
+  color: white;
+  border: none;
+}
+
+.rwBtn.primary:hover:not(:disabled) {
+  background: var(--rw-accent-dark);
+}
+
+.rwBtn.primary.full {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+}
+
+.rwBtn.primary.short {
+    padding: 10px 18px;
+    font-size: 14px;
+}
+
+.rwBtn.primary.fullLarge {
+    width: 100%;
+    padding: 18px;
+    font-size: 18px;
+    border-radius: 12px;
+}
+
+.rwBtn.secondary {
+    background: white;
+    color: #666;
+    border: 1px solid var(--rw-border);
+}
+
+.rwBtn.secondary:hover:not(:disabled) {
+    background: #f8fafc;
+    color: black;
+    border-color: #aaa;
+}
+
+.rwBtn.secondary.full {
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+}
+
+.rwBtn.secondary.short {
+    padding: 8px 15px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.rwBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-remove-rw {
+    flex-shrink: 0;
+}
+
+/* -----------------------------------------------------------
+   [Action Area & Bottom Hint]
+----------------------------------------------------------- */
+.rwActionArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.rwBottomHint {
+  font-size: 14px;
+  color: var(--rw-text-sub);
+}
+
+/* -----------------------------------------------------------
+   [Preview Area (A4 Paper Style)]
+----------------------------------------------------------- */
+.rwPreviewArea {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.a4-paper-container {
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    justify-content: center;
+}
+
+.a4-paper {
+  width: 100%;
+  aspect-ratio: 1 / 1.414;
+  background: white;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  border-radius: 12px;
+  padding: 50px;
+  box-sizing: border-box;
+  font-family: 'Cambria', 'Georgia', serif;
+  position: relative;
+  overflow: hidden;
+}
+
+.preview-header { text-align: left; margin-bottom: 40px; border-bottom: 2px solid #333; padding-bottom: 20px;}
+.preview-name { font-size: 32px; font-weight: bold; margin: 0; color: black; }
+.preview-job { font-size: 18px; color: #666; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; }
+.preview-email { font-size: 14px; color: #888; margin-top: 8px; font-family: sans-serif; }
+.preview-intro { font-size: 15px; color: #444; line-height: 1.6; margin-top: 15px; white-space: pre-wrap; }
+
+.preview-section-title { font-size: 18px; font-weight: bold; color: black; margin: 30px 0 15px 0; border-left: 5px solid var(--rw-accent); padding-left: 10px; }
 .preview-project-item { margin-bottom: 25px; }
-.preview-project-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; display: flex; justify-content: space-between; }
-.preview-project-period { font-size: 13px; color: #888; font-weight: normal; }
-.preview-project-desc { font-size: 14px; line-height: 1.6; color: #444; white-space: pre-wrap; }
-.preview-tags span { display: inline-block; background: #eee; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-right: 5px; margin-top: 5px; }
+.preview-project-title { font-size: 16px; font-weight: bold; color: black; display: flex; justify-content: space-between; align-items: baseline;}
+.preview-project-period { font-size: 13px; color: #888; font-weight: normal; font-family: sans-serif;}
+.preview-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.preview-tags span { background: #eee; color: #555; font-size: 12px; padding: 3px 8px; border-radius: 4px; font-family: sans-serif;}
+.preview-project-desc { font-size: 14px; color: #555; line-height: 1.6; margin: 8px 0; white-space: pre-wrap; }
+
+/* -----------------------------------------------------------
+   [Footer]
+----------------------------------------------------------- */
+.rwFooter {
+  width: 100%;
+  margin-top: 80px;
+  padding: 30px 0;
+  border-top: 1px solid var(--rw-border);
+  background: rgba(255,255,255,0.5);
+}
+
+.rwFooterInner {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  box-sizing: border-box;
+  font-size: 13px;
+  color: var(--rw-text-sub);
+}
+
+.rwFootLeft {
+    display: flex;
+    align-items: center;
+}
+
+/* -----------------------------------------------------------
+   [Loading Animation]
+----------------------------------------------------------- */
+.rwLoading {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+  z-index: 2000; display: flex; justify-content: center; align-items: center;
+}
+
+.rwLoadingCard { background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 400px; }
+.rwLoadingText { font-size: 18px; font-weight: bold; margin-top: 20px; color: black; }
+.rwLoadingSub { font-size: 14px; color: var(--rw-text-sub); margin-top: 5px; display: block;}
+.rwDots::after { content: ''; animation: rwDotsAnim 1.5s infinite; }
+@keyframes rwDotsAnim { 0% { content: ''; } 33% { content: '.'; } 66% { content: '..'; } 100% { content: '...'; } }
+
+.rwLoadingTrack { width: 100%; height: 3px; background: #eee; position: relative; margin: 15px 0;}
+.rwCar { width: 40px; height: 10px; background: var(--rw-accent); position: absolute; top: -4px; border-radius: 3px; animation: rwCarMove 2s infinite ease-in-out;}
+@keyframes rwCarMove { 0% { left: 0%; } 50% { left: calc(100% - 40px); } 100% { left: 0%; } }
