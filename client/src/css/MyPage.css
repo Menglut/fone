@@ -1,0 +1,170 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Rajdhani:wght@700;800&display=swap');
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+/* =========================================================
+   1. 컨테이너 & 헤더 (기존 디자인 유지)
+========================================================= */
+.mp-container {
+  min-height: 100vh; width: 100%; background-color: #0A0A0A;
+  padding-bottom: 100px; font-family: 'Pretendard', sans-serif;
+}
+
+.mp-header {
+  position: fixed; top: 0; left: 0; width: 100%; height: 80px;
+  background: rgba(10, 10, 10, 0.85); border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex; align-items: center; z-index: 1000; backdrop-filter: blur(12px);
+}
+.mp-header-inner { width: 100%; padding: 0 50px; display: flex; justify-content: space-between; align-items: center; }
+
+.mp-logo-btn { display: flex; align-items: center; gap: 15px; text-decoration: none; cursor: pointer; padding: 8px 16px; background: rgba(0, 0, 0, 0.4); border: 1px solid transparent; border-radius: 4px; transition: all 0.3s ease; }
+.mp-logo-btn:hover { border-color: #E10600; background: rgba(0, 0, 0, 0.8); }
+.mp-logo-symbol { font-family: 'Rajdhani', sans-serif; font-weight: 800; font-size: 24px; color: #E10600; border: 2px solid #E10600; padding: 0 8px; transform: skew(-10deg); }
+.mp-logo-text-group { display: flex; flex-direction: column; justify-content: center; }
+.mp-logo-text { color: #fff; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 1.1rem; letter-spacing: 0.5px; transform: skewX(-10deg); }
+
+.mp-nav-btn { background: transparent; border: 1px solid rgba(255,255,255,0.2); padding: 8px 18px; color: #fff; border-radius: 6px; cursor: pointer; font-family: 'Oswald', sans-serif; letter-spacing: 1px; transition: all 0.2s ease; }
+.mp-nav-btn:hover { background: white; color: black; }
+
+/* =========================================================
+   2. 메인 콘텐츠 래퍼
+========================================================= */
+.mp-content-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 130px 50px 50px 50px;
+}
+
+/* =========================================================
+   3. 히어로 통계 섹션 (트렌디한 대시보드 상단)
+========================================================= */
+.mp-hero-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 50px;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+
+.mp-main-title { font-family: 'Oswald', sans-serif; font-size: 3.5rem; color: #fff; margin: 0 0 10px 0; line-height: 1; }
+.highlight-text { color: #E10600; }
+.mp-sub-title { color: #888; margin: 0; font-size: 1.1rem; }
+
+.mp-stats-container {
+  display: flex;
+  gap: 20px;
+}
+
+.mp-stat-box {
+  background: #141414;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 20px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 130px;
+}
+
+.stat-label { font-family: 'Oswald', sans-serif; color: #888; font-size: 0.9rem; letter-spacing: 1px; margin-bottom: 5px; }
+.stat-value { font-family: 'Oswald', sans-serif; color: #fff; font-size: 2.5rem; font-weight: 700; line-height: 1; }
+
+/* =========================================================
+   4. 벤토 그리드 레이아웃 (핵심 트렌드)
+========================================================= */
+.mp-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr); /* 12칸 그리드 시스템 */
+  gap: 24px;
+}
+
+/* 개별 카드 배치 */
+.card-profile { grid-column: span 4; display: flex; flex-direction: column; }
+.card-resumes { grid-column: span 8; }
+.card-experiences { grid-column: span 4; }
+.card-portfolios { grid-column: span 8; }
+
+/* 1024px 이하 화면 대응 */
+@media (max-width: 1024px) {
+  .card-profile, .card-resumes, .card-experiences, .card-portfolios { grid-column: span 12; }
+  .mp-hero-section { flex-direction: column; align-items: flex-start; }
+}
+
+/* =========================================================
+   5. 벤토 카드 공통 스타일
+========================================================= */
+.bento-card {
+  background: #141414;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px; /* 모던한 둥근 모서리 */
+  padding: 30px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* F1 레드 포인트 글로우 (은은한 효과) */
+.bento-card::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+  background: linear-gradient(90deg, transparent, #E10600, transparent);
+  opacity: 0.3; transition: opacity 0.3s;
+}
+.bento-card:hover::before { opacity: 1; }
+.bento-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+.bento-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+.bento-title { font-family: 'Oswald', sans-serif; font-size: 1.5rem; color: #fff; margin: 0; letter-spacing: 0.5px; }
+.bento-desc { color: #888; font-size: 0.95rem; margin-top: -15px; margin-bottom: 20px; }
+
+/* =========================================================
+   6. 프로필 전용 요소
+========================================================= */
+.profile-info-wrap { display: flex; align-items: center; gap: 20px; margin-top: 20px; margin-bottom: 30px; }
+.profile-avatar { width: 70px; height: 70px; border-radius: 50%; background: #E10600; color: white; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-family: 'Oswald', sans-serif; font-weight: 700; }
+.profile-details p { margin: 0; }
+.p-name { color: #fff; font-size: 1.3rem; font-weight: 700; margin-bottom: 5px !important; }
+.p-email { color: #888; font-size: 0.95rem; }
+
+/* =========================================================
+   7. 버튼 스타일
+========================================================= */
+.bento-btn-primary { background: #222; color: #fff; border: 1px solid #E10600; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.bento-btn-primary:hover { background: #E10600; color: white; }
+
+.bento-btn-outline { width: 100%; background: transparent; color: #888; border: 1px solid rgba(255,255,255,0.2); padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.bento-btn-outline:hover { background: white; color: black; border-color: white; }
+
+.bento-btn-icon { background: #222; color: #fff; border: 1px solid rgba(255,255,255,0.1); width: 36px; height: 36px; border-radius: 8px; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+.bento-btn-icon:hover { background: #fff; color: #000; }
+
+/* =========================================================
+   8. 리스트 아이템 (스크롤 가능하게 처리)
+========================================================= */
+.bento-list { display: flex; flex-direction: column; gap: 12px; max-height: 250px; overflow-y: auto; padding-right: 5px; }
+
+/* 스크롤바 커스텀 */
+.scroller::-webkit-scrollbar { width: 6px; }
+.scroller::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-radius: 10px; }
+.scroller::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+.scroller::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+.bento-list-item {
+  background: #1A1A1A; border: 1px solid rgba(255,255,255,0.05); padding: 18px 20px;
+  border-radius: 12px; display: flex; justify-content: space-between; align-items: center;
+  transition: all 0.2s ease;
+}
+.bento-list-item:hover { border-color: rgba(225, 6, 0, 0.4); background: #222; transform: translateX(5px); }
+.bento-list-item.compact { padding: 14px 16px; }
+
+.item-info { display: flex; align-items: center; gap: 15px; }
+.item-icon { font-size: 1.5rem; background: #252525; padding: 10px; border-radius: 10px; }
+.item-title { color: #fff; font-size: 1.05rem; font-weight: 600; margin: 0 0 6px 0; }
+.text-truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; margin: 0; }
+.item-date { color: #666; font-size: 0.85rem; margin: 0; }
+
+.item-action-btn { background: transparent; color: #888; border: none; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
+.item-action-btn:hover { color: #E10600; }
+.item-action-btn.small { color: #555; font-size: 1.2rem; }
+
+.empty-state { text-align: center; padding: 40px 0; border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; color: #666; font-size: 0.95rem; }
+.empty-text { color: #666; }

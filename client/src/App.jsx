@@ -11,6 +11,8 @@ import ResumeInterview from "./page/ResumeInterview";
 import ResumeResult from "./page/ResumeResult";
 import AuthPage from "./page/AuthPage";
 import MyPage from "./page/MyPage";
+import ExperienceEditor from './page/ExperienceEditor';
+import ProfileEditor from './page/ProfileEditor';
 
 // ✨ 1. 페이지 이동 시 스크롤을 맨 위로 초기화하는 컴포넌트 추가
 function ScrollToTop() {
@@ -48,6 +50,10 @@ return(
 
                     { /* 포트폴리오 흐름 */}
                     <Route path="/portfolio" element={<PortfolioEditor />} />
+
+                    { /* 경험 및 프로필 흐름 */}
+                    <Route path="/experience/input" element={<ExperienceEditor />} />
+                    <Route path="/profile/edit" element={<ProfileEditor />} />
 
                     {/* 잘못된 주소는 메인으로 */}
                     <Route path="*" element={<Navigate to="/" replace />} />

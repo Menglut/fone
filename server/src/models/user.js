@@ -1,14 +1,18 @@
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
-  // 구글 로그인은 googleId가 있지만, 일반 로그인은 없으므로 required: false 로 변경
+  // 기존 회원가입/로그인 필드
   googleId: { type: String, unique: true, sparse: true },
   email: { type: String, required: true, unique: true },
   name: { type: String, required: true },
-  // 일반 가입자는 비밀번호가 필요함
   password: { type: String },
   picture: { type: String },
   createdAt: { type: Date, default: Date.now },
+
+  // ✨ 포트폴리오 마스터 프로필을 위한 추가 필드
+  jobTitle: { type: String, default: '' }, // 직무
+  github: { type: String, default: '' },   // 깃허브/블로그 링크
+  intro: { type: String, default: '' },    // 자기소개
 });
 
 export default mongoose.model('User', userSchema);

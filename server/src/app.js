@@ -12,6 +12,9 @@ import interviewRouter from './routes/interviewRoute.js';
 // 💡 주의: 파일명을 portfolioRoute.js 로 맞춰서 저장해 주세요!
 import portfolioRouter from './routes/portfolioRoute.js'; 
 import authRouter from './routes/authRoute.js';
+import resumeRoute from './routes/resumeRoute.js';
+import experienceRoute from './routes/experienceRoute.js';
+import profileRouter from './routes/profileRoute.js';
 
 const app = express();
 
@@ -33,5 +36,8 @@ app.use('/api/interview', interviewRouter);
 // ✨ 프론트에서 /api/portfolio 로 보내면 여기서 받아서 처리합니다.
 app.use('/api/portfolio', portfolioRouter); 
 app.use('/api/auth', authRouter);
+app.use('/api/resume', resumeRoute);
+app.use('/api/experience', experienceRoute);
+app.use('/api/profile', profileRouter);
 
 export default app;

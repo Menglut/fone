@@ -1,0 +1,271 @@
+/* ExperienceEditor.css */
+@import url('./ProfileEditor.css');
+
+.ee-container {
+  min-height: 100vh;
+  background-color: #ffffff;
+  color: #1e293b;
+  font-family: 'Inter', 'Pretendard', sans-serif;
+}
+
+/* 🏎️ F1 다크 헤더 (롤백) */
+.ee-dark-header {
+  background: #000000;
+  padding: 15px 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 2px solid var(--f1-red);
+}
+
+.ee-content-wrap {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 60px 20px;
+}
+
+/* 텍스트 유틸리티 */
+.ee-text-dark { color: #111111; }
+.ee-text-gray { color: #64748b; }
+.ee-text-why { color: #dc2626; font-weight: 700; }
+.ee-text-how { color: #1e40af; font-weight: 700; }
+.ee-text-then { color: #16a34a; font-weight: 700; }
+
+/* 레이아웃 유틸리티 */
+.ee-mt-20 { margin-top: 20px; }
+.ee-mt-30 { margin-top: 30px; }
+.ee-mb-15 { margin-bottom: 15px; }
+.ee-flex-gap-15 { display: flex; gap: 15px; align-items: center; }
+
+/* 📂 메인 프로젝트 폼 및 리스트 카드 */
+.ee-main-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 30px;
+  border-radius: 4px;
+  padding: 30px;
+}
+
+.ee-project-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.ee-project-card.active {
+  border-color: var(--f1-red);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.ee-card-summary {
+  padding: 24px 35px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.ee-title-group {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.ee-count {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.4rem;
+  color: var(--f1-red);
+  font-weight: 700;
+  font-style: italic;
+}
+
+.ee-main-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.25rem;
+  text-transform: uppercase;
+}
+
+.ee-item-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.ee-item-role-badge {
+  color: var(--f1-red);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.ee-detail-content {
+  padding: 0 35px 40px 35px;
+  border-top: 1px solid #f1f5f9;
+  background: #fdfdfd;
+}
+
+/* ✨ 시각화 박스 (포트폴리오 디자인: 흰 배경, 깔끔한 테두리) */
+.ee-visual-box {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 25px 0;
+  border: 1px solid #cbd5e1;
+}
+
+.ee-visual-label {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  color: #1e40af; /* 파란색 포인트 */
+  margin-bottom: 15px;
+  display: block;
+  text-transform: uppercase;
+}
+
+.ee-chart-wrap {
+  height: 200px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+/* 🖼️ 이미지 관리 및 입력창 */
+.ee-image-upload-box {
+  margin-top: 20px;
+  padding: 20px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+}
+
+.ee-preview-img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin-top: 15px;
+  border: 1px solid #e2e8f0;
+}
+
+/* 입력창 화이트 테마 클래스 */
+.ee-input-light {
+  color: #111111 !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.ee-input-light:focus {
+  border-color: var(--f1-red) !important;
+}
+
+.ee-input-oswald {
+  font-family: 'Oswald', sans-serif !important;
+  font-size: 1.2rem !important;
+  font-weight: 800 !important;
+}
+
+.ee-textarea-json {
+  font-size: 0.8rem !important;
+  height: 60px !important;
+  margin-bottom: 15px !important;
+}
+
+.ee-input-label-small {
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 5px;
+}
+
+/* 유틸리티 및 버튼 클래스 */
+.ee-section-label {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 2px;
+  color: var(--f1-red);
+  margin: -5px 0 15px 0;
+  display: block;
+  text-transform: uppercase;
+}
+
+.ee-toggle-icon {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.ee-btn-delete {
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  color: #94a3b8;
+  padding: 5px 12px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 2px;
+}
+
+.ee-btn-delete:hover {
+  background: #ef4444;
+  color: #fff;
+  border-color: #ef4444;
+}
+
+.ee-btn-add {
+  width: 100%;
+  padding: 20px;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  color: #64748b;
+  font-family: 'Oswald', sans-serif;
+  font-size: 1rem;
+  cursor: pointer;
+  margin: 20px 0 40px 0;
+  transition: all 0.3s;
+}
+
+.ee-btn-add:hover {
+  border-color: var(--f1-red);
+  color: var(--f1-red);
+  background: #fff;
+}
+
+.ee-btn-save-dark {
+  flex: 2;
+  background: #111111;
+  color: #ffffff;
+  border: none;
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 20px;
+  transition: background 0.2s;
+}
+
+.ee-btn-save-dark:hover {
+  background: var(--f1-red);
+}
+
+.ee-btn-delete-outline {
+  flex: 1;
+  background: transparent;
+  color: #ef4444;
+  border: 1px solid #ef4444;
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 20px;
+  transition: all 0.2s;
+}
+
+.ee-btn-delete-outline:hover {
+  background: #ef4444;
+  color: #ffffff;
+}

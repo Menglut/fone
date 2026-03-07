@@ -127,13 +127,15 @@ ${experienceText}
  */
 export async function generatePortfolioJson({ userPrompt }) {
   const system = `
-너는 IT 포트폴리오 전문 컨설턴트다.
-사용자의 거친(Rough) 입력을 바탕으로, 깔끔하고 전문적인 포트폴리오 데이터를 생성해라.
+너는 Top-tier IT 기업(네카라쿠배) 출신의 시니어 개발자이자 포트폴리오 전문 컨설턴트다.
+사용자의 거친(Rough) 입력을 바탕으로, 면접관을 사로잡을 수 있는 '문제 해결(Troubleshooting) 중심'의 고급 포트폴리오 데이터를 생성해라.
 
 [필수 규칙]
-1. 과장하지 말고 사용자가 입력한 내용을 기반으로 '있어 보이게' 다듬어라.
-2. 기술 스택이 명시되지 않았으면 문맥을 보고 추론해서 채워라.
-3. 반드시 아래 형태의 JSON 객체로만 응답해라:
+1. 사용자가 입력한 내용을 바탕으로 하되, 전문가의 어휘(예: '병목 해소', '동기화', '아키텍처 개선', '비동기 처리')로 다듬어라.
+2. 기술 스택이 명시되지 않았으면 문맥을 보고 가장 트렌디하고 적합한 기술 스택을 추론해서 채워라.
+3. 핵심은 단순 구현 나열이 아니라 **Why(문제/배경) - How(해결책/설계) - Then(성과/결과)** 구조다.
+4. 성과(Then)에는 가능하면 정량적인 지표(예: '응답 시간 80% 감소', 'TPS 3배 증가')를 문맥에 맞게 가상으로라도 생성해라 (사용자가 나중에 수정할 수 있도록 돕는 용도).
+5. 반드시 아래 형태의 JSON 객체로만 응답해라:
 
 {
   "profile": {
@@ -143,14 +145,28 @@ export async function generatePortfolioJson({ userPrompt }) {
     "intro": "3~4문장의 매력적인 자기소개 (강점 중심)"
   },
   "projects": [
-    {
-      "title": "프로젝트명",
-      "period": "기간 (예: 2024.01 - 2024.06)",
-      "techStack": "사용 기술 (쉼표로 구분)",
-      "description": "상세 설명 (문제 해결 -> 과정 -> 성과 순으로 3문장 이상 작성)"
-    }
-  ]
-}
+      {
+        "title": "프로젝트명",
+        "period": "기간",
+        "summary": "한 줄 요약",
+        "techStack": "기술 스택",
+        "troubleshootings": [
+          {
+            "title": "문제 해결 경험 제목",
+            "why": "발생한 문제",
+            "how": "해결 과정",
+            "then": "개선된 성과",
+            "architectureCode": "Mermaid.js 문법(graph TD). 실무적인 수준으로 보이도록 서브그래프(subgraph)를 적극 활용해 계층(Client, Server, DB 등)을 명확히 분리하여 전문적으로 작성해라.",
+            "chartData": [
+               { "name": "도입 전", "value": 100 },
+               { "name": "적용 1일차", "value": 60 },
+               { "name": "최적화 후", "value": 20 }
+            ] // 선/영역 그래프로 그렸을 때 흐름이 보이도록 반드시 3~4개의 시계열/단계별 데이터로 구성해라.
+          }
+        ]
+      }
+    ]
+  }
   `.trim();
 
   const user = `[사용자 입력 데이터]\n${userPrompt}`;
@@ -158,12 +174,12 @@ export async function generatePortfolioJson({ userPrompt }) {
   try {
     const resp = await client.chat.completions.create({
       model: 'deepseek-chat',
-      response_format: { type: 'json_object' }, // ✨ 핵심: JSON Mode 강제
+      response_format: { type: 'json_object' }, // ✨ JSON 뼈대 강제
       messages: [
         { role: 'system', content: system },
         { role: 'user', content: user },
       ],
-      temperature: 0.3,
+      temperature: 0.4, // 창의성과 논리성의 적절한 타협점
     });
 
     const content = resp.choices[0]?.message?.content?.trim() || '{}';
