@@ -108,7 +108,7 @@ export default function ReverseInterviewPrep() {
       <main className="rip-wrap">
         <section className="rip-title-section">
           <div className="rip-chip">STRESS TEST SETUP</div>
-          <h1 className="rip-main-title">REVERSE INTERVIEW</h1>
+          <h1 className="rip-main-title">INTERVIEW</h1>
           <p className="rip-sub-title">
             타겟 문서를 스캔하면 AI가 가장 치명적인 약점(공격 리스트)을 추천해 줍니다.<br/>
             내가 직접 면접관이 되어 이 질문들로 내 서류를 방어하는 AI 아바타를 압박해 보세요.

@@ -18,8 +18,7 @@
 ========================================= */
 .rip-header {
   height: 80px;
-  background: rgba(14, 14, 14, 0.9);
-  backdrop-filter: blur(10px);
+  background: #000; /* ✨ 투명도를 완전히 없애고 다른 화면과 똑같은 딥블랙 색상 적용 */
   display: flex;
   align-items: center;
   justify-content: space-between;

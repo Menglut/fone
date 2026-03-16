@@ -15,6 +15,7 @@ import ExperienceEditor from './page/ExperienceEditor';
 import ProfileEditor from './page/ProfileEditor';
 import ReverseInterviewPrep from './page/ReverseInterviewPrep';
 import ResumeEditor from './page/ResumeEditor';
+import ReverseInterviewRoom from './page/ReverseInterviewRoom';
 
 // ✨ 1. 페이지 이동 시 스크롤을 맨 위로 초기화하는 컴포넌트 추가
 function ScrollToTop() {
@@ -55,6 +56,7 @@ return(
 
                     { /* 면접 흐름 */}
                     <Route path="/interview/prep" element={<ReverseInterviewPrep />} />
+                    <Route path="/interview/defense" element={<ReverseInterviewRoom />} />
 
                     { /* 프로필 흐름 */}
                     <Route path="/experience/input" element={<ExperienceEditor />} />
