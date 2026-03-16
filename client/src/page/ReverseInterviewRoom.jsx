@@ -1,25 +1,34 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios'; // ✨ API 통신을 위해 axios 추가
 import '../css/ReverseInterviewRoom.css';
+
+const API_BASE = "http://localhost:5000"; // 💡 백엔드 서버 주소 (환경에 맞게 수정하세요)
 
 export default function ReverseInterviewRoom() {
   const location = useLocation();
   const navigate = useNavigate();
   
-  // Prep 화면에서 넘겨받은 3개의 핵심 질문 데이터
+  // Prep 화면에서 넘겨받은 데이터 (문서 ID와 초기 3개 핵심 질문)
   const { targetId, targetType, initialAttacks = [] } = location.state || {};
 
-  const [coreQuestions, setCoreQuestions] = useState([]); // 초기 3개 질문 보관용
-  const [currentQuestions, setCurrentQuestions] = useState([]); // 화면 좌측에 보여줄 질문 리스트 (핵심 or 꼬리질문)
-  const [isFollowUpMode, setIsFollowUpMode] = useState(false); // 현재 꼬리 질문 모드인지 여부
+  const [coreQuestions, setCoreQuestions] = useState([]); 
+  const [currentQuestions, setCurrentQuestions] = useState([]); 
+  const [isFollowUpMode, setIsFollowUpMode] = useState(false); 
   
   const [messages, setMessages] = useState([]);
   const [isAiDefending, setIsAiDefending] = useState(false);
   const messagesEndRef = useRef(null);
 
+  // 현재 로그인한 유저 정보 가져오기 (종료 시 기록 저장을 위함)
+  const getUserInfo = () => {
+    const userStr = localStorage.getItem('user');
+    return userStr ? JSON.parse(userStr) : null;
+  };
+
   // 1. 방 입장 시 초기 세팅
   useEffect(() => {
-    if (!initialAttacks || initialAttacks.length === 0) {
+    if (!initialAttacks || initialAttacks.length === 0 || !targetId) {
       alert("정상적인 경로가 아닙니다. 스캔을 먼저 진행해주세요.");
       return navigate('/interview/prep');
     }
@@ -34,72 +43,130 @@ export default function ReverseInterviewRoom() {
         text: "시스템 가동 완료. 제 서류(이력서)를 바탕으로 면접을 시작하겠습니다. 좌측에서 질문을 선택해 주세요."
       }
     ]);
-  }, [initialAttacks, navigate]);
+  }, [initialAttacks, targetId, navigate]);
 
   // 스크롤 하단 고정
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isAiDefending]);
 
-  // 2. 질문 던지기 (핵심 질문 or 꼬리 질문 공통)
-  const handleAskQuestion = (questionObj) => {
+  // 💡 2. 진짜 AI와 통신하는 질문 던지기 로직
+  const handleAskQuestion = async (questionObj) => {
     if (isAiDefending) return;
 
-    // 만약 핵심 질문을 던진 거라면 사용 처리
+    // 핵심 질문이면 사용 처리
     if (!isFollowUpMode) {
       setCoreQuestions(prev => prev.map(q => q.id === questionObj.id ? { ...q, isUsed: true } : q));
     }
 
-    // 면접관(유저)의 질문을 채팅창에 추가
-    setMessages(prev => [...prev, { id: `msg-user-${Date.now()}`, sender: 'user', text: questionObj.question }]);
+    // 유저의 질문을 화면에 즉시 표시
+    const newUserMsg = { id: `msg-user-${Date.now()}`, sender: 'user', text: questionObj.question };
+    setMessages(prev => [...prev, newUserMsg]);
     
-    // AI가 답변을 생각하는 동안 다른 질문을 못 누르게 리스트를 임시로 비움
-    setCurrentQuestions([]);
-    setIsAiDefending(true);
+    setCurrentQuestions([]); // 질문 중복 클릭 방지를 위해 리스트 비우기
+    setIsAiDefending(true);  // AI 로딩 시작
 
-    // 💡 AI 방어 및 꼬리 질문 생성 임시 목업 (추후 백엔드 연결 부위)
-    setTimeout(() => {
-      let isStuttering = false;
-      let mockDefense = "";
-      let newFollowUps = [];
+    try {
+      // AI가 대화 문맥을 기억할 수 있도록 최근 대화 내역(최대 6개)을 추려서 보냅니다.
+      const currentHistory = [...messages, newUserMsg].filter(m => m.id !== 'msg-sys-1'); // 첫 시스템 인사말 제외
+      const chatContext = currentHistory.slice(-6).map(m => ({
+        sender: m.sender,
+        text: m.text
+      }));
 
-      // 목업 로직: 질문에 '비용', '단점', '실패' 등의 단어가 들어가면 AI가 서류에 없어서 버벅거림
-      if (questionObj.question.includes('비용') || questionObj.question.includes('단점') || questionObj.question.includes('부작용')) {
-        isStuttering = true;
-        mockDefense = "어... 그 부분은... 솔직히 말씀드리면 현재 제출된 서류상에는 해당 단점이나 비용에 대한 구체적인 대비책이 적혀있지 않습니다... 당시에 성과를 내는 데 집중하다 보니 놓친 것 같습니다. 죄송합니다.";
-        
-        // 당황했을 때의 꼬리 질문
-        newFollowUps = [
-          { id: `follow-1-${Date.now()}`, type: "FOLLOW-UP", question: "서류에 적혀있지 않다면, 실제로는 비용 계산을 전혀 안 하고 프로젝트를 진행했다는 뜻인가요?" },
-          { id: `follow-2-${Date.now()}`, type: "FOLLOW-UP", question: "그렇다면 지금 이 자리에서 그 기술의 치명적인 단점 1가지와 해결책을 구두로 설명해 보시겠어요?" }
-        ];
+      // ✨ 백엔드에 AI 답변 및 꼬리 질문 생성 요청!
+      const res = await axios.post(`${API_BASE}/api/interview/chat`, {
+        docId: targetId,
+        currentQuestion: questionObj.question,
+        chatContext: chatContext
+      });
+
+      if (res.data.success) {
+        const aiData = res.data.data; 
+
+        // AI 답변과 ✨모범 답안(modelAnswer)을 채팅창에 추가
+        setMessages(prev => [
+          ...prev, 
+          { 
+            id: `msg-ai-${Date.now()}`, 
+            sender: 'ai', 
+            text: aiData.answer, 
+            isStuttering: aiData.isStuttering,
+            modelAnswer: aiData.modelAnswer // ✨ 백엔드에서 온 모범 답안 저장
+          }
+        ]);
+
+        if (aiData.followUps && aiData.followUps.length > 0) {
+          const formattedFollowUps = aiData.followUps.map((q, idx) => ({
+            id: `follow-${Date.now()}-${idx}`,
+            type: q.type || "FOLLOW-UP",
+            question: q.question
+          }));
+          setCurrentQuestions(formattedFollowUps);
+          setIsFollowUpMode(true);
+        } else {
+          setCurrentQuestions(coreQuestions);
+          setIsFollowUpMode(false);
+        }
       } else {
-        // 일반적인 방어 성공 시
-        isStuttering = false;
-        mockDefense = "네, 그 질문에 답변드리겠습니다. 제 이력서 두 번째 프로젝트를 보시면 아시겠지만, 저는 해당 문제를 A라는 기술을 도입하여 해결했습니다. 이 과정에서 유저 이탈률을 20% 감소시키는 성과를 거두었습니다.";
-        
-        // 방어 성공 시 꼬리 질문
-        newFollowUps = [
-          { id: `follow-1-${Date.now()}`, type: "FOLLOW-UP", question: "이탈률 20% 감소가 오직 그 기술 덕분이라고 확신할 수 있는 데이터적 근거가 있습니까?" },
-          { id: `follow-2-${Date.now()}`, type: "FOLLOW-UP", question: "만약 A 기술이 아니라 B 기술을 썼다면 결과가 어떻게 달랐을까요?" }
-        ];
+        throw new Error(res.data.message || "AI 응답 실패");
       }
-
-      // AI 답변 채팅창 추가
-      setMessages(prev => [...prev, { id: `msg-ai-${Date.now()}`, sender: 'ai', text: mockDefense, isStuttering }]);
-      
-      // 꼬리 질문 리스트로 업데이트
-      setCurrentQuestions(newFollowUps);
-      setIsFollowUpMode(true);
+    } catch (error) {
+      console.error("AI 챗 통신 오류:", error);
+      alert("AI 면접관과 통신하는 중 문제가 발생했습니다.");
+      // 에러 발생 시 핵심 질문 리스트로 복귀
+      setCurrentQuestions(coreQuestions);
+      setIsFollowUpMode(false);
+    } finally {
       setIsAiDefending(false);
-
-    }, 2500); // 2.5초 대기
+    }
   };
 
   // 3. 다른 핵심 질문으로 돌아가기 기능
   const handleReturnToCore = () => {
     setCurrentQuestions(coreQuestions);
     setIsFollowUpMode(false);
+  };
+
+  // 💡 4. 면접 종료 및 기록 저장
+  const handleFinishInterview = async () => {
+    if (!window.confirm("모의 면접을 종료하고 기록을 저장하시겠습니까?\n(버벅거렸던 질문들을 중심으로 이력서를 수정해보세요!)")) {
+      return;
+    }
+
+    const user = getUserInfo();
+    const userId = user?.id || user?._id || user?.email;
+
+    // 대화를 한 번도 안 했으면 그냥 나가기
+    if (messages.length <= 1) {
+      return navigate('/mypage');
+    }
+
+    try {
+      // 시스템 첫 인사말을 제외한 실제 대화 기록만 추출
+      const historyToSave = messages
+        .filter(m => m.id !== 'msg-sys-1')
+        .map(m => ({
+          sender: m.sender,
+          text: m.text,
+          isStuttering: m.isStuttering || false
+        }));
+
+      // ✨ 백엔드에 기록 저장 요청
+      await axios.post(`${API_BASE}/api/interview/save`, {
+        userId: userId,
+        docId: targetId,
+        title: `역면접 스트레스 테스트 (${new Date().toLocaleDateString()})`,
+        chatHistory: historyToSave
+      });
+
+      alert("면접 기록이 성공적으로 저장되었습니다. 대시보드에서 확인하세요!");
+    } catch (error) {
+      console.error("면접 기록 저장 실패:", error);
+      alert("기록 저장 중 오류가 발생했지만, 대시보드로 이동합니다.");
+    } finally {
+      navigate('/mypage'); // 마이페이지(대시보드)로 이동
+    }
   };
 
   return (
@@ -112,11 +179,7 @@ export default function ReverseInterviewRoom() {
         </div>
         <button 
           className="room-exit-btn"
-          onClick={() => {
-            if(window.confirm("모의 면접을 종료하시겠습니까? (버벅거렸던 질문들을 중심으로 이력서를 수정해보세요!)")) {
-              navigate('/mypage');
-            }
-          }}
+          onClick={handleFinishInterview}
         >
           FINISH INTERVIEW
         </button>
@@ -178,6 +241,14 @@ export default function ReverseInterviewRoom() {
                     <div className={`ai-bubble ${msg.isStuttering ? 'stutter' : ''}`}>
                       {msg.text}
                     </div>
+                    
+                    {/* ✨ AI가 당황하여 모범 답안이 존재할 경우 가이드 박스 렌더링 */}
+                    {msg.modelAnswer && msg.modelAnswer.trim() !== "" && (
+                      <div className="model-answer-box">
+                        <span className="model-answer-title">💡 면접 컨설팅 가이드</span>
+                        {msg.modelAnswer}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="msg-wrap user">

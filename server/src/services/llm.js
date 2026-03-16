@@ -254,3 +254,66 @@ export async function generateReverseInterviewAttacks({ documentContent, targetJ
     throw new Error('AI 압박 질문 생성 실패');
   }
 }
+
+/**
+ * ✅ 실시간 모의 면접: AI 답변, 모범 답안 및 꼬리 질문 동시 생성 (JSON Mode)
+ */
+export async function generateInterviewResponseAndFollowUps({ documentContent, currentQuestion, chatContext }) {
+  const system = `
+너는 지금 면접을 보고 있는 '지원자'이자, 동시에 유저를 돕는 '면접 컨설턴트'다.
+면접관(사용자)이 질문을 던지면, 오직 제공된 [지원자 서류 내용]에 있는 팩트만 가지고 대답해라.
+
+[행동 지침]
+1. 서류에 관련 내용이 충분하다면: 자신감 있고 논리적으로 대답해라. (isStuttering: false, modelAnswer: "")
+2. 서류에 관련 내용이 없거나 부족하다면(예: 치명적 단점, 비용, 실패 경험 등):
+   - answer: 서류에 해당 내용이 없다는 것을 명확히 인정하며 당황하는 지원자의 대답을 작성해라. (isStuttering: true)
+   - modelAnswer: 면접 컨설턴트의 입장에서 "실제 면접이었다면 이렇게 대답하는 것이 좋습니다" 또는 "이 부분을 서류에 추가하세요"라는 명확하고 실전적인 모범 답안(가이드)을 작성해라.
+
+[꼬리 질문(Follow-ups) 생성 지침]
+- 대답이 끝난 직후, 면접관이 이어서 파고들 만한 날카로운 '꼬리 질문' 2개를 만들어라.
+
+반드시 아래 형태의 JSON 객체로만 응답해라:
+{
+  "answer": "지원자로서의 대답",
+  "isStuttering": true 또는 false,
+  "modelAnswer": "모범 답안 및 조언 (내용이 충분했다면 빈 문자열로 둬라)",
+  "followUps": [
+    { "id": "q1", "type": "FOLLOW-UP", "question": "첫 번째 꼬리 질문" },
+    { "id": "q2", "type": "FOLLOW-UP", "question": "두 번째 꼬리 질문" }
+  ]
+}
+  `.trim();
+
+  const contextText = chatContext && chatContext.length > 0 
+    ? chatContext.map(c => `${c.sender === 'user' ? '면접관' : '지원자'}: ${c.text}`).join('\n')
+    : '첫 번째 질문입니다.';
+
+  const user = `
+[지원자 서류 내용]
+${documentContent}
+
+[이전 대화 맥락]
+${contextText}
+
+[면접관의 현재 질문]
+${currentQuestion}
+  `.trim();
+
+  try {
+    const resp = await client.chat.completions.create({
+      model: 'deepseek-chat',
+      response_format: { type: 'json_object' },
+      messages: [
+        { role: 'system', content: system },
+        { role: 'user', content: user },
+      ],
+      temperature: 0.6,
+    });
+
+    const content = resp.choices[0]?.message?.content?.trim() || '{}';
+    return JSON.parse(content);
+  } catch (error) {
+    console.error('DeepSeek Interview Chat API Error:', error);
+    throw new Error('AI 면접 답변 생성 실패');
+  }
+}
