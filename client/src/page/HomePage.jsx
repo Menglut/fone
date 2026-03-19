@@ -57,6 +57,10 @@ const Homepage = () => {
         navigate('/portfolio');
     };
 
+    const handleSmartInterviewClick = () => {
+        navigate('/interview/prep');
+    };
+
     return (
         <div className="container">
             {/* --- NAVIGATION --- */}
@@ -162,7 +166,7 @@ const Homepage = () => {
                         <div className="card-arrow">↗</div>
                     </div>
 
-                    <div className="grid-card">
+                    <div className="grid-card" onClick={handleSmartInterviewClick}>
                         <div className="card-top">
                             <span className="card-num">S3</span>
                             <span className="card-cat">AI TELEMETRY</span>

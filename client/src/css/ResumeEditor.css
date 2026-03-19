@@ -1,0 +1,222 @@
+/* src/css/ResumeEditor.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Oswald:wght@400;700&family=Rajdhani:wght@700&display=swap');
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+.re-container {
+  min-height: 100vh;
+  background-color: #f1f5f9; /* 눈이 편안한 아주 연한 회색 배경 */
+  color: #0f172a;
+  font-family: 'Pretendard', sans-serif;
+  padding-bottom: 80px;
+}
+
+/* =========================================
+   헤더 (기존 다크 테마 유지)
+========================================= */
+.re-header {
+  height: 80px;
+  background: rgba(14, 14, 14, 0.95);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 50px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 2px solid #E10600; /* F1 레드 포인트 라인 */
+}
+
+.re-logo-btn {
+  display: flex; align-items: center; gap: 15px; text-decoration: none;
+  cursor: pointer;
+}
+
+.re-logo-symbol {
+  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 24px;
+  color: #E10600; letter-spacing: 2px; border: 2px solid #E10600;
+  padding: 0 8px; transform: skew(-10deg);
+}
+
+.re-logo-title {
+  color: #fff; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 1.1rem;
+  letter-spacing: 0.5px; text-transform: uppercase; transform: skewX(-10deg);
+}
+
+.re-back-btn {
+  background: transparent; border: 1px solid rgba(255, 255, 255, 0.5);
+  color: #fff; padding: 8px 20px; font-weight: 600; font-family: 'Oswald', sans-serif;
+  cursor: pointer; transition: all 0.3s ease; letter-spacing: 1px;
+}
+.re-back-btn:hover { background-color: #fff; color: #000; }
+
+/* =========================================
+   메인 레이아웃 (Grid 분할)
+========================================= */
+.re-layout {
+  max-width: 1400px;
+  margin: 40px auto 0;
+  padding: 0 50px;
+  display: grid;
+  grid-template-columns: 1fr 350px; /* 좌측 에디터 1fr, 우측 사이드바 350px */
+  gap: 40px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .re-layout { grid-template-columns: 1fr; } /* 모바일/태블릿에선 1단 배치 */
+}
+
+/* =========================================
+   좌측: 텍스트 에디터 영역
+========================================= */
+.re-editor-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 50px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+  min-height: 800px;
+  display: flex;
+  flex-direction: column;
+}
+
+.re-title-input {
+  width: 100%;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #0f172a;
+  border: none;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 15px;
+  margin-bottom: 30px;
+  font-family: 'Pretendard', sans-serif;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.re-title-input:focus {
+  border-bottom-color: #cbd5e1;
+}
+
+.re-title-input::placeholder { color: #cbd5e1; }
+
+.re-content-textarea {
+  width: 100%;
+  flex-grow: 1;
+  border: none;
+  resize: none;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #334155;
+  font-family: 'Pretendard', sans-serif;
+  outline: none;
+  min-height: 500px;
+}
+
+/* =========================================
+   우측: AI 피트 크루 사이드바 (Sticky)
+========================================= */
+.re-sidebar {
+  position: sticky;
+  top: 120px; /* 스크롤 시 화면 상단에 고정 */
+}
+
+.re-ai-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-top: 4px solid #1e40af; /* AI는 파란색 포인트 */
+  border-radius: 12px;
+  padding: 30px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+}
+
+.re-panel-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.re-ai-desc {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.re-ai-btn {
+  width: 100%;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.re-ai-btn:hover:not(:disabled) {
+  background: #eff6ff;
+  border-color: #1e40af;
+  color: #1e40af;
+}
+
+.re-ai-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 저장 버튼 영역 */
+.re-save-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 30px;
+}
+
+.re-save-btn {
+  width: 100%;
+  background: #E10600;
+  color: #fff;
+  border: none;
+  padding: 18px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.re-save-btn:hover:not(:disabled) {
+  background: #b30500;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(225, 6, 0, 0.2);
+}
+
+/* AI 로딩 애니메이션 */
+.re-spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(30, 64, 175, 0.3);
+  border-top-color: #1e40af;
+  border-radius: 50%;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

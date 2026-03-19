@@ -150,7 +150,7 @@ export default function MyPage() {
                         <p className="item-date">{new Date(resume.updatedAt || Date.now()).toLocaleDateString()}</p>
                       </div>
                     </div>
-                    <button className="item-action-btn" onClick={() => navigate('/resume/input', { state: { resumeId: resume._id } })}>수정 ➔</button>
+                    <button className="item-action-btn" onClick={() => navigate(`/resume/edit/${resume._id}`)}>수정 ➔</button>
                   </div>
                 ))
               ) : (

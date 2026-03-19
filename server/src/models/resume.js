@@ -30,6 +30,19 @@ const resumeSchema = new mongoose.Schema(
         answer: { type: String, default: '' },   // 답변 내용
       }
     ],
+    // 자소서 내용 저장
+    content: {
+        type: String,
+        default: ''
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now
+      },
+      updatedAt: {
+        type: Date,
+        default: Date.now
+      }
   },
   {
     // ✨ timestamps를 true로 설정하면 createdAt, updatedAt이 자동 생성/갱신됩니다.

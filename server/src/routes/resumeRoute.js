@@ -6,8 +6,8 @@ const router = express.Router();
 // 1. 자기소개서 저장 및 업데이트 (POST /api/resume)
 router.post('/', async (req, res) => {
   try {
-    // 프론트엔드에서 resumeId를 보내면 '수정', 안 보내면 '새로 생성'
-    const { userId, resumeId, title, targetCompany, targetJob, qnaList } = req.body;
+    // ✨ req.body에서 content를 꼭 꺼내옵니다.
+    const { userId, resumeId, title, targetCompany, targetJob, qnaList, content } = req.body;
 
     if (!userId) {
       return res.status(400).json({ success: false, message: '사용자 ID가 필요합니다.' });
@@ -16,20 +16,21 @@ router.post('/', async (req, res) => {
     let savedResume;
 
     if (resumeId) {
-      // 기존 자기소개서 수정 모드
+      // 기존 자기소개서 수정 모드 (✨ content 반영)
       savedResume = await Resume.findByIdAndUpdate(
         resumeId,
-        { title, targetCompany, targetJob, qnaList, updatedAt: Date.now() },
+        { title, targetCompany, targetJob, qnaList, content, updatedAt: Date.now() },
         { new: true }
       );
     } else {
-      // 새로운 자기소개서 생성 모드
+      // 새로운 자기소개서 생성 모드 (✨ content 반영)
       savedResume = await Resume.create({
         userId,
         title: title || '새 자기소개서',
         targetCompany,
         targetJob,
-        qnaList
+        qnaList,
+        content
       });
     }
 
@@ -68,6 +69,23 @@ router.get('/detail/:resumeId', async (req, res) => {
   } catch (error) {
     console.error('Resume Detail Fetch Error:', error);
     res.status(500).json({ success: false, message: '상세 조회 실패' });
+  }
+});
+
+// 4. 특정 자기소개서 삭제 (DELETE /api/resume/:id)
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedResume = await Resume.findByIdAndDelete(id);
+
+    if (!deletedResume) {
+      return res.status(404).json({ success: false, message: '삭제할 자기소개서를 찾을 수 없습니다.' });
+    }
+
+    res.status(200).json({ success: true, message: '성공적으로 삭제되었습니다.' });
+  } catch (error) {
+    console.error('Resume Delete Error:', error);
+    res.status(500).json({ success: false, message: '삭제 처리 중 서버 오류가 발생했습니다.' });
   }
 });
 
