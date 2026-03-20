@@ -1,0 +1,160 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Oswald:wght@400;700&family=Rajdhani:wght@700&display=swap');
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+.room-container {
+  height: 100vh; max-height: 100vh; overflow: hidden;
+  background-color: #f8fafc; color: #0f172a;
+  font-family: 'Pretendard', sans-serif;
+  display: flex; flex-direction: column;
+}
+
+/* 🏁 헤더 */
+.room-header {
+  height: 80px; background: #111111; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 50px; border-bottom: 2px solid #E10600; flex-shrink: 0; z-index: 1000;
+}
+.room-logo-btn { display: flex; align-items: center; gap: 15px; cursor: pointer; }
+.room-logo-symbol {
+  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 24px;
+  color: #E10600; letter-spacing: 2px; border: 2px solid #E10600; padding: 0 8px; transform: skew(-10deg);
+}
+.room-logo-title {
+  color: #fff; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 1.1rem;
+  letter-spacing: 0.5px; text-transform: uppercase; transform: skewX(-10deg);
+}
+.room-exit-btn {
+  background: transparent; border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 4px;
+  color: #fff; padding: 10px 24px; font-weight: 600; font-family: 'Oswald', sans-serif;
+  cursor: pointer; transition: all 0.3s ease; letter-spacing: 1px;
+}
+.room-exit-btn:hover { background-color: #E10600; color: #fff; border-color: #E10600; }
+
+/* 🖥️ 메인 레이아웃 */
+.room-layout {
+  display: grid; grid-template-columns: 450px 1fr; gap: 20px; /* 좌측 패널 넓게 수정 */
+  flex-grow: 1; padding: 20px 50px; overflow: hidden;
+}
+
+/* 🔵 좌측: 실시간 포트폴리오 패널 (LIVE DRAFT) */
+.room-attack-panel {
+  background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px;
+  display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.02); overflow: hidden;
+}
+
+.panel-header { padding: 25px 25px 15px; border-bottom: 1px solid #f1f5f9; flex-shrink: 0; }
+.panel-chip { font-family: 'Rajdhani', sans-serif; font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; }
+.panel-title { font-family: 'Oswald', sans-serif; font-size: 1.6rem; font-weight: 700; color: #0f172a; margin-top: 5px; }
+
+.question-list-scroller {
+  flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column;
+}
+.question-list-scroller::-webkit-scrollbar, .sim-chat-history::-webkit-scrollbar { width: 6px; }
+.question-list-scroller::-webkit-scrollbar-thumb, .sim-chat-history::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+/* 실시간 작성되는 섹션 디자인 */
+.draft-section h4 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.draft-section p {
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+/* 💬 우측: 전문가 단톡방 패널 */
+.room-sim-display {
+  display: flex; flex-direction: column; background: #ffffff;
+  border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); overflow: hidden;
+}
+
+.sim-chat-history { flex-grow: 1; padding: 30px 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 25px; }
+
+/* 말풍선 공통 (전문가 AI) */
+.msg-wrap.ai { align-self: flex-start; display: flex; gap: 15px; max-width: 85%; }
+.ai-avatar-icon {
+  width: 45px; height: 45px; background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;
+}
+.ai-bubble-wrap { display: flex; flex-direction: column; gap: 5px; }
+.ai-bubble {
+  background: #f1f5f9; color: #1e293b; padding: 16px 22px; border-radius: 2px 16px 16px 16px;
+  line-height: 1.6; font-size: 1rem; border: 1px solid #e2e8f0;
+}
+
+/* 말풍선 (사용자) */
+.msg-wrap.user { align-self: flex-end; max-width: 80%; }
+.user-bubble {
+  background: #111; color: #fff; padding: 15px 22px; border-radius: 16px 2px 16px 16px;
+  font-weight: 500; font-size: 1rem; line-height: 1.6; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 말풍선 (시스템 안내 메시지) */
+.msg-wrap.system { align-self: center; margin: 10px 0; }
+.system-bubble {
+  background: #f8fafc; color: #64748b; padding: 8px 20px; border-radius: 20px;
+  font-size: 0.85rem; font-weight: 600; border: 1px solid #e2e8f0; letter-spacing: 0.5px;
+}
+
+/* ⌨️ 채팅 입력 영역 (하단 고정) */
+.chat-input-area {
+  display: flex; gap: 12px; padding: 20px 30px;
+  background: #ffffff; border-top: 1px solid #e2e8f0;
+  flex-shrink: 0; /* 화면이 작아져도 입력창은 찌그러지지 않게 */
+}
+.chat-input-area input {
+  flex-grow: 1; padding: 14px 20px;
+  border: 1px solid #cbd5e1; border-radius: 8px;
+  font-family: 'Pretendard', sans-serif; font-size: 1rem;
+  transition: all 0.2s ease;
+}
+.chat-input-area input:focus {
+  outline: none; border-color: #E10600; box-shadow: 0 0 0 3px rgba(225, 6, 0, 0.1);
+}
+
+/* AI 로딩 애니메이션 (타이핑 중...) */
+.defense-loading { display: flex; gap: 8px; padding: 10px 20px; background: #f1f5f9; border-radius: 20px; width: fit-content; align-self: flex-start; margin-left: 60px; }
+.defense-dot {
+  width: 8px; height: 8px; background: #94a3b8; border-radius: 50%;
+  animation: defenseBounce 1.4s infinite ease-in-out both;
+}
+.defense-dot:nth-child(1) { animation-delay: -0.32s; }
+.defense-dot:nth-child(2) { animation-delay: -0.16s; }
+@keyframes defenseBounce { 0%, 80%, 100% { transform: scale(0); opacity: 0.3; } 40% { transform: scale(1); opacity: 1; } }
+
+/* ✨ 모범 답안 가이드 박스 추가 */
+.model-answer-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+  padding: 18px 22px;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  box-shadow: 0 4px 10px rgba(22, 101, 52, 0.05);
+  animation: fadeIn 0.5s ease;
+}
+
+.model-answer-title {
+  display: block;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #15803d;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
