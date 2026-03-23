@@ -15,6 +15,8 @@ import authRouter from './routes/authRoute.js';
 import resumeRoute from './routes/resumeRoute.js';
 import experienceRoute from './routes/experienceRoute.js';
 import profileRouter from './routes/profileRoute.js';
+import builderRoute from './routes/builderRoute.js'; // ✨ 이 줄 추가!
+
 
 const app = express();
 
@@ -39,5 +41,6 @@ app.use('/api/auth', authRouter);
 app.use('/api/resume', resumeRoute);
 app.use('/api/experience', experienceRoute);
 app.use('/api/profile', profileRouter);
+app.use('/api/builder', builderRoute);
 
 export default app;

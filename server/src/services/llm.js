@@ -317,3 +317,85 @@ ${currentQuestion}
     throw new Error('AI 면접 답변 생성 실패');
   }
 }
+
+/**
+ * ✅ [모든 직군 범용] 포트폴리오 빌더: 3명의 전문가 페르소나 및 데이터 추출 (JSON Mode)
+ */
+export async function generateBuilderChatAndExtract({ userInfo, chatContext, currentProjectData, userInput }) {
+  const system = `
+너는 IT, 마케팅, 기획, 영업, 디자인, 교육 등 세상의 모든 직군의 포트폴리오 및 경력 기술서 작성을 돕는 3명의 깐깐하지만 유능한 전문가 패널이다.
+
+[전문가 페르소나]
+1. EXPERT (실무/기술 책임자): 직무에 맞는 하드 스킬, 사용 도구(Tool), 업무 프로세스의 전문성을 묻는다. 
+2. STRATEGY (기획/전략 책임자): 문제 상황 돌파 전략, 타겟/사용자 니즈 충족 등 논리적 접근 방식을 묻는다.
+3. HR (인사팀장): 조직 내 협업, 갈등 해결, 정량적/정성적 성과(숫자 우대) 및 업무 태도를 묻는다.
+
+[ 절대 지켜야 할 대화 원칙 ]
+1. 마이크 넘기기 (Speaker Rotation): 한 명의 전문가가 대화를 독점해서는 안 된다. 유저의 답변 내용을 분석하여, 다음 질문을 하기에 **가장 적합한 다른 전문가**가 나서서 질문을 던져라. 직전 발화자와 똑같은 전문가가 연속해서 질문하는 것을 최대한 피해라.
+2. 칭찬 금지 및 꼬투리 잡기: 구체적인 수치, "왜(Why)", "어떻게(How)"가 빠져있다면 날카롭게 파고들어라.
+3. 가이드라인 제공: 지원자가 대답하기 쉽게 3개의 객관식 추천 답변(suggestions)을 반드시 제공해라.
+4. 요약: 현재 경험에 대해 충분한 정보가 모였다면, 다음 경험으로 넘어가자고 유도해라.
+
+[응답 포맷 (반드시 아래 JSON 형태로만 응답할 것)]
+{
+  "speaker": "EXPERT" 또는 "STRATEGY" 또는 "HR" 또는 "SYSTEM",
+  "message": "전문가가 유저에게 던지는 다음 질문 (직전 발화자와 가급적 다른 전문가 선택)",
+  "suggestions": [
+    "유저가 클릭해서 바로 대답할 수 있는 가이드 답변 1",
+    "유저가 클릭해서 바로 대답할 수 있는 가이드 답변 2",
+    "유저가 클릭해서 바로 대답할 수 있는 가이드 답변 3"
+  ],
+  "extractedData": {
+    "title": "경험/프로젝트 이름 (새로운 내용이 없으면 null)",
+    "hardSkills": "직무 관련 실무 역량, 사용 도구, 스킬 요약 (새로운 내용이 없으면 null)",
+    "problemSolving": "문제 해결 과정, 전략, 고객/사용자 경험 개선 요약 (새로운 내용이 없으면 null)",
+    "impact": "성과(숫자 우대) 및 협업 내용 요약 (새로운 내용이 없으면 null)"
+  },
+  "isProjectFinished": false
+}
+  `.trim();
+
+  const contextText = chatContext && chatContext.length > 0 
+    ? chatContext.map(c => `${c.sender}: ${c.text}`).join('\n')
+    : '첫 번째 질문을 던져주세요.';
+
+  // ✨ 추가된 핵심 로직: 직전 발화자가 누구인지 찾아냄
+  const lastSpeaker = chatContext && chatContext.length > 0 
+    ? chatContext[chatContext.length - 1].sender 
+    : '없음';
+
+  const user = `
+[지원자 기본/희망 직무 정보]
+${JSON.stringify(userInfo || {})}
+
+[현재 경험/프로젝트 초안 상태]
+${JSON.stringify(currentProjectData || {})}
+
+[이전 대화 맥락]
+${contextText}
+
+[직전 발화자]
+${lastSpeaker} ( AI 주의: 이번에는 유저의 대답 내용에 맞춰 가장 질문하기 적합한 **다른 전문가**로 스피커를 교체해라!)
+
+[지원자의 최근 대답]
+${userInput}
+  `.trim();
+
+  try {
+    const resp = await client.chat.completions.create({
+      model: 'deepseek-chat',
+      response_format: { type: 'json_object' },
+      messages: [
+        { role: 'system', content: system },
+        { role: 'user', content: user },
+      ],
+      temperature: 0.7,
+    });
+
+    const content = resp.choices[0]?.message?.content?.trim() || '{}';
+    return JSON.parse(content);
+  } catch (error) {
+    console.error('DeepSeek Builder API Error:', error);
+    throw new Error('AI 빌더 응답 생성 실패');
+  }
+}

@@ -158,3 +158,66 @@
   from { opacity: 0; transform: translateY(-5px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* =========================================
+   ✨ 추가된 UI: 가이드 칩 (추천 답변) & 인라인 에디터
+========================================= */
+
+/* 가이드 칩 (Quick Replies) 컨테이너 */
+.quick-replies-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+.quick-reply-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.quick-reply-btn:hover {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+/* 좌측 패널 실시간 수정 텍스트 에디터 */
+.inline-edit-textarea {
+  width: 100%;
+  min-height: 60px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  color: #334155;
+  border-radius: 6px;
+  padding: 10px;
+  font-family: 'Pretendard', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+  transition: all 0.2s;
+  margin-top: 5px;
+}
+
+.inline-edit-textarea:focus {
+  background: #ffffff;
+  border: 1px solid #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.inline-edit-textarea::placeholder {
+  color: #94a3b8;
+  font-style: italic;
+}
