@@ -82,7 +82,7 @@ const Homepage = () => {
 
                 {/* 2. Menu */}
                 <div className="nav-menu center-menu">
-                    <a href="/resume/input">자기소개서</a>        {/* 메뉴명 변경 */}
+                    <a href="/resume/new">자기소개서</a>        {/* 메뉴명 변경 */}
                     <a href="/builder">포트폴리오</a>  {/* 메뉴명 변경 */}
                     <a href="#pricing">면접연습</a>       {/* 메뉴명 변경 */}
                 </div>

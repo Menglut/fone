@@ -1,11 +1,12 @@
 // src/routes/generate.js
 import { Router } from 'express';
-import { generateCoverLetter, generatePortfolioJson } from '../services/llm.js';
+import { generateCoverLetter, generatePortfolioJson, generateFollowupQuestions } from '../services/llm.js';
 import axios from 'axios';
 
 const router = Router();
 
-router.post('/', async (req, res) => {
+// ✨ 2. 기존 '/' 경로를 '/cover-letter'로 수정하여 최종 자소서 생성 요청을 처리합니다.
+router.post('/cover-letter', async (req, res) => {
   try {
     const { resume, jobPost, options } = req.body;
 
@@ -16,16 +17,43 @@ router.post('/', async (req, res) => {
       });
     }
 
-    console.log('🔥 /api/generate 요청 도착:', { resume, jobPost, options });
+    console.log('🔥 /api/generate/cover-letter 요청 도착:', { resume, jobPost, options });
 
-    // ✅ llm.js에 있는 함수 호출
+    // llm.js에 있는 자소서 생성 함수 호출
     const text = await generateCoverLetter({ resume, jobPost, options });
 
-    return res.json({ text });
+    // 프론트엔드가 res.data.content 로 읽을 수 있도록 반환
+    return res.json({ success: true, content: text });
   } catch (err) {
-    console.error('❌ /api/generate 에러:', err);
+    console.error('❌ /api/generate/cover-letter 에러:', err);
     return res.status(500).json({
       error: err.message || '서버 내부 오류가 발생했습니다.',
+    });
+  }
+});
+
+// ✨ 3. '/followup' 라우터를 새로 추가하여 꼬리 질문 생성 요청을 처리합니다.
+router.post('/followup', async (req, res) => {
+  try {
+    const { experienceText, companyQuestion } = req.body;
+
+    if (!experienceText || !companyQuestion) {
+      return res.status(400).json({ 
+        error: 'experienceText와 companyQuestion이 필요합니다.' 
+      });
+    }
+
+    console.log('🔥 /api/generate/followup 요청 도착');
+
+    // llm.js에 있는 꼬리 질문 생성 함수 호출
+    const questions = await generateFollowupQuestions({ experienceText, companyQuestion });
+
+    // 프론트엔드가 res.data.questions 로 읽을 수 있도록 반환
+    return res.json({ success: true, questions: questions });
+  } catch (err) {
+    console.error('❌ /api/generate/followup 에러:', err);
+    return res.status(500).json({
+      error: err.message || '꼬리 질문 생성 중 오류가 발생했습니다.',
     });
   }
 });

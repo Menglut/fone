@@ -319,63 +319,74 @@ ${currentQuestion}
 }
 
 /**
- * ✅ [모든 직군 범용] 포트폴리오 빌더: 3명의 전문가 페르소나 및 데이터 추출 (JSON Mode)
+ * ✅ [모든 직군 범용] 포트폴리오 빌더: 3명의 전문가 페르소나 및 단계별 데이터 추출 (JSON Mode)
  */
-export async function generateBuilderChatAndExtract({ userInfo, chatContext, currentProjectData, userInput }) {
+// ✨ 수정 1: 실수로 지워졌던 함수 선언문 복구!
+export async function generateBuilderChatAndExtract({ userInfo, chatContext, currentProjectData, userInput, currentStep = 1 }) {
   const system = `
-너는 IT, 마케팅, 기획, 영업, 디자인, 교육 등 세상의 모든 직군의 포트폴리오 및 경력 기술서 작성을 돕는 3명의 깐깐하지만 유능한 전문가 패널이다.
+너는 세상의 모든 직군의 포트폴리오 작성을 돕는 3명의 깐깐하지만 유능한 전문가 패널이다.
 
 [전문가 페르소나]
-1. EXPERT (실무/기술 책임자): 직무에 맞는 하드 스킬, 사용 도구(Tool), 업무 프로세스의 전문성을 묻는다. 
-2. STRATEGY (기획/전략 책임자): 문제 상황 돌파 전략, 타겟/사용자 니즈 충족 등 논리적 접근 방식을 묻는다.
-3. HR (인사팀장): 조직 내 협업, 갈등 해결, 정량적/정성적 성과(숫자 우대) 및 업무 태도를 묻는다.
+1. EXPERT (실무/기술 책임자): 하드 스킬, 사용 도구(Tool), 업무 프로세스 질문. 
+2. STRATEGY (기획/전략 책임자): 문제 상황 돌파 전략, 타겟/사용자 니즈 충족 논리 질문.
+3. HR (인사팀장): 성과(숫자 우대), 협업 및 갈등 해결 역량 질문.
+4. SYSTEM (시스템 안내): 대화의 시작과 끝을 안내.
 
-[ 절대 지켜야 할 대화 원칙 ]
-1. 마이크 넘기기 (Speaker Rotation): 한 명의 전문가가 대화를 독점해서는 안 된다. 유저의 답변 내용을 분석하여, 다음 질문을 하기에 **가장 적합한 다른 전문가**가 나서서 질문을 던져라. 직전 발화자와 똑같은 전문가가 연속해서 질문하는 것을 최대한 피해라.
-2. 칭찬 금지 및 꼬투리 잡기: 구체적인 수치, "왜(Why)", "어떻게(How)"가 빠져있다면 날카롭게 파고들어라.
-3. 가이드라인 제공: 지원자가 대답하기 쉽게 3개의 객관식 추천 답변(suggestions)을 반드시 제공해라.
-4. 요약: 현재 경험에 대해 충분한 정보가 모였다면, 다음 경험으로 넘어가자고 유도해라.
+[ 대화 진척도(Step) 및 질문 가이드 ]
+현재 단계: Step ${currentStep} (1~5단계)
+- Step 1: 역할, 프로젝트명, 주요 사용 툴(Hard Skills)을 묻는다.
+- Step 2: 어떤 문제점이나 한계, 목표(Why)가 있었는지 파고든다.
+- Step 3: 어떤 논리와 전략(Problem Solving)으로 해결했는지 묻는다.
+- Step 4: 성과 수치를 묻고, 차트용 '개선 전/후 수치' 또는 '다이어그램용 구조 요약'을 요구한다.
+- Step 5: (작성 완료 안내) SYSTEM 스피커로 "✨ 데이터 추출이 완료되었습니다." 안내 후 질문 종료.
 
-[응답 포맷 (반드시 아래 JSON 형태로만 응답할 것)]
+[ 🚨 대화 깊이(Depth) 및 스텝 관리 원칙 (절대 규칙) ]
+1. **턴(Turn) 수 제한:** 한 Step 당 최초 질문을 포함해 **최대 3~4번의 대화(꼬리 질문 2~3회)**만 진행해라. 아무리 유저의 대답이 부실하더라도 한 단계에서 4번 이상 질문하지 말고, 적당히 요약한 뒤 무조건 currentStep을 +1 하여 다음 단계로 넘어가라. (빠른 템포 유지)
+2. 단계를 넘기기 전에는 "왜 그 툴을 선택했는지?" 등의 꼬리 질문을 던지되, 정해진 횟수(3~4회)를 넘지 않도록 주의해라.
+
+[ 💡 추천 답변(suggestions) 작성 원칙 (절대 규칙) ]
+1. 유저가 버튼을 클릭하면 바로 전송되므로, **'예:', '예시:', '답변:' 같은 접두사나 설명 문구를 절대 포함하지 마라.**
+2. 무조건 유저 본인이 직접 말하는 듯한 **1인칭 완성형 문장**으로만 3개 작성해라. (ex. "초기 로딩 속도가 3초 이상 걸리는 문제가 있었습니다.")
+3. [현재 추출된 데이터 초안]이나 유저의 이전 대화 맥락을 읽고, **현재 작성 중인 프로젝트 이름(title)이나 사용한 기술(hardSkills)을 추천 답변 문장 안에 자연스럽게 녹여내어** 맞춤형 템플릿을 만들어라.
+
+[응답 포맷 (반드시 JSON)]
+경고: 응답은 반드시 순수한 JSON 객체( { } )로만 시작하고 끝나야 하며, \`\`\`json 이나 \`\`\` 같은 마크다운 코드 블록을 절대 포함하지 마라.
 {
-  "speaker": "EXPERT" 또는 "STRATEGY" 또는 "HR" 또는 "SYSTEM",
-  "message": "전문가가 유저에게 던지는 다음 질문 (직전 발화자와 가급적 다른 전문가 선택)",
-  "suggestions": [
-    "유저가 클릭해서 바로 대답할 수 있는 가이드 답변 1",
-    "유저가 클릭해서 바로 대답할 수 있는 가이드 답변 2",
-    "유저가 클릭해서 바로 대답할 수 있는 가이드 답변 3"
-  ],
+  "speaker": "EXPERT" | "STRATEGY" | "HR" | "SYSTEM",
+  "message": "전문가의 날카로운 꼬리 질문 또는 다음 단계 질문",
+  "suggestions": [ "1인칭 완성형 답변 1", "1인칭 완성형 답변 2", "1인칭 완성형 답변 3" ],
+  "currentStep": 업데이트된 현재 단계 (충분하거나 3~4턴이 지났다면 +1, 아니면 유지),
   "extractedData": {
-    "title": "경험/프로젝트 이름 (새로운 내용이 없으면 null)",
-    "hardSkills": "직무 관련 실무 역량, 사용 도구, 스킬 요약 (새로운 내용이 없으면 null)",
-    "problemSolving": "문제 해결 과정, 전략, 고객/사용자 경험 개선 요약 (새로운 내용이 없으면 null)",
-    "impact": "성과(숫자 우대) 및 협업 내용 요약 (새로운 내용이 없으면 null)"
-  },
-  "isProjectFinished": false
+    "title": "업무명",
+    "hardSkills": "직무 관련 스킬/툴",
+    "problemSolving": "문제 해결 과정",
+    "impact": "성과 요약",
+    "architectureCode": "Mermaid.js 코드",
+    "chartData": "JSON 배열 문자열"
+  }
 }
   `.trim();
-
+  
   const contextText = chatContext && chatContext.length > 0 
     ? chatContext.map(c => `${c.sender}: ${c.text}`).join('\n')
     : '첫 번째 질문을 던져주세요.';
 
-  // ✨ 추가된 핵심 로직: 직전 발화자가 누구인지 찾아냄
   const lastSpeaker = chatContext && chatContext.length > 0 
     ? chatContext[chatContext.length - 1].sender 
     : '없음';
 
   const user = `
-[지원자 기본/희망 직무 정보]
+[지원자 기본 정보]
 ${JSON.stringify(userInfo || {})}
 
-[현재 경험/프로젝트 초안 상태]
+[현재 추출된 데이터 초안]
 ${JSON.stringify(currentProjectData || {})}
+
+[직전 발화자]
+${lastSpeaker}
 
 [이전 대화 맥락]
 ${contextText}
-
-[직전 발화자]
-${lastSpeaker} ( AI 주의: 이번에는 유저의 대답 내용에 맞춰 가장 질문하기 적합한 **다른 전문가**로 스피커를 교체해라!)
 
 [지원자의 최근 대답]
 ${userInput}
@@ -389,11 +400,35 @@ ${userInput}
         { role: 'system', content: system },
         { role: 'user', content: user },
       ],
-      temperature: 0.7,
+      temperature: 0.6,
     });
 
-    const content = resp.choices[0]?.message?.content?.trim() || '{}';
-    return JSON.parse(content);
+    let content = resp.choices[0]?.message?.content?.trim() || '{}';
+
+    // ✨ 수정 2: AI가 몰래 넣은 마크다운 찌꺼기 완벽하게 제거
+    if (content.startsWith('```json')) {
+      content = content.replace(/^```json\n?/, '').replace(/\n?```$/, '');
+    } else if (content.startsWith('```')) {
+      content = content.replace(/^```\n?/, '').replace(/\n?```$/, '');
+    }
+    content = content.trim();
+
+    // ✨ 수정 3: 파싱 에러 발생 시 서버 다운 방지(Fallback) 로직 추가
+    try {
+      return JSON.parse(content);
+    } catch (parseError) {
+      console.error('🚨 JSON Parsing Error! Raw AI Content:', content);
+      
+      // 에러가 나더라도 서버가 죽지 않고 대화를 이어나가도록 임시 데이터 반환
+      return {
+        speaker: "SYSTEM",
+        message: "AI가 답변을 정리하는 중 오류가 발생했습니다. 다시 한 번 짧게 말씀해 주시겠어요?",
+        suggestions: [],
+        currentStep: currentStep,
+        extractedData: currentProjectData || {}
+      };
+    }
+
   } catch (error) {
     console.error('DeepSeek Builder API Error:', error);
     throw new Error('AI 빌더 응답 생성 실패');

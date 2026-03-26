@@ -1,143 +1,274 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import mermaid from 'mermaid';
+import html2pdf from 'html2pdf.js';
 import axios from 'axios';
-import '../css/HomePage.css'; // 공통 스타일 활용
+
+import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+
+// ✨ 이미 프로젝트에 존재하는 완벽한 CSS들을 그대로 재활용합니다!
+import '../css/BuilderPage.css'; 
+import '../css/PortfolioEditor.css'; 
+
+// 🎨 테마 팔레트 데이터
+const THEMES = {
+  modern: {
+    bg: '#f1f5f9', paperBg: '#ffffff', text: '#1e293b', textSub: '#64748b',
+    accent: '#1e40af', border: '#e2e8f0', shadow: '0 20px 50px rgba(0,0,0,0.1)',
+    tagBg: '#1e40af', tagText: '#ffffff', mermaidTheme: 'default'
+  },
+  dark: {
+    bg: '#0a0a0a', paperBg: '#141414', text: '#f3f4f6', textSub: '#9ca3af',
+    accent: '#e10600', border: '#2a2a2a', shadow: '0 20px 50px rgba(225,6,0,0.15)',
+    tagBg: '#e10600', tagText: '#ffffff', mermaidTheme: 'dark'
+  },
+  minimal: {
+    bg: '#ffffff', paperBg: '#ffffff', text: '#000000', textSub: '#555555',
+    accent: '#000000', border: '#000000', shadow: 'none',
+    tagBg: '#000000', tagText: '#ffffff', mermaidTheme: 'neutral'
+  }
+};
+
+// 📊 다이어그램 뷰어
+const MermaidViewer = ({ code, themeMode }) => {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (code && ref.current) {
+      const cleanCode = code.replace(/```mermaid\n?/gi, '').replace(/```\n?/g, '').trim();
+      try {
+        mermaid.initialize({ startOnLoad: false, theme: themeMode });
+        mermaid.render(`mermaid-res-${Math.random().toString(36).substr(2, 9)}`, cleanCode)
+          .then((result) => { if(ref.current) ref.current.innerHTML = result.svg; })
+          .catch((e) => console.error("Mermaid Render Error", e));
+      } catch (error) {
+        if(ref.current) ref.current.innerHTML = "<p>다이어그램 생성 불가</p>";
+      }
+    }
+  }, [code, themeMode]);
+  return <div ref={ref} className="mermaid-wrapper" />;
+};
 
 export default function BuilderResultPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  const [isSaving, setIsSaving] = useState(false);
+  const printRef = useRef(null);
+  const [theme, setTheme] = useState('modern');
 
-  // 단톡방에서 넘어온 데이터 받기
-  const draftData = location.state?.portfolioData || null;
+  const rawData = location.state?.portfolioData;
+  const projectList = Array.isArray(rawData) ? rawData : (rawData ? [rawData] : []);
+
+  const getUserInfo = () => {
+    const userStr = localStorage.getItem('user');
+    return userStr ? JSON.parse(userStr) : { name: "지원자", email: "" };
+  };
+  const userInfo = getUserInfo();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    if (!projectList || projectList.length === 0) {
+      alert('완성된 포트폴리오 데이터가 없습니다.');
+      navigate('/');
     }
-    // 넘어온 데이터가 없으면 다시 단톡방으로 돌려보냄
-    if (!draftData) {
-      alert('완성된 데이터가 없습니다.');
-      navigate('/interview/prep');
-    }
-  }, [draftData, navigate]);
+  }, [projectList, navigate]);
 
-  // 1. 클립보드 복사 기능
-  const handleCopyText = () => {
-    const textToCopy = `
-[프로젝트명] ${draftData.title}
-[사용 기술 및 로직] ${draftData.techStack}
-[UX/UI 문제 해결] ${draftData.problemSolving}
-[핵심 성과] ${draftData.impact}
-    `.trim();
-
-    navigator.clipboard.writeText(textToCopy)
-      .then(() => alert('클립보드에 복사되었습니다! 메모장에 붙여넣기 해보세요.'))
-      .catch(() => alert('복사에 실패했습니다.'));
+  // 🖨️ PDF 다운로드 (html2pdf는 printRef 안의 내용만 깔끔하게 캡처합니다)
+  const handleDownloadPdf = () => {
+    const element = printRef.current;
+    const opt = {
+      margin: 0,
+      filename: `${userInfo.name || '포트폴리오'}_AI_Builder.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(element).save();
   };
 
-  // 2. PDF 다운로드 (브라우저 기본 인쇄 기능 활용)
-  const handlePrintPDF = () => {
-    window.print();
-  };
-
-  // 3. 진우님의 백엔드로 데이터 저장 (MyPage 연동)
+  // 💾 ✨ 포트폴리오 DB에 정식으로 저장하는 로직 추가!
   const handleSaveToDashboard = async () => {
-    if (!user) {
-      alert('로그인이 필요합니다.');
-      return;
-    }
+    const userId = userInfo?.id || userInfo?._id || userInfo?.email || 'guest';
+    
+    // portfolioRoute.js 가 원하는 형식(content 안에 profile과 projects)으로 데이터 포장
+    const payload = {
+      userId: userId,
+      title: `${userInfo.name || '지원자'}의 AI 대화형 포트폴리오`,
+      content: {
+        profile: {
+          name: userInfo.name || '지원자',
+          jobTitle: 'AI 역량 추출 포트폴리오',
+          email: userInfo.email || '',
+          intro: '해당 문서는 AI 전문가 패널과의 심층 대화를 통해 추출된 핵심 경험 및 트러블슈팅 리포트입니다.'
+        },
+        projects: projectList // 대화로 만든 경험 배열 통째로 넣기
+      }
+    };
 
-    setIsSaving(true);
     try {
-      // 진우님의 MyPage 코드에 맞춰 백엔드로 POST 요청
-      const userId = user.id || user._id || user.email;
+      // POST /api/portfolio 로 전송
+      const res = await axios.post('http://localhost:5000/api/portfolio', payload);
       
-      const response = await axios.post(`http://localhost:5000/api/portfolio`, {
-        userId: userId,
-        title: draftData.title,
-        content: JSON.stringify(draftData), // 혹은 백엔드 스키마에 맞게 조정
-        updatedAt: new Date()
-      });
-
-      if (response.data.success) {
-        alert('대시보드에 성공적으로 저장되었습니다!');
-        navigate('/mypage');
+      if (res.data.success) {
+        alert('포트폴리오가 대시보드에 성공적으로 저장되었습니다! 🎉');
+        navigate('/mypage'); // 저장 완료 후 마이페이지로 이동
       } else {
         alert('저장에 실패했습니다.');
       }
     } catch (error) {
-      console.error("저장 에러:", error);
-      alert('서버 연결에 실패했습니다. 백엔드가 켜져 있는지 확인해 주세요.');
-    } finally {
-      setIsSaving(false);
+      console.error('포트폴리오 저장 에러:', error);
+      alert('서버 오류로 인해 저장하지 못했습니다.');
     }
   };
 
-  if (!draftData) return null;
+  if (!projectList || projectList.length === 0) return null;
+  const currentTheme = THEMES[theme];
 
   return (
-    <div className="mp-container">
-      <header className="mp-header">
-        <div className="mp-header-inner">
-          <div className="mp-logo-btn" onClick={() => navigate('/')}>
-            <div className="mp-logo-symbol">F1</div>
-            <div className="mp-logo-text-group">
-              <span className="mp-logo-text">AI RESULT REPORT</span>
-            </div>
-          </div>
+    <div className="rwPreviewArea" style={{ minHeight: '100vh', backgroundColor: currentTheme.bg, paddingBottom: '100px' }}>
+      
+      {/* 🚀 기존 헤더 스타일 완벽 복구 */}
+      <header className="room-header" style={{ position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid #e2e8f0', backgroundColor: '#fff' }}>
+        <div className="room-logo-btn" onClick={() => navigate('/')}>
+          <div className="room-logo-symbol"><span>F1</span></div>
+          <div className="room-logo-title" style={{ color: '#111' }}>F1ND YOUR WAY</div>
+        </div>
+        
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <select 
+            value={theme} 
+            onChange={(e) => setTheme(e.target.value)}
+            style={{ padding: '8px 12px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', cursor: 'pointer' }}
+          >
+            <option value="modern">Modern (Blue)</option>
+            <option value="dark">Dark (Red)</option>
+            <option value="minimal">Minimal (B&W)</option>
+          </select>
+          <button 
+            className="room-exit-btn" 
+            onClick={handleDownloadPdf}
+            style={{ backgroundColor: currentTheme.accent, borderColor: currentTheme.accent, color: '#fff' }}
+          >
+            📄 PDF 다운로드
+          </button>
+          <button 
+            className="room-exit-btn" 
+            onClick={handleSaveToDashboard}
+            style={{ backgroundColor: '#fff', color: '#111', borderColor: '#cbd5e1' }}
+          >
+            📊 대시보드로 이동
+          </button>
         </div>
       </header>
 
-      <div className="mp-content-wrapper" style={{ maxWidth: '800px', margin: '0 auto', paddingTop: '40px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-          <h1 className="mp-main-title">완성된 포트폴리오 리포트</h1>
-          
-          {/* 🚀 상단 액션 버튼 그룹 */}
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button className="bento-btn-outline" onClick={handleCopyText}>📋 텍스트 복사</button>
-            <button className="bento-btn-outline" onClick={handlePrintPDF}>🖨️ PDF 저장</button>
-            <button className="bento-btn-primary" onClick={handleSaveToDashboard} disabled={isSaving}>
-              {isSaving ? "저장 중..." : "💾 내 대시보드에 저장"}
-            </button>
-          </div>
+      {/* 📄 A4 용지 프리뷰 영역 (PortfolioEditor.css 클래스 사용) */}
+      <div className="a4-paper-container" style={{ marginTop: '40px' }}>
+        <div
+          className="a4-paper"
+          ref={printRef}
+          style={{
+            backgroundColor: currentTheme.paperBg,
+            color: currentTheme.text,
+            boxShadow: currentTheme.shadow,
+            border: theme === 'minimal' ? '1px solid #000' : 'none'
+          }}
+        >
+          {/* 헤더 프로필 */}
+          <header className="preview-header" style={{ borderBottomColor: currentTheme.accent }}>
+            <h1 className="preview-name">{userInfo.name || '지원자'}</h1>
+            <div className="preview-job" style={{ color: currentTheme.accent }}>
+              AI 역량 추출 포트폴리오
+            </div>
+            <div className="preview-contact" style={{ color: currentTheme.textSub }}>
+              {userInfo.email && <span>Email. {userInfo.email}</span>}
+            </div>
+            <p className="preview-intro" style={{ marginTop: '15px' }}>
+              해당 문서는 AI 전문가 패널과의 심층 대화를 통해 추출된 핵심 경험 및 트러블슈팅 리포트입니다.
+            </p>
+          </header>
+
+          {/* 프로젝트 리스트 렌더링 */}
+          {projectList.map((project, idx) => (
+            <section key={idx} className="preview-project-section">
+              <div className="preview-project-header">
+                <h2 className="preview-project-title">
+                  <span style={{ color: currentTheme.accent, marginRight: '8px' }}>0{idx + 1}.</span> 
+                  {project.title || '프로젝트 명 미작성'}
+                </h2>
+              </div>
+
+              {/* ✨ 수정 1: techStack 대신 hardSkills로 매핑 */}
+              <div className="preview-tags-wrap">
+                {project.hardSkills?.split(',').map((tag, i) => tag.trim() && (
+                  <span
+                    key={i}
+                    className="preview-tag"
+                    style={{
+                      background: currentTheme.tagBg,
+                      color: currentTheme.tagText,
+                      border: theme === 'minimal' ? '1px solid #000' : 'none'
+                    }}
+                  >
+                    #{tag.trim()}
+                  </span>
+                ))}
+              </div>
+
+              {/* ✨ 수정 2: troubleshootings 배열 대신 project 단일 데이터에서 직접 렌더링 */}
+              <div
+                className="troubleshooting-card"
+                style={{ borderLeftColor: `${currentTheme.accent}33` }}
+              >
+                <h4 className="trouble-title">💡 핵심 경험 및 전략</h4>
+
+                {/* 시각화 영역 (다이어그램 & 성과 그래프) */}
+                {(project.architectureCode || (Array.isArray(project.chartData) && project.chartData.length > 0) || (typeof project.chartData === 'string' && project.chartData.length > 5)) && (
+                  <div className="trouble-visuals" style={{ display: 'grid', gap: '15px', marginBottom: '20px' }}>
+                    
+                    {/* 다이어그램 */}
+                    {project.architectureCode && (
+                      <div className="visual-box" style={{ borderColor: currentTheme.border, padding: '20px', borderRadius: '8px', border: `1px solid ${currentTheme.border}` }}>
+                          <MermaidViewer code={project.architectureCode} themeMode={currentTheme.mermaidTheme} />
+                      </div>
+                    )}
+
+                    {/* 성과 그래프 */}
+                    {project.chartData && (
+                      <div className="visual-box" style={{ borderColor: currentTheme.border, padding: '20px', borderRadius: '8px', border: `1px solid ${currentTheme.border}`, height: '250px' }}>
+                        <h5 style={{ marginBottom: '15px', color: currentTheme.textSub, fontSize: '0.9rem' }}>📈 성과 지표 변화</h5>
+                        <ResponsiveContainer width="100%" height="100%">
+                          {/* (주의: chartData가 문자열로 넘어올 경우를 대비해 JSON.parse 처리가 필요할 수 있습니다. 아래 data 속성을 조절하세요) */}
+                          <AreaChart data={typeof project.chartData === 'string' ? JSON.parse(project.chartData || '[]') : project.chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                            <defs>
+                              <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor={currentTheme.accent} stopOpacity={0.3}/>
+                                <stop offset="95%" stopColor={currentTheme.accent} stopOpacity={0}/>
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={currentTheme.border} />
+                            <XAxis dataKey="name" stroke={currentTheme.textSub} fontSize={12} tickLine={false} axisLine={false} />
+                            <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: currentTheme.shadow }} />
+                            <Area type="monotone" dataKey="value" stroke={currentTheme.accent} strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* ✨ 수정 3: why, how, then 대신 problemSolving, impact 사용 */}
+                <div className="trouble-details">
+                  <div className="trouble-row" style={{ display: 'flex', gap: '15px', marginBottom: '10px' }}>
+                      <span className="trouble-label" style={{ color: '#16a34a', width: '60px', fontWeight: 'bold' }}>전략.</span>
+                      <span className="trouble-text">{project.problemSolving || '작성된 문제해결 전략이 없습니다.'}</span>
+                  </div>
+                  <div className="trouble-row" style={{ display: 'flex', gap: '15px' }}>
+                      <span className="trouble-label" style={{ color: '#f59e0b', width: '60px', fontWeight: 'bold' }}>성과.</span>
+                      <span className="trouble-text" style={{ fontWeight: 'bold' }}>{project.impact || '작성된 성과가 없습니다.'}</span>
+                  </div>
+                </div>
+              </div>
+
+            </section>
+          ))}
         </div>
-
-        {/* 📄 결과물 표시 영역 (이 영역이 PDF 출력 시 메인으로 보임) */}
-        <div className="bento-card" style={{ padding: '40px', backgroundColor: '#fff', border: '1px solid #e2e8f0' }}>
-          <h2 style={{ fontSize: '24px', borderBottom: '2px solid #111', paddingBottom: '10px', marginBottom: '30px' }}>
-            {draftData.title}
-          </h2>
-
-          <div style={{ marginBottom: '25px' }}>
-            <h3 style={{ color: '#2563eb', fontSize: '16px', marginBottom: '10px' }}>[개발 및 기술 스택]</h3>
-            <p style={{ lineHeight: '1.8', color: '#334155' }}>{draftData.techStack || '작성된 내용이 없습니다.'}</p>
-          </div>
-
-          <div style={{ marginBottom: '25px' }}>
-            <h3 style={{ color: '#db2777', fontSize: '16px', marginBottom: '10px' }}>[UX/UI 및 문제 해결]</h3>
-            <p style={{ lineHeight: '1.8', color: '#334155' }}>{draftData.problemSolving || '작성된 내용이 없습니다.'}</p>
-          </div>
-
-          <div style={{ marginBottom: '25px' }}>
-            <h3 style={{ color: '#f59e0b', fontSize: '16px', marginBottom: '10px' }}>[핵심 성과 및 협업]</h3>
-            <p style={{ lineHeight: '1.8', color: '#334155' }}>{draftData.impact || '작성된 내용이 없습니다.'}</p>
-          </div>
-        </div>
-        
-        {/* PDF 출력 시 버튼들 숨기기용 CSS (인라인으로 간단히 추가) */}
-        <style>
-          {`
-            @media print {
-              .mp-header, .bento-btn-outline, .bento-btn-primary { display: none !important; }
-              body { background-color: white; }
-              .bento-card { box-shadow: none; border: none; }
-            }
-          `}
-        </style>
-
       </div>
     </div>
   );

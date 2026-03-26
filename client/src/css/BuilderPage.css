@@ -1,223 +1,556 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Oswald:wght@400;700&family=Rajdhani:wght@700&display=swap');
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+/* --- Global Theme: 2026 Modern Minimalist --- */
+@import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap');
 
-.room-container {
-  height: 100vh; max-height: 100vh; overflow: hidden;
-  background-color: #f8fafc; color: #0f172a;
-  font-family: 'Pretendard', sans-serif;
-  display: flex; flex-direction: column;
-}
-
-/* 🏁 헤더 */
-.room-header {
-  height: 80px; background: #111111; display: flex; align-items: center; justify-content: space-between;
-  padding: 0 50px; border-bottom: 2px solid #E10600; flex-shrink: 0; z-index: 1000;
-}
-.room-logo-btn { display: flex; align-items: center; gap: 15px; cursor: pointer; }
-.room-logo-symbol {
-  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 24px;
-  color: #E10600; letter-spacing: 2px; border: 2px solid #E10600; padding: 0 8px; transform: skew(-10deg);
-}
-.room-logo-title {
-  color: #fff; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 1.1rem;
-  letter-spacing: 0.5px; text-transform: uppercase; transform: skewX(-10deg);
-}
-.room-exit-btn {
-  background: transparent; border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 4px;
-  color: #fff; padding: 10px 24px; font-weight: 600; font-family: 'Oswald', sans-serif;
-  cursor: pointer; transition: all 0.3s ease; letter-spacing: 1px;
-}
-.room-exit-btn:hover { background-color: #E10600; color: #fff; border-color: #E10600; }
-
-/* 🖥️ 메인 레이아웃 */
-.room-layout {
-  display: grid; grid-template-columns: 450px 1fr; gap: 20px; /* 좌측 패널 넓게 수정 */
-  flex-grow: 1; padding: 20px 50px; overflow: hidden;
+.room-container.modern-theme {
+    font-family: 'Pretendard', sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #f4f5f7; /* 아주 연한 쿨그레이 배경 */
+    overflow: hidden;
 }
 
-/* 🔵 좌측: 실시간 포트폴리오 패널 (LIVE DRAFT) */
-.room-attack-panel {
-  background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px;
-  display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.02); overflow: hidden;
+/* 커스텀 스텝 프로그레스 (기존 헤더에 맞춰 배경을 투명하게 하거나 은은하게 변경) */
+.modern-step-indicator.dark-header-compat {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1); /* 기존 헤더가 어둡다면 은은한 반투명 배경 */
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(200, 200, 200, 0.2);
 }
 
-.panel-header { padding: 25px 25px 15px; border-bottom: 1px solid #f1f5f9; flex-shrink: 0; }
-.panel-chip { font-family: 'Rajdhani', sans-serif; font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; }
-.panel-title { font-family: 'Oswald', sans-serif; font-size: 1.6rem; font-weight: 700; color: #0f172a; margin-top: 5px; }
-
-.question-list-scroller {
-  flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column;
-}
-.question-list-scroller::-webkit-scrollbar, .sim-chat-history::-webkit-scrollbar { width: 6px; }
-.question-list-scroller::-webkit-scrollbar-thumb, .sim-chat-history::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-
-/* 실시간 작성되는 섹션 디자인 */
-.draft-section h4 {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 1rem;
-  margin-bottom: 8px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-.draft-section p {
-  background: #f8fafc;
-  padding: 16px;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  line-height: 1.7;
-  color: #334155;
-  border: 1px solid #e2e8f0;
-  transition: all 0.3s ease;
+.step-dot {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #94a3b8;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
 }
 
-/* 💬 우측: 전문가 단톡방 패널 */
-.room-sim-display {
-  display: flex; flex-direction: column; background: #ffffff;
-  border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); overflow: hidden;
+.step-dot.active {
+    background: #2563eb;
+    color: #fff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
 }
 
-.sim-chat-history { flex-grow: 1; padding: 30px 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 25px; }
-
-/* 말풍선 공통 (전문가 AI) */
-.msg-wrap.ai { align-self: flex-start; display: flex; gap: 15px; max-width: 85%; }
-.ai-avatar-icon {
-  width: 45px; height: 45px; background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;
-}
-.ai-bubble-wrap { display: flex; flex-direction: column; gap: 5px; }
-.ai-bubble {
-  background: #f1f5f9; color: #1e293b; padding: 16px 22px; border-radius: 2px 16px 16px 16px;
-  line-height: 1.6; font-size: 1rem; border: 1px solid #e2e8f0;
+.step-dot.completed {
+    background: #10b981;
+    color: #fff;
 }
 
-/* 말풍선 (사용자) */
-.msg-wrap.user { align-self: flex-end; max-width: 80%; }
-.user-bubble {
-  background: #111; color: #fff; padding: 15px 22px; border-radius: 16px 2px 16px 16px;
-  font-weight: 500; font-size: 1rem; line-height: 1.6; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+.step-line {
+    width: 30px;
+    height: 2px;
+    background: rgba(203, 213, 225, 0.5); /* 선을 약간 투명하게 조절 */
+    margin: 0 4px;
+    transition: all 0.3s ease;
 }
 
-/* 말풍선 (시스템 안내 메시지) */
-.msg-wrap.system { align-self: center; margin: 10px 0; }
-.system-bubble {
-  background: #f8fafc; color: #64748b; padding: 8px 20px; border-radius: 20px;
-  font-size: 0.85rem; font-weight: 600; border: 1px solid #e2e8f0; letter-spacing: 0.5px;
+.step-line.active-line {
+    background: #10b981;
 }
 
-/* ⌨️ 채팅 입력 영역 (하단 고정) */
-.chat-input-area {
-  display: flex; gap: 12px; padding: 20px 30px;
-  background: #ffffff; border-top: 1px solid #e2e8f0;
-  flex-shrink: 0; /* 화면이 작아져도 입력창은 찌그러지지 않게 */
-}
-.chat-input-area input {
-  flex-grow: 1; padding: 14px 20px;
-  border: 1px solid #cbd5e1; border-radius: 8px;
-  font-family: 'Pretendard', sans-serif; font-size: 1rem;
-  transition: all 0.2s ease;
-}
-.chat-input-area input:focus {
-  outline: none; border-color: #E10600; box-shadow: 0 0 0 3px rgba(225, 6, 0, 0.1);
+.modern-finish-btn {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-/* AI 로딩 애니메이션 (타이핑 중...) */
-.defense-loading { display: flex; gap: 8px; padding: 10px 20px; background: #f1f5f9; border-radius: 20px; width: fit-content; align-self: flex-start; margin-left: 60px; }
-.defense-dot {
-  width: 8px; height: 8px; background: #94a3b8; border-radius: 50%;
-  animation: defenseBounce 1.4s infinite ease-in-out both;
-}
-.defense-dot:nth-child(1) { animation-delay: -0.32s; }
-.defense-dot:nth-child(2) { animation-delay: -0.16s; }
-@keyframes defenseBounce { 0%, 80%, 100% { transform: scale(0); opacity: 0.3; } 40% { transform: scale(1); opacity: 1; } }
-
-/* ✨ 모범 답안 가이드 박스 추가 */
-.model-answer-box {
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  color: #166534;
-  padding: 18px 22px;
-  border-radius: 8px;
-  margin-top: 10px;
-  font-size: 0.95rem;
-  line-height: 1.6;
-  box-shadow: 0 4px 10px rgba(22, 101, 52, 0.05);
-  animation: fadeIn 0.5s ease;
+.modern-finish-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
 }
 
-.model-answer-title {
-  display: block;
-  font-family: 'Rajdhani', sans-serif;
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: #15803d;
-  margin-bottom: 8px;
-  letter-spacing: 0.5px;
+/* 🌟 레이아웃 */
+.modern-layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
+/* 🌟 좌측 초안 패널 (모던 카드 스타일) */
+.modern-draft-panel {
+    width: 450px;
+    background-color: #ffffff;
+    border-right: 1px solid #eaeeef;
+    display: flex;
+    flex-direction: column;
+}
+
+.draft-header {
+    padding: 24px 32px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.draft-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #2563eb;
+    background: #eff6ff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    display: inline-block;
+}
+
+.draft-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+
+.add-exp-btn {
+    background: transparent;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.add-exp-btn:hover {
+    background: #f8fafc;
+    color: #0f172a;
+    border-color: #94a3b8;
+}
+
+.draft-scroller {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 32px;
+}
+.draft-scroller::-webkit-scrollbar { width: 6px; }
+.draft-scroller::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+.exp-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    opacity: 0.6;
+    transition: opacity 0.3s, box-shadow 0.3s;
+}
+
+.exp-card.active-card {
+    opacity: 1;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    border-color: #cbd5e1;
+}
+
+.exp-card-title {
+    font-size: 1.1rem;
+    color: #1e293b;
+    margin: 0 0 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: #ef4444;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+    70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.draft-input-group {
+    margin-bottom: 16px;
+    position: relative;
+}
+/* 좌측 포인트 컬러 바 */
+.draft-input-group::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 5px;
+    bottom: 5px;
+    width: 3px;
+    border-radius: 3px;
+    background-color: var(--accent);
+    opacity: 0.5;
+}
+
+.draft-input-group label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 6px;
+}
+
+.draft-input-group textarea {
+    width: 100%;
+    border: 1px solid transparent;
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: #334155;
+    resize: vertical;
+    min-height: 42px;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+.draft-input-group textarea:focus {
+    background: #fff;
+    border-color: var(--accent);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.02);
+}
+
+/* 🌟 우측 채팅 & 플로팅 폼 */
+.modern-chat-section {
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.modern-chat-history {
+    flex: 1;
+    overflow-y: auto;
+    padding: 30px 40px;
+}
+.modern-chat-history::-webkit-scrollbar { display: none; } /* 아주 깔끔하게 숨김 */
+
+.chat-row {
+    display: flex;
+    margin-bottom: 24px;
+    gap: 12px;
+}
+.row-user { justify-content: flex-end; }
+.row-ai { justify-content: flex-start; }
+
+.expert-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.chat-content { max-width: 70%; }
+
+.expert-name {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    margin-left: 2px;
+}
+
+/* 말풍선 비대칭 둥글기 적용 */
+.chat-bubble {
+    padding: 14px 18px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.bubble-ai {
+    background: #ffffff;
+    color: #1e293b;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px 16px 16px 16px;
+}
+
+.bubble-user {
+    background: #1e293b;
+    color: #ffffff;
+    border-radius: 16px 4px 16px 16px;
+}
+
+.bubble-system {
+    background: transparent;
+    color: #64748b;
+    font-size: 0.85rem;
+    text-align: center;
+    border: none;
+    box-shadow: none;
+    margin: 0 auto;
+}
+
+/* 타이핑 인디케이터 */
+.typing-indicator span {
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: #cbd5e1;
+    border-radius: 50%;
+    margin-right: 4px;
+    animation: bounce 1.4s infinite ease-in-out both;
+}
+.typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+.typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+@keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); } 
+    40% { transform: scale(1); }
 }
 
 /* =========================================
-   ✨ 추가된 UI: 가이드 칩 (추천 답변) & 인라인 에디터
-========================================= */
+   🌟 플로팅 폼 & 추천 칩 영역 (최종 수정 버전)
+   ========================================= */
 
-/* 가이드 칩 (Quick Replies) 컨테이너 */
-.quick-replies-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 10px 20px;
-  background: #f8fafc;
-  border-top: 1px solid #e2e8f0;
+.floating-input-wrapper {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 760px;
+    display: flex;
+    flex-direction: column;
+    
+    /* ✨ 수정 1: center 정렬 시 Flexbox 버그로 인해 칩이 짤리던 문제 해결 */
+    align-items: stretch; 
+    pointer-events: none;
 }
 
-.quick-reply-btn {
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
-  color: #334155;
-  padding: 8px 14px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+/* =========================================
+   🌟 추천 답변 칩 (다중 줄 & 세로 리스트형태로 완벽 개선)
+   ========================================= */
+
+.floating-suggestions {
+    display: flex;
+    /* ✨ 수정 1: 가로 스크롤을 버리고 세로로 층층이 쌓기 */
+    flex-direction: column; 
+    gap: 8px;
+    margin-bottom: 12px;
+    pointer-events: auto;
+    width: 100%;
+    
+    /* ✨ 수정 2: 3개가 다 보일 수 있도록 하되, 너무 길면 세로 스크롤 생성 */
+    max-height: 180px; 
+    overflow-y: auto; 
+    overflow-x: hidden;
+    padding: 4px 10px; 
+    box-sizing: border-box;
 }
 
-.quick-reply-btn:hover {
-  background: #eff6ff;
-  border-color: #3b82f6;
-  color: #1d4ed8;
-  transform: translateY(-1px);
+/* 추천 답변 컨테이너용 세로 스크롤바 디자인 */
+.floating-suggestions::-webkit-scrollbar { width: 4px; }
+.floating-suggestions::-webkit-scrollbar-thumb { background: rgba(203, 213, 225, 0.8); border-radius: 2px; }
+
+
+/* 개별 글래스모피즘 칩 (긴 텍스트를 위한 카드 형태) */
+.glass-chip {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    color: #475569;
+    padding: 12px 16px; /* 텍스트가 여러 줄일 때를 대비해 위아래 여백 확보 */
+    
+    /* ✨ 수정 3: 알약 형태(999px)에서 텍스트 리딩이 편한 둥근 카드 형태(12px)로 변경 */
+    border-radius: 12px; 
+    font-size: 0.85rem;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: all 0.2s;
+    
+    /* ✨ 수정 4: 가로 짤림 방지 및 여러 줄(Multi-line) 자연스러운 줄바꿈 허용 */
+    width: 100%;
+    text-align: left; /* 가운데 정렬 대신 왼쪽 정렬로 가독성 향상 */
+    white-space: normal; 
+    word-break: keep-all; 
+    line-height: 1.4;
 }
 
-/* 좌측 패널 실시간 수정 텍스트 에디터 */
-.inline-edit-textarea {
-  width: 100%;
-  min-height: 60px;
-  background: #f8fafc;
-  border: 1px dashed #cbd5e1;
-  color: #334155;
-  border-radius: 6px;
-  padding: 10px;
-  font-family: 'Pretendard', sans-serif;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  resize: vertical;
-  outline: none;
-  transition: all 0.2s;
-  margin-top: 5px;
+.glass-chip:hover {
+    background: #fff;
+    color: #2563eb;
+    border-color: #bfdbfe;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
 }
 
-.inline-edit-textarea:focus {
-  background: #ffffff;
-  border: 1px solid #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+/* 🌟 입력 알약 폼 */
+.floating-input-box {
+    display: flex;
+    align-items: flex-end; /* ✨ 수정 3: 텍스트 박스가 길어질 때 전송 버튼을 하단에 고정 */
+    width: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid #e2e8f0;
+    
+    /* ✨ 수정 4: 여러 줄 입력 시 둥근 디자인이 유지되도록 모서리 반경(border-radius) 최적화 */
+    border-radius: 24px; 
+    padding: 6px 6px 6px 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    pointer-events: auto;
+    box-sizing: border-box;
 }
 
-.inline-edit-textarea::placeholder {
-  color: #94a3b8;
-  font-style: italic;
+/* ✨ 수정 5: input을 다중 줄 입력이 가능한 textarea 디자인으로 변경 */
+.floating-input-box textarea {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 1rem;
+    font-family: inherit;
+    color: #1e293b;
+    outline: none;
+    resize: none; /* 우측 하단 크기 조절 손잡이 숨김 */
+    min-height: 24px;
+    max-height: 150px; /* 너무 길어지면 내부 스크롤 생성 */
+    padding: 8px 0;
+    line-height: 1.5;
+    margin-right: 10px;
+}
+
+.floating-input-box textarea::-webkit-scrollbar {
+    width: 4px;
+}
+.floating-input-box textarea::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 2px;
+}
+.floating-input-box textarea::placeholder { 
+    color: #94a3b8; 
+}
+
+.send-circle-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #000;
+    color: #fff;
+    border: none;
+    font-size: 1.1rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+    margin-bottom: 2px; /* 버튼을 텍스트 에어리어 높이에 맞게 살짝 위로 */
+}
+.send-circle-btn:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+}
+.send-circle-btn:not(:disabled):hover {
+    background: #2563eb;
+}
+
+/* =========================================
+   🌟 인터랙티브 하이라이트 (Live Sync Visuals)
+   ========================================= */
+
+.draft-input-group {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* AI가 현재 묻고 있는 영역에 은은한 포커스 효과 부여 */
+.draft-input-group.active-glow textarea {
+    background: #fff;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.5), 0 0 12px rgba(0,0,0,0.06);
+    transform: translateY(-2px); /* 살짝 떠오르는 효과 */
+}
+
+.draft-input-group.active-glow label {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.draft-input-group.active-glow::before {
+    opacity: 1;
+    width: 4px;
+    box-shadow: 0 0 8px var(--accent);
+}
+
+/* =========================================
+   🌟 현재 미션 배너 (우측 상단 Sticky Banner)
+   ========================================= */
+
+.mission-sticky-banner {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%;
+    max-width: 650px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border-radius: 12px;
+    padding: 12px 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+    border-left: 4px solid #cbd5e1;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: opacity 0.3s;
+    animation: slideDownBanner 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* AI가 답변을 고민 중일 때는 살짝 투명하게 처리하여 시선 분산 방지 */
+.mission-sticky-banner.faded {
+    opacity: 0.5;
+}
+
+@keyframes slideDownBanner {
+    from { top: -30px; opacity: 0; }
+    to { top: 20px; opacity: 1; }
+}
+
+.mission-expert {
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.mission-text {
+    font-size: 0.95rem;
+    color: #1e293b;
+    font-weight: 600;
+    
+    /* ✨ 수정: 1줄 강제 고정 및 말줄임표 제거, 자연스러운 다중 줄바꿈 허용 */
+    white-space: normal; 
+    word-break: keep-all; /* 한국어가 단어 중간에 어색하게 잘리지 않도록 보호 */
+    line-height: 1.5; /* 여러 줄이 되었을 때 읽기 편하도록 줄 간격 확보 */
+    
+    /* (선택) AI가 너무 긴 문장을 뱉을 경우 배너가 화면을 다 가리지 않도록 방어 */
+    max-height: 100px; 
+    overflow-y: auto;
+}
+
+/* 스크롤바가 생길 경우를 대비한 깔끔한 스크롤 디자인 */
+.mission-text::-webkit-scrollbar {
+    width: 4px;
+}
+.mission-text::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 2px;
 }
