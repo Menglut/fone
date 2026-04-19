@@ -9,7 +9,6 @@ const API_BASE = process.env.REACT_APP_API_BASE;
 export default function ProfileEditor() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [aiPrompt, setAiPrompt] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
 
   const [profile, setProfile] = useState({
@@ -55,9 +54,17 @@ export default function ProfileEditor() {
     setProfile(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleAiGenerate = async () => {
-    if (!aiPrompt.trim()) return alert("내용을 입력해주세요.");
+const handleAiGenerate = async () => {
+    // 1. 자기소개 칸에 아무것도 안 적었을 때 방어 로직
+    if (!profile.intro.trim()) {
+      return alert("먼저 다듬고 싶은 내용이나 키워드를 자기소개 칸에 간단히 적어주세요!");
+    }
     setIsAiLoading(true);
+
+    // 2. 현재 적힌 내용을 프롬프트로 사용하기 위해 임시 저장
+    const currentText = profile.intro;
+    
+    // 3. 텍스트 박스 초기화 (AI가 새로 스트리밍으로 채워넣기 위함)
     setProfile(prev => ({ ...prev, intro: "" }));
 
     try {
@@ -65,7 +72,8 @@ export default function ProfileEditor() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userPrompt: `너는 전문 커리어 컨설턴트야. 아래 내용을 바탕으로 매력적인 자기소개 문장만 한국어로 작성해줘. 다른 설명이나 JSON 형식 없이 오직 결과 문장만 출력해. ${aiPrompt}`
+          // 4. 저장해둔 currentText를 AI에게 전달
+          userPrompt: `너는 전문 커리어 컨설턴트야. 아래 내용을 바탕으로 매력적인 자기소개 문장만 한국어로 작성해줘. 다른 설명이나 JSON 형식 없이 오직 결과 문장만 출력해. ${currentText}`
         }),
       });
 
@@ -98,6 +106,7 @@ export default function ProfileEditor() {
       }
     } catch (error) {
       console.error("AI Generation Error:", error);
+      alert("AI 생성 중 오류가 발생했습니다.");
     } finally {
       setIsAiLoading(false);
     }
@@ -139,23 +148,6 @@ export default function ProfileEditor() {
           <p className="pe-sub-title">포트폴리오와 자기소개서에 사용될 당신의 마스터 프로필입니다.</p>
         </header>
 
-        <div className="pe-card pe-ai-section">
-          <div className="pe-card-header">
-            <span className="pe-card-tag">AI Assistant</span>
-            <h3 className="pe-card-title">전문적인 문장으로 다듬기</h3>
-          </div>
-          <textarea
-            className="pe-textarea"
-            value={aiPrompt}
-            onChange={(e) => setAiPrompt(e.target.value)}
-            disabled={isAiLoading}
-            placeholder="자신의 직무 역량이나 경험을 편하게 적어주시면 AI가 세련된 자기소개로 변환해 드립니다."
-          />
-          <button className="pe-ai-btn" onClick={handleAiGenerate} disabled={isAiLoading}>
-            {isAiLoading ? "분석 중..." : "AI 자동 완성 실행 ➔"}
-          </button>
-        </div>
-
         <div className="pe-card">
           <div className="pe-card-header">
             <span className="pe-card-tag">Information</span>
@@ -180,15 +172,36 @@ export default function ProfileEditor() {
               <input type="text" className="pe-input" name="github" value={profile.github} onChange={handleChange} placeholder="https://github.com/..." />
             </div>
             <div className="pe-input-group pe-full">
-              <label className="pe-label">자기 소개 (Introduction)</label>
-              <textarea
-                className="pe-textarea"
-                name="intro"
-                value={profile.intro}
-                onChange={handleChange}
-                placeholder="나를 표현하는 매력적인 소개글을 입력하세요."
-              />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <label className="pe-label" style={{ margin: 0 }}>자기 소개 (Introduction)</label>
+              
+              <button 
+                onClick={handleAiGenerate} 
+                disabled={isAiLoading}
+                style={{
+                  padding: '6px 12px',
+                  fontSize: '13px',
+                  backgroundColor: '#111',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: isAiLoading ? 'not-allowed' : 'pointer',
+                  opacity: isAiLoading ? 0.7 : 1
+                }}
+              >
+                {isAiLoading ? "✨ 작성 중..." : "✨ AI 문장 다듬기"}
+              </button>
             </div>
+            
+            <textarea
+              className="pe-textarea"
+              name="intro"
+              value={profile.intro}
+              onChange={handleChange}
+              disabled={isAiLoading}
+              placeholder="키워드나 개요를 적고 우측 상단의 AI 문장 다듬기 버튼을 눌러보세요!"
+            />
+          </div>
           </div>
         </div>
 
