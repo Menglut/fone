@@ -204,7 +204,9 @@ export default function MyPage() {
                         <p className="item-date">{new Date(port.updatedAt || Date.now()).toLocaleDateString()}</p>
                       </div>
                     </div>
-                    <button className="item-action-btn" onClick={() => navigate('/portfolio', { state: { portfolioId: port._id, goToPreview: true } })}>수정 / 보기 ➔</button>
+                    <button className="item-action-btn" onClick={() => navigate(`/portfolio/edit/${port._id}`)}>
+                      수정 / 보기 ➔
+                    </button>
                   </div>
                 ))
               ) : (

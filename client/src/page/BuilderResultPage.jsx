@@ -94,7 +94,7 @@ export default function BuilderResultPage() {
     const payload = {
       userId: userId,
       title: `${userInfo.name || '지원자'}의 AI 대화형 포트폴리오`,
-      portfolioData: projectList // 대화로 만든 경험 배열
+      content: projectList // 대화로 만든 경험 배열
     };
 
     try {

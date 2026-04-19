@@ -45,7 +45,7 @@
 
 /* ✨ 2. 로고 이미지 본체 */
 .room-logo-img {
-  height: 40px; /* 기존 헤더들과 동일한 높이 */
+  height: 60px; /* 기존 헤더들과 동일한 높이 */
   width: auto;
   display: block;
   

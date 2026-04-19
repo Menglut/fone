@@ -23,7 +23,7 @@ export default function CoverLetterBuilder() {
   const [currentStep, setCurrentStep] = useState(1);
   const [jobPost, setJobPost] = useState("");
   const [baseExperience, setBaseExperience] = useState("");
-  const [followUpQuestions, setFollowUpQuestions] = useState([]); // 백엔드에서 받아올 꼬리 질문 목록
+  const [followUpQuestions, setFollowUpQuestions] = useState([]); 
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [interviewAnswers, setInterviewAnswers] = useState([]);
   
@@ -33,51 +33,58 @@ export default function CoverLetterBuilder() {
 
   const resultTextareaRef = useRef(null);
 
+  // ✨ 수정된 높이 계산 로직: 렌더링 타이밍 문제를 잡기 위해 setTimeout 적용
   useEffect(() => {
     if (resultTextareaRef.current) {
-      resultTextareaRef.current.style.height = 'auto';
-      resultTextareaRef.current.style.height = `${resultTextareaRef.current.scrollHeight}px`;
+      setTimeout(() => {
+        if (resultTextareaRef.current) {
+          resultTextareaRef.current.style.height = 'auto'; 
+          resultTextareaRef.current.style.height = `${resultTextareaRef.current.scrollHeight}px`;
+        }
+      }, 0);
     }
   }, [resultText]);
 
-  // ✨ 추가 3: 저장 & 나가기 (Save & Exit) 로직
   const handleSaveAndExit = async () => {
-    // 만들어진 자기소개서가 없으면 그냥 나갑니다.
+    // 1. 만들어진 자기소개서가 없으면 그냥 대시보드로 나갑니다.
     if (!resultText) {
       return navigate('/mypage');
     }
+
+    // ✨ 2. 추가된 부분: 사용자에게 저장할 제목을 물어봅니다.
+    const customTitle = window.prompt(
+      "저장할 자기소개서의 제목을 입력해주세요.", 
+      "AI 자기소개서 초안" // 입력창에 미리 적혀있을 기본값
+    );
+
+    // ✨ 3. 사용자가 팝업창에서 '취소'를 누르면 저장을 중단하고 화면에 남습니다.
+    if (customTitle === null) {
+      return; 
+    }
+
+    // ✨ 4. 실수로 제목을 다 지우고 '확인'을 눌렀을 경우를 대비한 안전 장치
+    const finalTitle = customTitle.trim() === "" ? "이름 없는 자기소개서" : customTitle;
 
     try {
       const userStr = localStorage.getItem('user');
       const user = userStr ? JSON.parse(userStr) : null;
       const userId = user ? (user.id || user._id || user.email) : 'guest';
 
-      // 백엔드의 자기소개서 저장 API 호출 (이전에 만든 Resume 모델 기준)
+      // 5. 백엔드로 데이터 전송
       await axios.post(`${API_BASE}/api/resume`, {
         userId,
-        title: "AI 자기소개서 초안", // 임시 제목
+        title: finalTitle, // ✨ 고정된 이름 대신, 방금 정한 제목(finalTitle)을 보냅니다!
         content: resultText
       });
 
-      alert("자기소개서가 성공적으로 저장되었습니다!");
+      alert(`[${finalTitle}] (이)가 성공적으로 저장되었습니다!`);
       navigate('/mypage');
     } catch (error) {
       console.error('저장 실패:', error);
-      alert('저장 중 오류가 발생했습니다. 글이 날아가지 않게 복사해 두시기 바랍니다.');
+      alert('저장 중 오류가 발생했습니다. 글이 날아가지 않게 본문을 직접 복사해 두시기 바랍니다.');
     }
   };
 
-  // ✨ 추가 4: 확실한 복사 피드백 로직
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(resultText);
-      alert('자기소개서 전체가 클립보드에 복사되었습니다! (Ctrl+V로 붙여넣기)');
-    } catch (err) {
-      alert('복사에 실패했습니다. 직접 드래그해서 복사해주세요.');
-    }
-  };
-
-  // 1️⃣ 초기 인사말 (Step 1)
   useEffect(() => {
     if (isInitialized.current) return;
     isInitialized.current = true;
@@ -87,7 +94,6 @@ export default function CoverLetterBuilder() {
     ]);
   }, []);
 
-  // 스크롤 자동 하단 이동
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isAiThinking]);
@@ -100,7 +106,6 @@ export default function CoverLetterBuilder() {
     }
   };
 
-  // 🗣️ 대화 전송 및 Step 제어 로직
   const handleSendMessage = async (e) => {
     if (e) e.preventDefault();
     if (!userInput.trim() || isAiThinking) return;
@@ -112,7 +117,6 @@ export default function CoverLetterBuilder() {
     setIsAiThinking(true);
 
     try {
-      // 💡 Step 1: 채용 공고 입력받기
       if (currentStep === 1) {
         setJobPost(currentInput);
         setCurrentStep(2);
@@ -121,11 +125,9 @@ export default function CoverLetterBuilder() {
           setIsAiThinking(false);
         }, 800);
       } 
-      // 💡 Step 2: 기본 경험 입력받기 & 꼬리 질문 생성 요청
       else if (currentStep === 2) {
         setBaseExperience(currentInput);
         
-        // 백엔드 API 호출: generateFollowupQuestions (llm.js 연동)
         const res = await axios.post(`${API_BASE}/api/generate/followup`, {
           experienceText: currentInput,
           companyQuestion: jobPost
@@ -143,14 +145,11 @@ export default function CoverLetterBuilder() {
         }
         setIsAiThinking(false);
       }
-      // 💡 Step 3: 꼬리 질문 핑퐁
       else if (currentStep === 3) {
-        // 유저의 답변 저장
         const currentQ = followUpQuestions[currentQuestionIdx];
         setInterviewAnswers(prev => [...prev, { category: currentQ.category, question: currentQ.text, answer: currentInput }]);
 
         const nextIdx = currentQuestionIdx + 1;
-        // 꼬리 질문(최대 3개로 제한)이 더 남았다면 다음 질문 던지기
         if (nextIdx < Math.min(followUpQuestions.length, 3)) {
           setCurrentQuestionIdx(nextIdx);
           setTimeout(() => {
@@ -158,11 +157,9 @@ export default function CoverLetterBuilder() {
             setIsAiThinking(false);
           }, 600);
         } else {
-          // 질문이 끝났다면 자소서 생성 단계(Step 4)로 이동
           setCurrentStep(4);
           setMessages(prev => [...prev, { id: Date.now(), sender: 'AI', expert: CONSULTANT, text: "충분한 정보가 모였습니다! 지금부터 우측 캔버스에 지원자님만의 에세이를 작성해 보겠습니다. 잠시만 기다려주세요..." }]);
           
-          // 백엔드 API 호출: generateCoverLetter (llm.js 연동)
           const resumeData = { experience: baseExperience, interviewAnswers: [...interviewAnswers, { category: currentQ.category, answer: currentInput }] };
           
           const finalRes = await axios.post(`${API_BASE}/api/generate/cover-letter`, {
@@ -173,7 +170,7 @@ export default function CoverLetterBuilder() {
 
           if (finalRes.data) {
             setResultText(finalRes.data.content || finalRes.data);
-            setMessages(prev => [...prev, { id: Date.now(), sender: 'SYSTEM', text: "✨ 자기소개서 생성이 완료되었습니다. 우측에서 직접 수정하거나 복사할 수 있습니다." }]);
+            setMessages(prev => [...prev, { id: Date.now(), sender: 'SYSTEM', text: "✨ 자기소개서 생성이 완료되었습니다. 우측에서 직접 수정할 수 있습니다." }]);
           }
           setIsAiThinking(false);
         }
@@ -193,9 +190,11 @@ export default function CoverLetterBuilder() {
   };
 
   return (
-    <div className="room-container modern-theme">
-      {/* 🌟 헤더 */}
-      <header className="room-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 32px' }}>
+    // ✨ 메인 컨테이너에 화면 꽉 차게(100vh) 설정하고 외부 스크롤을 막습니다(overflow: hidden).
+    <div className="room-container modern-theme" style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      
+      {/* 🌟 헤더 (고정 영역) */}
+      <header className="room-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 32px', flexShrink: 0 }}>
         <div className="room-logo-btn" onClick={() => navigate('/')}>
           <img 
             src={mainLogo} 
@@ -209,10 +208,14 @@ export default function CoverLetterBuilder() {
         </button>
       </header>
 
-      <main className="modern-layout">
+      {/* ✨ 메인 레이아웃: 좌/우 패널이 남은 높이를 꽉 채우도록 수정 */}
+      <main className="modern-layout" style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+        
         {/* 🌟 좌측 패널: 채팅 인터페이스 */}
-        <section className="modern-chat-section" style={{ width: '50%', borderRight: '1px solid #e2e8f0', background: '#fff' }}>
-          <div className="modern-chat-history" style={{ padding: '30px 40px' }}>
+        <section className="modern-chat-section" style={{ width: '50%', height: '100%', borderRight: '1px solid #e2e8f0', background: '#fff', display: 'flex', flexDirection: 'column' }}>
+          
+          {/* 채팅 내역 영역 (flex: 1 로 남은 공간 모두 차지) */}
+          <div className="modern-chat-history" style={{ padding: '30px 40px', overflowY: 'auto', flex: 1 }}>
             {messages.map((msg) => (
               <div key={msg.id} className={`chat-row ${msg.sender === 'user' ? 'row-user' : 'row-ai'}`}>
                 {msg.sender !== 'user' && msg.sender !== 'SYSTEM' && msg.expert && (
@@ -231,13 +234,13 @@ export default function CoverLetterBuilder() {
                 <div className="chat-bubble bubble-ai typing-indicator"><span></span><span></span><span></span></div>
               </div>
             )}
-            <div ref={messagesEndRef} style={{ height: '140px' }} /> 
+            <div ref={messagesEndRef} style={{ height: '40px' }} /> 
           </div>
 
-          {/* 하단 플로팅 입력창 */}
+          {/* ✨ 수정된 입력창 영역: absolute(띄우기) 대신 flex-shrink: 0 으로 바닥에 고정 */}
           {currentStep < 4 && (
-            <div className="floating-input-wrapper">
-              <form className="floating-input-box" onSubmit={handleSendMessage} style={{ background: 'rgba(248, 250, 252, 0.95)' }}>
+            <div style={{ padding: '20px 40px', borderTop: '1px solid #e2e8f0', background: '#fff', flexShrink: 0 }}>
+              <form className="floating-input-box" onSubmit={handleSendMessage} style={{ background: '#f8fafc', margin: 0, width: '100%' }}>
                 <textarea 
                   ref={textareaRef}
                   value={userInput} 
@@ -253,42 +256,46 @@ export default function CoverLetterBuilder() {
           )}
         </section>
 
-        {/* 🌟 우측 섹션: A4 용지 뷰어 및 에디터 */}
-        <section className="modern-chat-section" style={{ width: '50%', backgroundColor: '#f1f5f9', padding: '40px 20px', alignItems: 'center', overflowY: 'auto' }}>
+        {/* 🌟 우측 섹션: A4 용지 뷰어 (이 영역만 자체 스크롤) */}
+        <section className="modern-chat-section" style={{ width: '50%', height: '100%', backgroundColor: '#f1f5f9', padding: '40px 20px', overflowY: 'auto' }}>
           
           <div className="a4-paper-container" style={{ width: '100%', maxWidth: '800px', margin: '0 auto', position: 'relative' }}>
             <div style={{ 
               backgroundColor: '#fff', boxShadow: '0 10px 30px rgba(0,0,0,0.05)', 
-              borderRadius: '8px', border: '1px solid #cbd5e1', padding: '60px',
+              borderRadius: '8px', border: '1px solid #cbd5e1', 
+              padding: '60px 60px 100px 60px',
               minHeight: '800px', display: 'flex', flexDirection: 'column'
             }}>
               
               {currentStep === 4 && isAiThinking ? (
-                // 로딩 화면
                 <div style={{ margin: 'auto', textAlign: 'center', color: '#64748b' }}>
                   <div className="pulse-dot" style={{ width: '24px', height: '24px', backgroundColor: '#db2777', margin: '0 auto 20px' }}></div>
                   <h3 style={{ fontSize: '1.2rem', color: '#1e293b', marginBottom: '8px' }}>대화 내용을 바탕으로 에세이를 작성 중입니다...</h3>
                   <p>이 작업은 약 10~20초 정도 소요될 수 있습니다.</p>
                 </div>
               ) : resultText ? (
-                // 완성된 결과물 에디터
                 <>
                   <h2 style={{ fontSize: '1.4rem', color: '#0f172a', marginBottom: '20px', paddingBottom: '10px', borderBottom: '2px solid #e2e8f0' }}>
                     자기소개서 초안
                   </h2>
+                  
+                  {/* ✨ flex: 1을 제거하고 높이 자동 계산에만 의존하게 수정 */}
                   <textarea 
                     ref={resultTextareaRef}
                     value={resultText}
-                    onChange={(e) => setResultText(e.target.value)}
+                    onChange={(e) => {
+                      setResultText(e.target.value);
+                      e.target.style.height = 'auto';
+                      e.target.style.height = `${e.target.scrollHeight}px`;
+                    }}
                     style={{ 
-                      flex: 1, width: '100%', fontSize: '1.05rem', lineHeight: '2.0', 
+                      width: '100%', minHeight: '500px', fontSize: '1.05rem', lineHeight: '2.0', 
                       color: '#334155', border: 'none', resize: 'none', outline: 'none',
-                      fontFamily: 'inherit', overflow: 'hidden', minHeight: '500px'
+                      fontFamily: 'inherit', overflow: 'hidden'
                     }}
                   />
                 </>
               ) : (
-                // 대기 화면 (Step 1~3)
                 <div style={{ margin: 'auto', textAlign: 'center', color: '#cbd5e1' }}>
                   <div style={{ fontSize: '3rem', marginBottom: '15px' }}>📝</div>
                   <h2 style={{ fontSize: '1.2rem', fontWeight: '600' }}>좌측에서 컨설턴트와의 대화를 진행해 주세요.</h2>
@@ -297,21 +304,6 @@ export default function CoverLetterBuilder() {
               )}
             </div>
           </div>
-
-          {/* 결과물 복사 툴바 */}
-          {resultText && !isAiThinking && (
-            <div className="floating-input-wrapper" style={{ bottom: '40px' }}>
-              <div style={{ display: 'flex', gap: '10px', background: 'rgba(255, 255, 255, 0.95)', padding: '10px', borderRadius: '999px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
-                
-                {/* 수정된 복사 버튼: handleCopy 함수 연결 */}
-                <button className="glass-chip" onClick={handleCopy} style={{ border: 'none', background: '#1e293b', color: '#fff', cursor: 'pointer' }}>
-                  📋 전체 복사
-                </button>
-                
-              </div>
-            </div>
-          )}
-
         </section>
       </main>
     </div>

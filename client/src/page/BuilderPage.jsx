@@ -208,8 +208,8 @@ export default function BuilderPage() {
                 </div>
                 
                 <div className={`draft-input-group ${activeExpert === 'EXPERT' ? 'active-glow' : ''}`} style={{ '--accent': EXPERTS.EXPERT.color }}>
-                  <label>하드 스킬 (도구/기술)</label>
-                  <textarea value={proj.techStack} onChange={(e) => handleInlineEdit('hardSkills', e.target.value)} placeholder="ex) React, Figma, GA4..." />
+                  <label>도구/기술</label>
+                  <textarea value={proj.techStack} onChange={(e) => handleInlineEdit('techStack', e.target.value)} placeholder="ex) React, Figma, GA4..." />
                 </div>
                 
                 {/* ✨ 4. 새로 추가됨: why (문제/배경) */}

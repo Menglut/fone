@@ -15,6 +15,7 @@ import ReverseInterviewRoom from './page/ReverseInterviewRoom';
 import BuilderPage from './page/BuilderPage';
 import BuilderResultPage from './page/BuilderResultPage';
 import CoverLetterBuilder from './page/CoverLetterBuilder';
+import PortfolioEditPage from './page/PortfolioEditPage';
 
 // ✨ 1. 페이지 이동 시 스크롤을 맨 위로 초기화하는 컴포넌트 추가
 function ScrollToTop() {
@@ -55,6 +56,8 @@ return(
                     { /* 포트폴리오 흐름 
                     <Route path="/portfolio" element={<PortfolioEditor />} />
                     */ }
+                    <Route path="/portfolio/edit/:id" element={<PortfolioEditPage />} />
+
                     { /* 면접 흐름 */}
                     <Route path="/interview/prep" element={<ReverseInterviewPrep />} />
                     <Route path="/interview/defense" element={<ReverseInterviewRoom />} />
