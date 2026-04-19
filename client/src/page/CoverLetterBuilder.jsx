@@ -152,15 +152,11 @@ export default function CoverLetterBuilder() {
       {/* 🌟 헤더 */}
       <header className="room-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 32px' }}>
         <div className="room-logo-btn" onClick={() => navigate('/')}>
-                  <img 
-                    src={mainLogo} 
-                    alt="F1ND YOUR WAY 로고" 
-                    className="builder-logo-img" 
-                  />
-                </div>
-        
-        <div className="modern-step-indicator dark-header-compat">
-           <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#1e293b' }}>✨ AI 자기소개서 컨설팅</span>
+          <img 
+            src={mainLogo} 
+            alt="F1ND YOUR WAY 로고" 
+            className="builder-logo-img" 
+          />
         </div>
 
         <button className="room-exit-btn" onClick={() => navigate('/mypage')} style={{ backgroundColor: '#111', color: '#fff' }}>
