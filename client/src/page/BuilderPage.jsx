@@ -4,7 +4,7 @@ import '../css/BuilderPage.css';
 import axios from 'axios';
 import mainLogo from '../assets/logo.png';
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = process.env.REACT_APP_API_BASE;
 
 const EXPERTS = {
   EXPERT: { id: 'EXPERT', name: "실무 책임자", icon: "💼", color: "#2563eb", role: "직무 하드 스킬 검증" },

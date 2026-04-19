@@ -4,7 +4,7 @@ import axios from 'axios'; // ✨ API 통신을 위해 axios 추가
 import '../css/ReverseInterviewRoom.css';
 import mainLogo from '../assets/logo.png';
 
-const API_BASE = "http://localhost:5000"; // 💡 백엔드 서버 주소 (환경에 맞게 수정하세요)
+const API_BASE = process.env.REACT_APP_API_BASE;
 
 export default function ReverseInterviewRoom() {
   const location = useLocation();

@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../css/BuilderPage.css';
 import mainLogo from '../assets/logo.png';
-const API_BASE = "http://localhost:5000";
+
+const API_BASE = process.env.REACT_APP_API_BASE;
 
 // AI 컨설턴트 페르소나
 const CONSULTANT = { name: "AI 컨설턴트", icon: "👩‍💼", color: "#db2777" };

@@ -6,6 +6,8 @@ import '../css/HomePage.css';
 import '../css/MyPage.css';
 import mainLogo from '../assets/logo.png';
 
+const API_BASE = process.env.REACT_APP_API_BASE;
+
 export default function MyPage() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -32,21 +34,21 @@ export default function MyPage() {
       const userId = currentUser.id || currentUser._id || currentUser.email;
 
       try {
-        const portRes = await axios.get(`http://localhost:5000/api/portfolio/${userId}`);
+        const portRes = await axios.get(`${API_BASE}/api/portfolio/${userId}`);
         if (portRes.data.success && portRes.data.data) {
           setPortfolios(Array.isArray(portRes.data.data) ? portRes.data.data : [portRes.data.data]);
         }
       } catch (e) { console.log("포트폴리오 없음"); }
 
       try {
-        const resumeRes = await axios.get(`http://localhost:5000/api/resume/${userId}`);
+        const resumeRes = await axios.get(`${API_BASE}/api/resume/${userId}`);
         if (resumeRes.data.success && resumeRes.data.data) {
           setResumes(Array.isArray(resumeRes.data.data) ? resumeRes.data.data : [resumeRes.data.data]);
         }
       } catch (e) { console.log("자소서 없음"); }
 
       try {
-        const expRes = await axios.get(`http://localhost:5000/api/experience/${userId}`);
+        const expRes = await axios.get(`${API_BASE}/api/experience/${userId}`);
         if (expRes.data.success && expRes.data.data) {
           setExperiences(Array.isArray(expRes.data.data) ? expRes.data.data : [expRes.data.data]);
         }

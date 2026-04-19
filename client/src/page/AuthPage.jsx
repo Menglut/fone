@@ -6,6 +6,8 @@ import '../css/AuthPage.css';
 import axios from 'axios';
 import mainLogo from '../assets/logo.png';
 
+const API_BASE = process.env.REACT_APP_API_BASE;
+
 export default function AuthPage() {
   const navigate = useNavigate();
   // true면 로그인 화면, false면 회원가입 화면
@@ -27,7 +29,7 @@ export default function AuthPage() {
       try {
         if (isLogin) {
           // [로그인 로직]
-          const res = await axios.post('http://localhost:5000/api/auth/login', {
+          const res = await axios.post(`${API_BASE}/api/auth/login`, {
             email: formData.email,
             password: formData.password
           });
@@ -40,7 +42,7 @@ export default function AuthPage() {
 
         } else {
           // [회원가입 로직]
-          const res = await axios.post('http://localhost:5000/api/auth/register', {
+          const res = await axios.post(`${API_BASE}/api/auth/register`, {
             name: formData.name,
             email: formData.email,
             password: formData.password
@@ -105,7 +107,7 @@ export default function AuthPage() {
             onSuccess={async (credentialResponse) => {
               try {
                 // 백엔드로 토큰 전송
-                const res = await axios.post('http://localhost:5000/api/auth/google', {
+                const res = await axios.post(`${API_BASE}/api/auth/google`, {
                   token: credentialResponse.credential
                 });
 

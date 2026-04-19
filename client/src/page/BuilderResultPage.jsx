@@ -11,6 +11,8 @@ import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer, CartesianGrid } f
 import '../css/BuilderPage.css'; 
 import '../css/PortfolioEditor.css'; 
 
+const API_BASE = process.env.REACT_APP_API_BASE;
+
 // 🎨 테마 팔레트 데이터
 const THEMES = {
   modern: {
@@ -97,10 +99,10 @@ export default function BuilderResultPage() {
 
     try {
       // 경험(Experience) DB와 대화 기록 저장
-      await axios.post('http://localhost:5000/api/builder/save', payload);
+      await axios.post(`${API_BASE}/api/builder/save`, payload);
       
       //포트폴리오(Portfolio) DB에 결과물 저장
-      const res = await axios.post('http://localhost:5000/api/portfolio', payload);
+      const res = await axios.post(`${API_BASE}/api/portfolio`, payload);
       
       if (res.data.success) {
         alert('포트폴리오와 경험 자산이 성공적으로 저장되었습니다! 🎉');

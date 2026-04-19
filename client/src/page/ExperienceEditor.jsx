@@ -6,7 +6,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import '../css/ExperienceEditor.css';
 import mainLogo from '../assets/logo.png';
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = process.env.REACT_APP_API_BASE;
 
 const MermaidViewer = ({ code }) => {
   const ref = useRef(null);
