@@ -3,10 +3,10 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import '../css/PortfolioEditor.css';
 
-import Step1BasicInfo from '../components/portfolio/Step1_BasicInfo';
-import Step2ProjectExp from '../components/portfolio/Step2_ProjectExp';
-import Step3Design from '../components/portfolio/Step3_Design';
-import Step4Result from '../components/portfolio/Step4_Result';
+import Step1BasicInfo from '../../components/portfolio/Step1_BasicInfo';
+import Step2ProjectExp from '../../components/portfolio/Step2_ProjectExp';
+import Step3Design from '../../components/portfolio/Step3_Design';
+import Step4Result from '../../components/portfolio/Step4_Result';
 
 const API_BASE = "http://localhost:5000";
 

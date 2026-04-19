@@ -29,8 +29,53 @@ export default function CoverLetterBuilder() {
   
   // 📄 결과물 상태
   const [resultText, setResultText] = useState("");
-
   const isInitialized = useRef(false);
+
+  const resultTextareaRef = useRef(null);
+
+  useEffect(() => {
+    if (resultTextareaRef.current) {
+      resultTextareaRef.current.style.height = 'auto';
+      resultTextareaRef.current.style.height = `${resultTextareaRef.current.scrollHeight}px`;
+    }
+  }, [resultText]);
+
+  // ✨ 추가 3: 저장 & 나가기 (Save & Exit) 로직
+  const handleSaveAndExit = async () => {
+    // 만들어진 자기소개서가 없으면 그냥 나갑니다.
+    if (!resultText) {
+      return navigate('/mypage');
+    }
+
+    try {
+      const userStr = localStorage.getItem('user');
+      const user = userStr ? JSON.parse(userStr) : null;
+      const userId = user ? (user.id || user._id || user.email) : 'guest';
+
+      // 백엔드의 자기소개서 저장 API 호출 (이전에 만든 Resume 모델 기준)
+      await axios.post(`${API_BASE}/api/resume`, {
+        userId,
+        title: "AI 자기소개서 초안", // 임시 제목
+        content: resultText
+      });
+
+      alert("자기소개서가 성공적으로 저장되었습니다!");
+      navigate('/mypage');
+    } catch (error) {
+      console.error('저장 실패:', error);
+      alert('저장 중 오류가 발생했습니다. 글이 날아가지 않게 복사해 두시기 바랍니다.');
+    }
+  };
+
+  // ✨ 추가 4: 확실한 복사 피드백 로직
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(resultText);
+      alert('자기소개서 전체가 클립보드에 복사되었습니다! (Ctrl+V로 붙여넣기)');
+    } catch (err) {
+      alert('복사에 실패했습니다. 직접 드래그해서 복사해주세요.');
+    }
+  };
 
   // 1️⃣ 초기 인사말 (Step 1)
   useEffect(() => {
@@ -159,7 +204,7 @@ export default function CoverLetterBuilder() {
           />
         </div>
 
-        <button className="room-exit-btn" onClick={() => navigate('/mypage')} style={{ backgroundColor: '#111', color: '#fff' }}>
+        <button className="room-exit-btn" onClick={handleSaveAndExit} style={{ backgroundColor: '#111', color: '#fff' }}>
           SAVE & EXIT
         </button>
       </header>
@@ -232,12 +277,13 @@ export default function CoverLetterBuilder() {
                     자기소개서 초안
                   </h2>
                   <textarea 
+                    ref={resultTextareaRef}
                     value={resultText}
                     onChange={(e) => setResultText(e.target.value)}
                     style={{ 
                       flex: 1, width: '100%', fontSize: '1.05rem', lineHeight: '2.0', 
                       color: '#334155', border: 'none', resize: 'none', outline: 'none',
-                      fontFamily: 'inherit'
+                      fontFamily: 'inherit', overflow: 'hidden', minHeight: '500px'
                     }}
                   />
                 </>
@@ -256,9 +302,12 @@ export default function CoverLetterBuilder() {
           {resultText && !isAiThinking && (
             <div className="floating-input-wrapper" style={{ bottom: '40px' }}>
               <div style={{ display: 'flex', gap: '10px', background: 'rgba(255, 255, 255, 0.95)', padding: '10px', borderRadius: '999px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
-                <button className="glass-chip" onClick={() => navigator.clipboard.writeText(resultText)} style={{ border: 'none', background: '#1e293b', color: '#fff' }}>
+                
+                {/* 수정된 복사 버튼: handleCopy 함수 연결 */}
+                <button className="glass-chip" onClick={handleCopy} style={{ border: 'none', background: '#1e293b', color: '#fff', cursor: 'pointer' }}>
                   📋 전체 복사
                 </button>
+                
               </div>
             </div>
           )}
