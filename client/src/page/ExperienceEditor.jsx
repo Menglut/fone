@@ -4,6 +4,7 @@ import axios from 'axios';
 import mermaid from 'mermaid';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import '../css/ExperienceEditor.css';
+import mainLogo from '../assets/logo.png';
 
 const API_BASE = "http://localhost:5000";
 
@@ -13,7 +14,7 @@ const MermaidViewer = ({ code }) => {
     if (code && ref.current) {
       const cleanCode = code.replace(/```mermaid\n?/gi, '').replace(/```\n?/g, '').trim();
       try {
-        // ✨ 포트폴리오 스타일: 흰 배경, 검은 글씨
+        // 포트폴리오 스타일: 흰 배경, 검은 글씨
         mermaid.initialize({ startOnLoad: false, theme: 'default' });
         mermaid.render(`mermaid-ee-${Math.random().toString(36).substr(2, 9)}`, cleanCode)
           .then((result) => { if (ref.current) ref.current.innerHTML = result.svg; });
@@ -105,9 +106,13 @@ export default function ExperienceEditor() {
     <div className="ee-container">
       <nav className="ee-dark-header">
         <div className="pe-logo-btn" onClick={() => navigate('/')}>
-          <div className="pe-logo-symbol"><span>F1</span></div>
-          <div className="pe-logo-text-group"><span className="pe-logo-title">F1ND YOUR WAY</span></div>
+          <img 
+            src={mainLogo} 
+            alt="F1ND YOUR WAY 로고" 
+            className="ee-logo-img" 
+          />
         </div>
+
         <button className="pe-back-btn" onClick={() => navigate('/mypage')}>BACK TO GARAGE</button>
       </nav>
 

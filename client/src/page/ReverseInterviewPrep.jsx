@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../css/ReverseInterviewPrep.css';
+import mainLogo from '../assets/logo.png';
 
 const API_BASE = "http://localhost:5000";
 
@@ -91,10 +92,11 @@ export default function ReverseInterviewPrep() {
       {/* 🏎️ 헤더 (다크 테마) */}
       <header className="rip-header">
         <div className="rip-logo-btn" onClick={() => navigate('/')}>
-          <div className="rip-logo-symbol"><span>F1</span></div>
-          <div className="rip-logo-text-group">
-            <span className="rip-logo-title">F1ND YOUR WAY</span>
-          </div>
+          <img 
+            src={mainLogo} 
+            alt="F1ND YOUR WAY 로고" 
+            className="rip-logo-img" 
+          />
         </div>
         <button
           className="rip-back-btn"

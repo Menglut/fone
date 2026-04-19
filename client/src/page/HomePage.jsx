@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/HomePage.css'; 
+import mainLogo from '../assets/logo.png';
 
 // 초기값 (나중에 DB에서 불러온 값으로 대체됨)
 const initialData = {
@@ -50,7 +51,7 @@ const Homepage = () => {
     };
 
     const handleSmartResumeClick = () => {
-        navigate('/resume/input');
+        navigate('/resume');
     };
 
     const handleSmartPortfolioClick = () => {
@@ -70,21 +71,21 @@ const Homepage = () => {
         <div className="container">
             {/* --- NAVIGATION --- */}
             <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
-                {/* 1. Logo: 서비스 이름에 맞게 수정 */}
+                {/* 1. Logo: 텍스트 대신 이미지 태그로 변경 */}
                 <a href="/" className="nav-logo-btn">
-                    <div className="logo-symbol">
-                        <span>F1</span>
-                    </div>
-                    <div className="logo-text-group">
-                        <span className="logo-title">F1ND YOUR WAY</span>
-                    </div>
+                    {/* ✨ 2. 기존 div 태그들을 지우고 img 태그 하나로 교체합니다 */}
+                    <img 
+                        src={mainLogo} 
+                        alt="F1ND YOUR WAY 로고" 
+                        className="navbar-logo-img" 
+                    />
                 </a>
 
                 {/* 2. Menu */}
                 <div className="nav-menu center-menu">
-                    <a href="/resume/new">자기소개서</a>        {/* 메뉴명 변경 */}
-                    <a href="/builder">포트폴리오</a>  {/* 메뉴명 변경 */}
-                    <a href="#pricing">면접연습</a>       {/* 메뉴명 변경 */}
+                    <a href="/resume">자기소개서</a>        {/* 메뉴명 변경 */}
+                    <a href="/portfolio">포트폴리오</a>  {/* 메뉴명 변경 */}
+                    <a href="/interview/prep">면접연습</a>       {/* 메뉴명 변경 */}
                 </div>
 
                 {/* 3. Auth */}

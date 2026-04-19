@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/BuilderPage.css';
 import axios from 'axios';
+import mainLogo from '../assets/logo.png';
 
 const API_BASE = "http://localhost:5000";
 
@@ -23,13 +24,10 @@ export default function BuilderPage() {
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
 
-  const [currentStep, setCurrentStep] = useState(1);
   const [projects, setProjects] = useState([{
-    title: "", hardSkills: "", problemSolving: "", impact: "", architectureCode: "", chartData: ""
+    title: "", techStack: "", why: "", how: "", then: "", architectureCode: "", chartData: ""
   }]);
   const [currentIdx, setCurrentIdx] = useState(0); 
-
-  // 현재 포커스할 전문가 상태 관리 (좌측 폼 하이라이트용)
   const [activeExpert, setActiveExpert] = useState('SYSTEM');
 
   const getUserInfo = () => {
@@ -81,29 +79,39 @@ export default function BuilderPage() {
     setIsAiThinking(true);
 
     try {
+      // ✨ 핵심: 다른 경험탭을 누르면 맥락이 섞이지 않도록 최근 메시지만 필터링
       const chatContext = messages
         .filter(m => m.id !== 'start')
         .slice(-6)
         .map(m => ({ sender: m.sender === 'user' ? '지원자' : m.expert?.name, text: m.text }));
 
       const res = await axios.post(`${API_BASE}/api/builder/chat`, {
-        userInfo, chatContext, currentProjectData: projects[currentIdx], userInput: text, currentStep 
+        // currentStep 삭제됨
+        userInfo, chatContext, currentProjectData: projects[currentIdx], userInput: text 
       });
 
       if (res.data.success) {
         const aiData = res.data.data;
-        const speakerExpert = EXPERTS[aiData.speaker] || EXPERTS.SYSTEM;
         
-        setMessages(prev => [...prev, { id: Date.now(), sender: aiData.speaker, expert: speakerExpert, text: aiData.message }]);
-        
-        // AI의 응답을 분석하여 활성화된 전문가 업데이트 (좌측 폼 반짝임 효과 유지)
-        setActiveExpert(aiData.speaker);
+        // ✨ 배열로 온 전문가들의 메시지를 순차적으로 화면에 뿌려줌 (진짜 톡방처럼 0.8초 간격)
+        if (aiData.chats && aiData.chats.length > 0) {
+          for (let i = 0; i < aiData.chats.length; i++) {
+            const chat = aiData.chats[i];
+            const speakerExpert = EXPERTS[chat.speaker] || EXPERTS.SYSTEM;
+            
+            setTimeout(() => {
+              setMessages(prev => [...prev, { id: Date.now() + i, sender: chat.speaker, expert: speakerExpert, text: chat.message }]);
+              setActiveExpert(chat.speaker); // 폼 하이라이트 변경
+            }, i * 800); // 0.8초 딜레이
+          }
+        }
 
-        if (aiData.suggestions && aiData.suggestions.length > 0) setSuggestedReplies(aiData.suggestions);
-        if (aiData.currentStep) setCurrentStep(aiData.currentStep);
+        if (aiData.suggestions) setSuggestedReplies(aiData.suggestions);
+        
         if (aiData.extractedData) {
           setProjects(prev => {
             const newProjects = [...prev];
+            // 내용이 비어있지 않은 것만 업데이트
             newProjects[currentIdx] = { ...newProjects[currentIdx], ...aiData.extractedData };
             return newProjects;
           });
@@ -130,18 +138,20 @@ export default function BuilderPage() {
 
   const handleAddNewProject = () => {
     if (!window.confirm("현재 내용을 갈무리하고 새로운 경험을 추가할까요?")) return;
-    setProjects(prev => [...prev, { title: "", hardSkills: "", problemSolving: "", impact: "", architectureCode: "", chartData: "" }]);
-    setCurrentIdx(prev => prev + 1);
-    setCurrentStep(1); 
-    setSuggestedReplies([]);
     
-    // 초기화
+    setProjects(prev => [...prev, { title: "", techStack: "", why: "", how: "", then: "", architectureCode: "", chartData: "" }]);
+    setCurrentIdx(prev => prev + 1);
+    setSuggestedReplies([]);
     setActiveExpert('SYSTEM');
-    setMessages(prev => [...prev, { id: Date.now(), sender: 'SYSTEM', expert: EXPERTS.SYSTEM, text: "새로운 캔버스가 준비되었습니다. 어떤 경험인가요?" }]);
+    
+    // ✨ 핵심: 새 경험 추가 시 채팅방 내역을 싹 비우고 새 주제로 시작
+    setMessages([
+      { id: Date.now(), sender: 'SYSTEM', expert: EXPERTS.SYSTEM, text: "✨ 새로운 캔버스가 준비되었습니다. 이번에는 어떤 경험에 대해 이야기해볼까요?" }
+    ]);
   };
 
   const handleGoToResult = () => {
-    navigate('/builder/result', { state: { portfolioData: projects } });
+    navigate('/portfolio/result', { state: { portfolioData: projects } });
   };
 
   const handleInlineEdit = (field, value) => {
@@ -157,20 +167,19 @@ export default function BuilderPage() {
   return (
     <div className="room-container modern-theme">
       <header className="room-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 32px' }}>
+        {/* ✨ 2. 로고 영역 교체 */}
         <div className="room-logo-btn" onClick={() => navigate('/')}>
-          <div className="room-logo-symbol"><span>F1</span></div>
-          <div className="room-logo-title">F1ND YOUR WAY</div>
+          <img 
+            src={mainLogo} 
+            alt="F1ND YOUR WAY 로고" 
+            className="builder-logo-img" 
+          />
         </div>
         
-        <div className="modern-step-indicator dark-header-compat">
-          {stepNames.map((name, idx) => (
-            <React.Fragment key={name}>
-              <div className={`step-dot ${currentStep === idx + 1 ? 'active' : ''} ${currentStep > idx + 1 ? 'completed' : ''}`}>
-                {currentStep > idx + 1 ? '✓' : idx + 1}
-              </div>
-              {idx < 3 && <div className={`step-line ${currentStep > idx + 1 ? 'active-line' : ''}`}></div>}
-            </React.Fragment>
-          ))}
+        {/* ✨ 4. 기존 1,2,3,4 단계(Step) 프로그레스 바 영역 아예 삭제 (단톡방 컨셉이므로 불필요) */}
+        <div className="modern-step-indicator dark-header-compat" style={{ color: '#fff', fontSize: '0.9rem' }}>
+          {/* 단계 대신 현재 작성 중인 프로젝트 인덱스 표시 */}
+          Currently Editing: Project {currentIdx + 1}
         </div>
 
         <button className="room-exit-btn" onClick={handleGoToResult} style={{ backgroundColor: '#111', color: '#fff' }}>
@@ -200,17 +209,25 @@ export default function BuilderPage() {
                 
                 <div className={`draft-input-group ${activeExpert === 'EXPERT' ? 'active-glow' : ''}`} style={{ '--accent': EXPERTS.EXPERT.color }}>
                   <label>하드 스킬 (도구/기술)</label>
-                  <textarea value={proj.hardSkills} onChange={(e) => handleInlineEdit('hardSkills', e.target.value)} placeholder="ex) React, Figma, GA4..." />
+                  <textarea value={proj.techStack} onChange={(e) => handleInlineEdit('hardSkills', e.target.value)} placeholder="ex) React, Figma, GA4..." />
                 </div>
                 
+                {/* ✨ 4. 새로 추가됨: why (문제/배경) */}
                 <div className={`draft-input-group ${activeExpert === 'STRATEGY' ? 'active-glow' : ''}`} style={{ '--accent': EXPERTS.STRATEGY.color }}>
-                  <label>문제 해결 전략</label>
-                  <textarea value={proj.problemSolving} onChange={(e) => handleInlineEdit('problemSolving', e.target.value)} placeholder="어떤 문제를 어떻게 해결했나요?" />
+                  <label>배경 및 문제점</label>
+                  <textarea value={proj.why} onChange={(e) => handleInlineEdit('why', e.target.value)} placeholder="어떤 상황이나 문제가 있었나요?" />
                 </div>
                 
+                {/* ✨ 5. 변수명 변경: problemSolving -> how */}
+                <div className={`draft-input-group ${activeExpert === 'STRATEGY' ? 'active-glow' : ''}`} style={{ '--accent': EXPERTS.STRATEGY.color }}>
+                  <label>해결 전략</label>
+                  <textarea value={proj.how} onChange={(e) => handleInlineEdit('how', e.target.value)} placeholder="문제를 어떻게 해결했나요?" />
+                </div>
+                
+                {/* ✨ 6. 변수명 변경: impact -> then */}
                 <div className={`draft-input-group ${activeExpert === 'HR' ? 'active-glow' : ''}`} style={{ '--accent': EXPERTS.HR.color }}>
                   <label>핵심 성과</label>
-                  <textarea value={proj.impact} onChange={(e) => handleInlineEdit('impact', e.target.value)} placeholder="숫자로 표현할 수 있는 성과가 있다면 더 좋습니다." />
+                  <textarea value={proj.then} onChange={(e) => handleInlineEdit('then', e.target.value)} placeholder="숫자로 표현할 수 있는 성과가 있다면 더 좋습니다." />
                 </div>
               </div>
             ))}

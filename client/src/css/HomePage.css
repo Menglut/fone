@@ -52,59 +52,95 @@ body {
 }
 
 /* 1. Left: Logo */
-/* 로고 전체 컨테이너: 버튼 형태 */
+
+/* ✨ 로고 링크 컨테이너 - 위치 및 크기 변화 원천 차단 */
 .nav-logo-btn {
     display: flex;
     align-items: center;
-    gap: 15px;
     text-decoration: none;
-
-    /* 버튼 느낌을 주는 핵심 스타일 */
-    padding: 8px 16px;
-    background: rgba(0, 0, 0, 0.4); /* 반투명 배경 */
-
-    border-radius: 2px; /* 아주 살짝만 둥글게 (F1의 기계적인 느낌) */
-    backdrop-filter: blur(5px); /* 배경 흐림 효과 */
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    background: transparent !important;
+    outline: none !important;
+    border: none !important;
+    cursor: pointer;
+    
+    /* 위치 이동 방지 */
+    position: relative;
+    top: 0 !important;
+    left: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    
+    /* 애니메이션 및 변형 효과 제거 */
+    transition: none !important;
+    transform: none !important;
 }
 
-/* 마우스 올렸을 때 효과 */
-.nav-logo-btn:hover {
-    border-color: var(--f1-red); /* 테두리가 빨간색으로 변함 */
-    background: rgba(0, 0, 0, 0.8); /* 배경이 진해짐 */
-    transform: translateY(1px); /* 클릭할 것 같은 느낌 */
+/* 호버 시에도 절대 움직이지 않도록 고정 */
+.nav-logo-btn:hover,
+.nav-logo-btn:focus,
+.nav-logo-btn:active {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    
+    /* 다른 CSS의 이동 효과(translate 등)를 무효화 */
+    transform: none !important; 
+    top: 0 !important;
+    margin: 0 !important;
 }
 
-
-
-.logo-symbol {
-  font-family: 'Rajdhani', sans-serif;
-  font-weight: 700;
-  font-size: 24px;
-  color: var(--rw-primary);
-  letter-spacing: 2px;
-  border: 2px solid var(--rw-primary);
-  padding: 0 8px;
-  transform: skew(-10deg);
+/* ✨ 로고 이미지 본체 - 렌더링 안정화 */
+.navbar-logo-img {
+    height: 60px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+    
+    /* 배경 제거 */
+    mix-blend-mode: screen; 
+    
+    /* 크기 고정 및 기준점 */
+    transform: scale(1.5) !important; 
+    transform-origin: left center;
+    
+    /* 미세한 떨림(Sub-pixel jitter) 방지 */
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+    transition: none !important;
 }
 
-/* 오른쪽 텍스트 그룹 */
-.logo-text-group {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+/* 호버 시 이미지 상태 강제 유지 */
+.nav-logo-btn:hover .navbar-logo-img {
+    transform: scale(1.5) !important;
+    opacity: 1 !important;
 }
 
-.logo-title {
-    color: #fff;
-    font-family: 'Oswald', sans-serif;
-    font-weight: 700;
-    font-size: 1.1rem;
-    letter-spacing: 0.5px;
-    line-height: 1;
-    text-transform: uppercase;
-    transform: skewX(-10deg);
-    display: inline-block;
+/* ✨ 2. 로고 이미지 본체 */
+.navbar-logo-img {
+    height: 60px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+    mix-blend-mode: screen; 
+    transform: scale(1.5); 
+    transform-origin: left center;
+    transition: none !important; /* 🚀 추가: 이미지 자체의 애니메이션 전환 효과 원천 차단 */
+}
+
+/* ✨ Hover, Focus 상태에서도 아무 변화가 없도록 강제 고정 (테두리 원천 차단) */
+a.nav-logo-btn:hover,
+a.nav-logo-btn:focus,
+a.nav-logo-btn:active {
+    background: transparent !important; 
+    opacity: 1 !important; 
+    transform: none !important;
+    
+    /* 🚀 추가된 핵심 방어 코드: 테두리, 외곽선, 그림자를 모두 날려버립니다 */
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    text-decoration: none !important;
 }
 
 /* 2. Center: Menu (절대 위치로 화면 정중앙 고정) */
@@ -439,3 +475,4 @@ body {
   .footer-top h2 { font-size: 2.5rem; }
   .footer-bottom { flex-direction: column; gap: 20px; }
 }
+

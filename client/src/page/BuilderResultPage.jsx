@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import mermaid from 'mermaid';
 import html2pdf from 'html2pdf.js';
 import axios from 'axios';
+import mainLogo from '../assets/logo.png';
 
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
@@ -83,32 +84,27 @@ export default function BuilderResultPage() {
     html2pdf().set(opt).from(element).save();
   };
 
-  // 💾 ✨ 포트폴리오 DB에 정식으로 저장하는 로직 추가!
+  // 💾 ✨ 포트폴리오 DB + 경험 DB 동시 저장 로직으로 통합
   const handleSaveToDashboard = async () => {
     const userId = userInfo?.id || userInfo?._id || userInfo?.email || 'guest';
     
-    // portfolioRoute.js 가 원하는 형식(content 안에 profile과 projects)으로 데이터 포장
+    // builderRoute.js의 /save 가 인식할 수 있는 데이터 구조
     const payload = {
       userId: userId,
       title: `${userInfo.name || '지원자'}의 AI 대화형 포트폴리오`,
-      content: {
-        profile: {
-          name: userInfo.name || '지원자',
-          jobTitle: 'AI 역량 추출 포트폴리오',
-          email: userInfo.email || '',
-          intro: '해당 문서는 AI 전문가 패널과의 심층 대화를 통해 추출된 핵심 경험 및 트러블슈팅 리포트입니다.'
-        },
-        projects: projectList // 대화로 만든 경험 배열 통째로 넣기
-      }
+      portfolioData: projectList // 대화로 만든 경험 배열
     };
 
     try {
-      // POST /api/portfolio 로 전송
+      // 경험(Experience) DB와 대화 기록 저장
+      await axios.post('http://localhost:5000/api/builder/save', payload);
+      
+      //포트폴리오(Portfolio) DB에 결과물 저장
       const res = await axios.post('http://localhost:5000/api/portfolio', payload);
       
       if (res.data.success) {
-        alert('포트폴리오가 대시보드에 성공적으로 저장되었습니다! 🎉');
-        navigate('/mypage'); // 저장 완료 후 마이페이지로 이동
+        alert('포트폴리오와 경험 자산이 성공적으로 저장되었습니다! 🎉');
+        navigate('/mypage'); 
       } else {
         alert('저장에 실패했습니다.');
       }
@@ -127,8 +123,11 @@ export default function BuilderResultPage() {
       {/* 🚀 기존 헤더 스타일 완벽 복구 */}
       <header className="room-header" style={{ position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid #e2e8f0', backgroundColor: '#fff' }}>
         <div className="room-logo-btn" onClick={() => navigate('/')}>
-          <div className="room-logo-symbol"><span>F1</span></div>
-          <div className="room-logo-title" style={{ color: '#111' }}>F1ND YOUR WAY</div>
+          <img 
+            src={mainLogo} 
+            alt="F1ND YOUR WAY 로고" 
+            className="builder-logo-img" 
+          />
         </div>
         
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -185,89 +184,106 @@ export default function BuilderResultPage() {
           </header>
 
           {/* 프로젝트 리스트 렌더링 */}
-          {projectList.map((project, idx) => (
-            <section key={idx} className="preview-project-section">
-              <div className="preview-project-header">
-                <h2 className="preview-project-title">
-                  <span style={{ color: currentTheme.accent, marginRight: '8px' }}>0{idx + 1}.</span> 
-                  {project.title || '프로젝트 명 미작성'}
-                </h2>
-              </div>
+          {projectList.map((project, idx) => {
+            
+            // ✨ 추가된 핵심 방어 코드: 차트 데이터가 무조건 '배열' 형태를 유지하도록 강제 변환
+            let safeChartData = [];
+            try {
+              if (Array.isArray(project.chartData)) {
+                safeChartData = project.chartData;
+              } else if (typeof project.chartData === 'string' && project.chartData.trim() !== '') {
+                const parsed = JSON.parse(project.chartData);
+                safeChartData = Array.isArray(parsed) ? parsed : [];
+              }
+            } catch (e) {
+              safeChartData = [];
+            }
 
-              {/* ✨ 수정 1: techStack 대신 hardSkills로 매핑 */}
-              <div className="preview-tags-wrap">
-                {project.hardSkills?.split(',').map((tag, i) => tag.trim() && (
-                  <span
-                    key={i}
-                    className="preview-tag"
-                    style={{
-                      background: currentTheme.tagBg,
-                      color: currentTheme.tagText,
-                      border: theme === 'minimal' ? '1px solid #000' : 'none'
-                    }}
-                  >
-                    #{tag.trim()}
-                  </span>
-                ))}
-              </div>
+            return (
+              <section key={idx} className="preview-project-section">
+                <div className="preview-project-header">
+                  <h2 className="preview-project-title">
+                    <span style={{ color: currentTheme.accent, marginRight: '8px' }}>0{idx + 1}.</span> 
+                    {project.title || '프로젝트 명 미작성'}
+                  </h2>
+                </div>
 
-              {/* ✨ 수정 2: troubleshootings 배열 대신 project 단일 데이터에서 직접 렌더링 */}
-              <div
-                className="troubleshooting-card"
-                style={{ borderLeftColor: `${currentTheme.accent}33` }}
-              >
-                <h4 className="trouble-title">💡 핵심 경험 및 전략</h4>
+                <div className="preview-tags-wrap">
+                  {project.techStack?.split(',').map((tag, i) => tag.trim() && (
+                    <span
+                      key={i}
+                      className="preview-tag"
+                      style={{
+                        background: currentTheme.tagBg,
+                        color: currentTheme.tagText,
+                        border: theme === 'minimal' ? '1px solid #000' : 'none'
+                      }}
+                    >
+                      #{tag.trim()}
+                    </span>
+                  ))}
+                </div>
 
-                {/* 시각화 영역 (다이어그램 & 성과 그래프) */}
-                {(project.architectureCode || (Array.isArray(project.chartData) && project.chartData.length > 0) || (typeof project.chartData === 'string' && project.chartData.length > 5)) && (
-                  <div className="trouble-visuals" style={{ display: 'grid', gap: '15px', marginBottom: '20px' }}>
-                    
-                    {/* 다이어그램 */}
-                    {project.architectureCode && (
-                      <div className="visual-box" style={{ borderColor: currentTheme.border, padding: '20px', borderRadius: '8px', border: `1px solid ${currentTheme.border}` }}>
-                          <MermaidViewer code={project.architectureCode} themeMode={currentTheme.mermaidTheme} />
-                      </div>
-                    )}
+                <div
+                  className="troubleshooting-card"
+                  style={{ borderLeftColor: `${currentTheme.accent}33` }}
+                >
+                  <h4 className="trouble-title">💡 핵심 경험 및 전략</h4>
 
-                    {/* 성과 그래프 */}
-                    {project.chartData && (
-                      <div className="visual-box" style={{ borderColor: currentTheme.border, padding: '20px', borderRadius: '8px', border: `1px solid ${currentTheme.border}`, height: '250px' }}>
-                        <h5 style={{ marginBottom: '15px', color: currentTheme.textSub, fontSize: '0.9rem' }}>📈 성과 지표 변화</h5>
-                        <ResponsiveContainer width="100%" height="100%">
-                          {/* (주의: chartData가 문자열로 넘어올 경우를 대비해 JSON.parse 처리가 필요할 수 있습니다. 아래 data 속성을 조절하세요) */}
-                          <AreaChart data={typeof project.chartData === 'string' ? JSON.parse(project.chartData || '[]') : project.chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                            <defs>
-                              <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor={currentTheme.accent} stopOpacity={0.3}/>
-                                <stop offset="95%" stopColor={currentTheme.accent} stopOpacity={0}/>
-                              </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={currentTheme.border} />
-                            <XAxis dataKey="name" stroke={currentTheme.textSub} fontSize={12} tickLine={false} axisLine={false} />
-                            <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: currentTheme.shadow }} />
-                            <Area type="monotone" dataKey="value" stroke={currentTheme.accent} strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      </div>
-                    )}
-                  </div>
-                )}
+                  {/* 시각화 영역 (다이어그램 & 성과 그래프) */}
+                  {(project.architectureCode || safeChartData.length > 0) && (
+                    <div className="trouble-visuals" style={{ display: 'grid', gap: '15px', marginBottom: '20px' }}>
+                      
+                      {/* 다이어그램 */}
+                      {project.architectureCode && (
+                        <div className="visual-box" style={{ borderColor: currentTheme.border, padding: '20px', borderRadius: '8px', border: `1px solid ${currentTheme.border}` }}>
+                            <MermaidViewer code={project.architectureCode} themeMode={currentTheme.mermaidTheme} />
+                        </div>
+                      )}
 
-                {/* ✨ 수정 3: why, how, then 대신 problemSolving, impact 사용 */}
-                <div className="trouble-details">
-                  <div className="trouble-row" style={{ display: 'flex', gap: '15px', marginBottom: '10px' }}>
-                      <span className="trouble-label" style={{ color: '#16a34a', width: '60px', fontWeight: 'bold' }}>전략.</span>
-                      <span className="trouble-text">{project.problemSolving || '작성된 문제해결 전략이 없습니다.'}</span>
-                  </div>
-                  <div className="trouble-row" style={{ display: 'flex', gap: '15px' }}>
-                      <span className="trouble-label" style={{ color: '#f59e0b', width: '60px', fontWeight: 'bold' }}>성과.</span>
-                      <span className="trouble-text" style={{ fontWeight: 'bold' }}>{project.impact || '작성된 성과가 없습니다.'}</span>
+                      {/* 성과 그래프 */}
+                      {safeChartData.length > 0 && (
+                        <div className="visual-box" style={{ borderColor: currentTheme.border, padding: '20px', borderRadius: '8px', border: `1px solid ${currentTheme.border}`, height: '250px' }}>
+                          <h5 style={{ marginBottom: '15px', color: currentTheme.textSub, fontSize: '0.9rem' }}>📈 성과 지표 변화</h5>
+                          <ResponsiveContainer width="100%" height="100%">
+                            {/* ✨ 기존의 복잡했던 파싱 로직을 빼고 안전한 safeChartData로 렌더링 */}
+                            <AreaChart data={safeChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                              <defs>
+                                <linearGradient id={`colorValue-${idx}`} x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor={currentTheme.accent} stopOpacity={0.3}/>
+                                  <stop offset="95%" stopColor={currentTheme.accent} stopOpacity={0}/>
+                                </linearGradient>
+                              </defs>
+                              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={currentTheme.border} />
+                              <XAxis dataKey="name" stroke={currentTheme.textSub} fontSize={12} tickLine={false} axisLine={false} />
+                              <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: currentTheme.shadow }} />
+                              <Area type="monotone" dataKey="value" stroke={currentTheme.accent} strokeWidth={3} fillOpacity={1} fill={`url(#colorValue-${idx})`} />
+                            </AreaChart>
+                          </ResponsiveContainer>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="trouble-details">
+                    <div className="trouble-row" style={{ display: 'flex', gap: '15px', marginBottom: '10px' }}>
+                        <span className="trouble-label" style={{ color: '#dc2626', width: '60px', fontWeight: 'bold' }}>배경.</span>
+                        <span className="trouble-text">{project.why || '작성된 배경이 없습니다.'}</span>
+                    </div>
+                    <div className="trouble-row" style={{ display: 'flex', gap: '15px', marginBottom: '10px' }}>
+                        <span className="trouble-label" style={{ color: '#16a34a', width: '60px', fontWeight: 'bold' }}>전략.</span>
+                        <span className="trouble-text">{project.how || '작성된 문제해결 전략이 없습니다.'}</span>
+                    </div>
+                    <div className="trouble-row" style={{ display: 'flex', gap: '15px' }}>
+                        <span className="trouble-label" style={{ color: '#f59e0b', width: '60px', fontWeight: 'bold' }}>성과.</span>
+                        <span className="trouble-text" style={{ fontWeight: 'bold' }}>{project.then || '작성된 성과가 없습니다.'}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-            </section>
-          ))}
+              </section>
+            );
+          })}
         </div>
       </div>
     </div>

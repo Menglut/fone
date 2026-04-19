@@ -5,10 +5,6 @@ import { useEffect } from "react"; // ✨ useEffect 추가
 import { ResumeFlowProvider } from "./context/ResumeFlowContext";
 
 import HomePage from "./page/HomePage";
-import PortfolioEditor from "./page/PortfolioEditor";
-import ResumeInput from "./page/ResumeInput";
-import ResumeInterview from "./page/ResumeInterview";
-import ResumeResult from "./page/ResumeResult";
 import AuthPage from "./page/AuthPage";
 import MyPage from "./page/MyPage";
 import ExperienceEditor from './page/ExperienceEditor';
@@ -48,23 +44,24 @@ return(
                     <Route path="/auth" element={<AuthPage />} />
                     <Route path="/mypage" element={<MyPage />} />
 
-                    {/* 자소서 흐름 */}
+                    {/* 자소서 흐름 
                     <Route path="/resume" element={<Navigate to="/resume/input" replace />} />
                     <Route path="/resume/input" element={<ResumeInput />} />
                     <Route path="/resume/interview" element={<ResumeInterview />} />
                     <Route path="/resume/result" element={<ResumeResult />} />
+                    */}
+                    <Route path="/resume" element={<CoverLetterBuilder />} />
 
-                    <Route path="/resume/new" element={<CoverLetterBuilder />} />
-
-                    { /* 포트폴리오 흐름 */}
+                    { /* 포트폴리오 흐름 
                     <Route path="/portfolio" element={<PortfolioEditor />} />
-
+                    */ }
                     { /* 면접 흐름 */}
                     <Route path="/interview/prep" element={<ReverseInterviewPrep />} />
                     <Route path="/interview/defense" element={<ReverseInterviewRoom />} />
-
-                    <Route path="/builder" element={<BuilderPage />} />
-                    <Route path="/builder/result" element={<BuilderResultPage />} />
+                    
+                    { /* 새로운 포트폴리오 흐름  */ }
+                    <Route path="/portfolio" element={<BuilderPage />} />
+                    <Route path="/portfolio/result" element={<BuilderResultPage />} />
 
                     { /* 프로필 흐름 */}
                     <Route path="/experience/input" element={<ExperienceEditor />} />

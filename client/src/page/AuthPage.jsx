@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import '../css/AuthPage.css';
 import axios from 'axios';
+import mainLogo from '../assets/logo.png';
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -63,12 +64,17 @@ export default function AuthPage() {
       <div className="auth-card">
 
         {/* 헤더 및 로고 (클릭 시 메인으로) */}
-        <div className="auth-header" onClick={() => navigate('/')} style={{cursor: 'pointer'}}>
-          <h1 className="auth-title">F1ND YOUR WAY</h1>
-          <p className="auth-subtitle">
-            {isLogin ? '엔진에 시동을 걸어주세요' : '새로운 드라이버로 등록하세요'}
-          </p>
+        <div className="auth-header" onClick={() => navigate('/')}>
+          {/* ✨ 2. 기존 h1 태그를 지우고 이미지 태그로 교체 */}
+          <img 
+            src={mainLogo} 
+            alt="F1ND YOUR WAY 로고" 
+            className="auth-logo-img" 
+          />
         </div>
+        <p className="auth-subtitle">
+          {isLogin ? '엔진에 시동을 걸어주세요' : '새로운 드라이버로 등록하세요'}
+        </p>
 
         {/* 일반 이메일 폼 */}
         <form className="auth-form" onSubmit={handleSubmit}>

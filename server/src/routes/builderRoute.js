@@ -1,6 +1,7 @@
 // server/src/routes/builderRoute.js
 import express from 'express';
 import BuilderHistory from '../models/builderHistory.js';
+import Experience from '../models/experience.js';
 import { generateBuilderChatAndExtract } from '../services/llm.js';
 
 const router = express.Router();
@@ -24,22 +25,47 @@ router.post('/chat', async (req, res) => {
   }
 });
 
-// 🎯 포트폴리오 및 대화 기록 전체 저장
+// 🎯 포트폴리오 대화 기록 저장 및 🌟경험 자산(Experience) 자동 생성🌟
 router.post('/save', async (req, res) => {
   try {
     const { userId, title, chatHistory, portfolioData } = req.body;
 
+    // 1. 대화 내역 원본 저장 (기존 기능)
     const newHistory = new BuilderHistory({
       userId,
       title,
       chatHistory,
       portfolioData
     });
-
     await newHistory.save();
-    res.status(201).json({ success: true, message: '포트폴리오와 대화 기록이 저장되었습니다.' });
+
+    // ✨ 2. AI가 추출한 데이터를 분해해서 '경험(Experience)' 자산으로 자동 저장
+    if (portfolioData && portfolioData.length > 0) {
+      // 배열로 들어온 포트폴리오 데이터를 하나씩 돌면서 경험 DB에 넣습니다.
+      for (const data of portfolioData) {
+        // 빈 데이터가 아닐 경우에만 저장
+        if (data.title || data.how || data.techStack) {
+          await Experience.create({
+            userId: userId,
+            title: data.title || '새로운 추출 경험',
+            techStack: data.techStack || '',
+            troubleshootings: [{
+              id: crypto.randomUUID(),
+              title: 'AI 전문가 인터뷰를 통해 도출된 핵심 경험',
+              why: data.why || '',
+              how: data.how || '',
+              then: data.then || '',
+              architectureCode: data.architectureCode || '',
+              chartData: typeof data.chartData === 'string' ? JSON.parse(data.chartData || '[]') : (data.chartData || [])
+            }]
+          });
+        }
+      }
+    }
+
+    res.status(201).json({ success: true, message: '포트폴리오와 경험 자산이 성공적으로 저장되었습니다.' });
   } catch (error) {
-    console.error("빌더 저장 에러:", error);
+    console.error("빌더 저장 및 경험 추출 에러:", error);
     res.status(500).json({ success: false, message: '기록 저장에 실패했습니다.' });
   }
 });

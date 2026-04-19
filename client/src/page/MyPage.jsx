@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../css/HomePage.css';
 import '../css/MyPage.css';
+import mainLogo from '../assets/logo.png';
 
 export default function MyPage() {
   const navigate = useNavigate();
@@ -73,12 +74,14 @@ export default function MyPage() {
       {/* 헤더 */}
       <header className="mp-header">
         <div className="mp-header-inner">
-          <div className="mp-logo-btn" onClick={() => navigate('/')}>
-            <div className="mp-logo-symbol">F1</div>
-            <div className="mp-logo-text-group">
-              <span className="mp-logo-text">F1ND YOUR WAY</span>
-            </div>
-          </div>
+          <a href="/" className="mp-logo-btn">
+            {/*  기존 div 태그들을 지우고 img 태그 하나로 교체합니다 */}
+            <img 
+                src={mainLogo} 
+                alt="F1ND YOUR WAY 로고" 
+                className="navbar-logo-img" 
+            />
+          </a>
           <button className="mp-nav-btn" onClick={handleLogout}>LOGOUT</button>
         </div>
       </header>

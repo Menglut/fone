@@ -16,11 +16,57 @@
 }
 .mp-header-inner { width: 100%; padding: 0 50px; display: flex; justify-content: space-between; align-items: center; }
 
-.mp-logo-btn { display: flex; align-items: center; gap: 15px; text-decoration: none; cursor: pointer; padding: 8px 16px; background: rgba(0, 0, 0, 0.4); border: 1px solid transparent; border-radius: 4px; transition: all 0.3s ease; }
-.mp-logo-btn:hover { border-color: #E10600; background: rgba(0, 0, 0, 0.8); }
-.mp-logo-symbol { font-family: 'Rajdhani', sans-serif; font-weight: 800; font-size: 24px; color: #E10600; border: 2px solid #E10600; padding: 0 8px; transform: skew(-10deg); }
-.mp-logo-text-group { display: flex; flex-direction: column; justify-content: center; }
-.mp-logo-text { color: #fff; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 1.1rem; letter-spacing: 0.5px; transform: skewX(-10deg); }
+/* ✨ 1. 로고 링크 컨테이너 (이벤트 및 배경 원천 차단) */
+.mp-logo-btn { 
+  display: flex; 
+  align-items: center; 
+  text-decoration: none; 
+  cursor: pointer; 
+  
+  /* 기존 배경, 테두리, 패딩 날리기 */
+  background: transparent !important; 
+  border: none !important; 
+  outline: none !important;
+  padding: 0 !important; 
+  margin: 0 !important; 
+  transition: none !important;
+  transform: none !important;
+}
+
+/* 호버 시 테두리, 배경색, 흔들림 완벽 방어 */
+.mp-logo-btn:hover,
+.mp-logo-btn:focus,
+.mp-logo-btn:active {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* ✨ 2. 로고 이미지 본체 */
+.mp-logo-btn .navbar-logo-img {
+  height: 60px; /* 기존 헤더들과 동일한 높이 */
+  width: auto;
+  display: block;
+
+  /* 검은 배경 투명화 */
+  mix-blend-mode: screen;
+
+  /* 빈 공간 무시하고 확대 (왼쪽 기준 정렬) */
+  transform: scale(1.5) !important;
+  transform-origin: left center;
+
+  /* 떨림 방지 및 애니메이션 차단 */
+  backface-visibility: hidden;
+  transition: none !important;
+}
+
+/* 호버 시에도 이미지 상태 강제 고정 */
+.mp-logo-btn:hover .navbar-logo-img {
+  transform: scale(1.5) !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
 
 .mp-nav-btn { background: transparent; border: 1px solid rgba(255,255,255,0.2); padding: 8px 18px; color: #fff; border-radius: 6px; cursor: pointer; font-family: 'Oswald', sans-serif; letter-spacing: 1px; transition: all 0.2s ease; }
 .mp-nav-btn:hover { background: white; color: black; }

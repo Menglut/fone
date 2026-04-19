@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import '../css/ResumeEditor.css';
+import mainLogo from '../assets/logo.png';
 
 const API_BASE = "http://localhost:5000";
 
@@ -105,11 +106,14 @@ export default function ResumeEditor() {
       {/* 🏎️ 다크 헤더 */}
       <header className="re-header">
         <div className="re-logo-btn" onClick={() => navigate('/')}>
-          <div className="re-logo-symbol"><span>F1</span></div>
-          <div className="re-logo-title">F1ND YOUR WAY</div>
+          <img 
+            src={mainLogo} 
+            alt="F1ND YOUR WAY 로고" 
+            className="pe-logo-img" 
+          />
         </div>
         <button className="re-back-btn" onClick={() => navigate('/mypage')}>
-          EXIT GARAGE (나가기)
+          EXIT (나가기)
         </button>
       </header>
 
@@ -203,7 +207,7 @@ export default function ResumeEditor() {
               onMouseEnter={(e) => { e.target.style.background = '#fef2f2'; }}
               onMouseLeave={(e) => { e.target.style.background = 'transparent'; }}
             >
-              🗑️ DELETE (삭제)
+              DELETE (삭제)
             </button>
           </div>
 

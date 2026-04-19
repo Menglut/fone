@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../css/BuilderPage.css';
-
+import mainLogo from '../assets/logo.png';
 const API_BASE = "http://localhost:5000";
 
 // AI 컨설턴트 페르소나
@@ -151,9 +151,12 @@ export default function CoverLetterBuilder() {
       {/* 🌟 헤더 */}
       <header className="room-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 32px' }}>
         <div className="room-logo-btn" onClick={() => navigate('/')}>
-          <div className="room-logo-symbol"><span>F1</span></div>
-          <div className="room-logo-title">F1ND YOUR WAY</div>
-        </div>
+                  <img 
+                    src={mainLogo} 
+                    alt="F1ND YOUR WAY 로고" 
+                    className="builder-logo-img" 
+                  />
+                </div>
         
         <div className="modern-step-indicator dark-header-compat">
            <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#1e293b' }}>✨ AI 자기소개서 컨설팅</span>

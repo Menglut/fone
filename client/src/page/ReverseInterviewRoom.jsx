@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios'; // ✨ API 통신을 위해 axios 추가
 import '../css/ReverseInterviewRoom.css';
+import mainLogo from '../assets/logo.png';
 
 const API_BASE = "http://localhost:5000"; // 💡 백엔드 서버 주소 (환경에 맞게 수정하세요)
 
@@ -174,8 +175,11 @@ export default function ReverseInterviewRoom() {
       {/* 🏁 헤더 */}
       <header className="room-header">
         <div className="room-logo-btn" onClick={() => navigate('/')}>
-          <div className="room-logo-symbol"><span>F1</span></div>
-          <div className="room-logo-title">F1ND YOUR WAY</div>
+          <img 
+            src={mainLogo} 
+            alt="F1ND YOUR WAY 로고" 
+            className="room-logo-img" 
+          />
         </div>
         <button 
           className="room-exit-btn"

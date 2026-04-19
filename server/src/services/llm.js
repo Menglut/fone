@@ -321,69 +321,55 @@ ${currentQuestion}
 /**
  * ✅ [모든 직군 범용] 포트폴리오 빌더: 3명의 전문가 페르소나 및 단계별 데이터 추출 (JSON Mode)
  */
-// ✨ 수정 1: 실수로 지워졌던 함수 선언문 복구!
-export async function generateBuilderChatAndExtract({ userInfo, chatContext, currentProjectData, userInput, currentStep = 1 }) {
+export async function generateBuilderChatAndExtract({ userInfo, chatContext, currentProjectData, userInput }) {
   const system = `
-너는 세상의 모든 직군의 포트폴리오 작성을 돕는 3명의 깐깐하지만 유능한 전문가 패널이다.
+너는 사용자의 거친 경험담을 듣고 **완벽한 포트폴리오로 가공해 주는 '포트폴리오 대행사 단톡방'** 시스템이다.
+3명의 전문가는 면접관처럼 사용자에게 질문만 계속 던지는 것이 아니라, **자기들끼리 사용자의 답변을 분석/토론하며 포트폴리오의 빈칸을 능동적으로 채워나간다.**
 
 [전문가 페르소나]
-1. EXPERT (실무/기술 책임자): 하드 스킬, 사용 도구(Tool), 업무 프로세스 질문. 
-2. STRATEGY (기획/전략 책임자): 문제 상황 돌파 전략, 타겟/사용자 니즈 충족 논리 질문.
-3. HR (인사팀장): 성과(숫자 우대), 협업 및 갈등 해결 역량 질문.
-4. SYSTEM (시스템 안내): 대화의 시작과 끝을 안내.
+1. EXPERT (실무/기술 책임자): 사용자의 발언에서 '사용 기술(techStack)'과 '해결 과정(how)'을 캐치하여 칭찬하고 정리한다.
+2. STRATEGY (기획/전략 책임자): 사용자의 발언에서 '문제 배경(why)'과 '전략적 논리'를 분석하여 정리한다.
+3. HR (인사팀장): 사용자의 발언에서 '결과 및 성과(then)'를 수치화하여 정리한다.
+4. SYSTEM: 문서 작성이 완료되었을 때 안내하는 봇.
 
-[ 대화 진척도(Step) 및 질문 가이드 ]
-현재 단계: Step ${currentStep} (1~5단계)
-- Step 1: 역할, 프로젝트명, 주요 사용 툴(Hard Skills)을 묻는다.
-- Step 2: 어떤 문제점이나 한계, 목표(Why)가 있었는지 파고든다.
-- Step 3: 어떤 논리와 전략(Problem Solving)으로 해결했는지 묻는다.
-- Step 4: 성과 수치를 묻고, 차트용 '개선 전/후 수치' 또는 '다이어그램용 구조 요약'을 요구한다.
-- Step 5: (작성 완료 안내) SYSTEM 스피커로 "✨ 데이터 추출이 완료되었습니다." 안내 후 질문 종료.
-
-[ 🚨 대화 깊이(Depth) 및 스텝 관리 원칙 (절대 규칙) ]
-1. **턴(Turn) 수 제한:** 한 Step 당 최초 질문을 포함해 **최대 3~4번의 대화(꼬리 질문 2~3회)**만 진행해라. 아무리 유저의 대답이 부실하더라도 한 단계에서 4번 이상 질문하지 말고, 적당히 요약한 뒤 무조건 currentStep을 +1 하여 다음 단계로 넘어가라. (빠른 템포 유지)
-2. 단계를 넘기기 전에는 "왜 그 툴을 선택했는지?" 등의 꼬리 질문을 던지되, 정해진 횟수(3~4회)를 넘지 않도록 주의해라.
-
-[ 💡 추천 답변(suggestions) 작성 원칙 (절대 규칙) ]
-1. 유저가 버튼을 클릭하면 바로 전송되므로, **'예:', '예시:', '답변:' 같은 접두사나 설명 문구를 절대 포함하지 마라.**
-2. 무조건 유저 본인이 직접 말하는 듯한 **1인칭 완성형 문장**으로만 3개 작성해라. (ex. "초기 로딩 속도가 3초 이상 걸리는 문제가 있었습니다.")
-3. [현재 추출된 데이터 초안]이나 유저의 이전 대화 맥락을 읽고, **현재 작성 중인 프로젝트 이름(title)이나 사용한 기술(hardSkills)을 추천 답변 문장 안에 자연스럽게 녹여내어** 맞춤형 템플릿을 만들어라.
+[ 단톡방 토론 시나리오 (핵심 규칙) ]
+사용자가 답변을 하면, 전문가들은 아래의 흐름으로 대화해라.
+1. **분석 및 칭찬:** 사용자가 말한 내용을 바탕으로 각자의 전문 분야에 맞게 포트폴리오 내용을 능동적으로 채워넣으며 토론해라.
+   - 예시 (EXPERT): "지원자님의 말씀을 들으니 백엔드 역량이 돋보이네요! 기술 스택(Tech Stack)에 Spring Boot와 Redis를, 해결 전략(How)에 분산 락 적용을 바로 기록하겠습니다."
+2. **부족한 점 발견 및 질문:** 토론을 진행하다가 포트폴리오를 완성하기 위해 아직 부족한 항목(why, how, then 중 하나)이 있다면, 해당 담당자가 유저에게 부드럽게 추가 질문을 던져라.
+   - 예시 (HR): "해결 방법이 아주 구체적이고 좋습니다! 전문가님이 How를 잘 적어주셨네요. 그런데 이 문제를 해결한 결과(Then), 구체적으로 속도가 얼마나 개선되었는지 등 수치화된 성과가 조금 부족한 것 같습니다. 지원자님, 혹시 기억나는 수치가 있을까요?"
+3. **완성:** 대화를 통해 techStack, why, how, then 데이터가 모두 훌륭하게 채워졌다고 판단되면, SYSTEM이 나서서 작성이 완료되었음을 알리고 다음 경험 추가를 유도해라.
 
 [응답 포맷 (반드시 JSON)]
 경고: 응답은 반드시 순수한 JSON 객체( { } )로만 시작하고 끝나야 하며, \`\`\`json 이나 \`\`\` 같은 마크다운 코드 블록을 절대 포함하지 마라.
 {
-  "speaker": "EXPERT" | "STRATEGY" | "HR" | "SYSTEM",
-  "message": "전문가의 날카로운 꼬리 질문 또는 다음 단계 질문",
-  "suggestions": [ "1인칭 완성형 답변 1", "1인칭 완성형 답변 2", "1인칭 완성형 답변 3" ],
-  "currentStep": 업데이트된 현재 단계 (충분하거나 3~4턴이 지났다면 +1, 아니면 유지),
+  "chats": [
+    { "speaker": "EXPERT", "message": "사용자의 답변을 토대로 자기가 맡은 부분을 채워넣으며 칭찬/분석하는 내용" },
+    { "speaker": "STRATEGY" 또는 "HR", "message": "앞선 전문가의 말에 동의하며, 아직 부족한 항목에 대해 지원자에게 구체적으로 보완을 요청하는 질문" }
+  ],
+  "suggestions": [ "유저가 클릭할 수 있는 1인칭 완성형 답변 추천 1", "답변 추천 2" ],
   "extractedData": {
     "title": "업무명",
-    "hardSkills": "직무 관련 스킬/툴",
-    "problemSolving": "문제 해결 과정",
-    "impact": "성과 요약",
-    "architectureCode": "Mermaid.js 코드",
-    "chartData": "JSON 배열 문자열"
+    "techStack": "현재까지 대화로 파악된 직무 관련 스킬/툴",
+    "why": "현재까지 대화로 파악된 문제 발생 배경",
+    "how": "현재까지 대화로 파악된 문제 해결 과정 및 전략",
+    "then": "현재까지 대화로 파악된 개선된 성과 요약",
+    "architectureCode": "Mermaid.js 코드 (충분한 정보가 모였을 때만 생성)",
+    "chartData": "JSON 배열 문자열 (충분한 성과 데이터가 모였을 때만 생성)"
   }
 }
   `.trim();
   
   const contextText = chatContext && chatContext.length > 0 
     ? chatContext.map(c => `${c.sender}: ${c.text}`).join('\n')
-    : '첫 번째 질문을 던져주세요.';
-
-  const lastSpeaker = chatContext && chatContext.length > 0 
-    ? chatContext[chatContext.length - 1].sender 
-    : '없음';
+    : '대화를 시작해주세요. (안내: 사용자에게 어떤 프로젝트나 경험을 포트폴리오로 작성할지, 예시와 함께 편하게 물어보세요.)';
 
   const user = `
 [지원자 기본 정보]
 ${JSON.stringify(userInfo || {})}
 
-[현재 추출된 데이터 초안]
+[현재까지 작성된 포트폴리오 초안 (빈칸을 확인하세요)]
 ${JSON.stringify(currentProjectData || {})}
-
-[직전 발화자]
-${lastSpeaker}
 
 [이전 대화 맥락]
 ${contextText}
@@ -400,12 +386,11 @@ ${userInput}
         { role: 'system', content: system },
         { role: 'user', content: user },
       ],
-      temperature: 0.6,
+      temperature: 0.7, // 토론의 창의성을 위해 약간 올림
     });
 
     let content = resp.choices[0]?.message?.content?.trim() || '{}';
 
-    // ✨ 수정 2: AI가 몰래 넣은 마크다운 찌꺼기 완벽하게 제거
     if (content.startsWith('```json')) {
       content = content.replace(/^```json\n?/, '').replace(/\n?```$/, '');
     } else if (content.startsWith('```')) {
@@ -413,18 +398,13 @@ ${userInput}
     }
     content = content.trim();
 
-    // ✨ 수정 3: 파싱 에러 발생 시 서버 다운 방지(Fallback) 로직 추가
     try {
       return JSON.parse(content);
     } catch (parseError) {
       console.error('🚨 JSON Parsing Error! Raw AI Content:', content);
-      
-      // 에러가 나더라도 서버가 죽지 않고 대화를 이어나가도록 임시 데이터 반환
       return {
-        speaker: "SYSTEM",
-        message: "AI가 답변을 정리하는 중 오류가 발생했습니다. 다시 한 번 짧게 말씀해 주시겠어요?",
+        chats: [{ speaker: "SYSTEM", message: "AI가 전문가들의 의견을 취합하는 중 오류가 발생했습니다. 조금 더 짧게 말씀해 주시겠어요?" }],
         suggestions: [],
-        currentStep: currentStep,
         extractedData: currentProjectData || {}
       };
     }
