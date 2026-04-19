@@ -17,7 +17,7 @@ export default function ReverseInterviewPrep() {
   const [isScanning, setIsScanning] = useState(false);
   const [attackList, setAttackList] = useState([]);
 
-  // 1. 유저 서류 데이터 불러오기 (우선 자기소개서 기준)
+  // 1. 유저 서류 데이터 불러오기 (자기소개서 + 포트폴리오)
   useEffect(() => {
     const fetchUserDocuments = async () => {
       const userStr = localStorage.getItem('user');
@@ -29,16 +29,33 @@ export default function ReverseInterviewPrep() {
       const userId = user.id || user._id || user.email;
 
       try {
-        // DB에 저장된 자기소개서 목록을 불러옵니다.
-        const res = await axios.get(`${API_BASE}/api/resume/${userId}`);
-        if (res.data.success && res.data.data) {
-          const docs = Array.isArray(res.data.data) ? res.data.data : [res.data.data];
-          setDocuments(docs);
+        // 자기소개서와 포트폴리오 데이터를 동시에 요청합니다.
+        // (만약 한 쪽 데이터가 없어도 에러가 나지 않도록 catch 처리)
+        const [resumeRes, portfolioRes] = await Promise.all([
+          axios.get(`${API_BASE}/api/resume/${userId}`).catch(() => ({ data: { success: false, data: [] } })),
+          axios.get(`${API_BASE}/api/portfolio/${userId}`).catch(() => ({ data: { success: false, data: [] } }))
+        ]);
 
-          if (docs.length > 0) {
-            setSelectedDocId(docs[0]._id);
-            setSelectedDocType('resume');
-          }
+        let combinedDocs = [];
+
+        // 자기소개서 데이터가 있으면 docType: 'resume' 꼬리표를 달아서 추가
+        if (resumeRes.data.success && resumeRes.data.data) {
+          const resumes = Array.isArray(resumeRes.data.data) ? resumeRes.data.data : [resumeRes.data.data];
+          combinedDocs = [...combinedDocs, ...resumes.map(doc => ({ ...doc, docType: 'resume' }))];
+        }
+
+        // 포트폴리오 데이터가 있으면 docType: 'portfolio' 꼬리표를 달아서 추가
+        if (portfolioRes.data.success && portfolioRes.data.data) {
+          const portfolios = Array.isArray(portfolioRes.data.data) ? portfolioRes.data.data : [portfolioRes.data.data];
+          combinedDocs = [...combinedDocs, ...portfolios.map(doc => ({ ...doc, docType: 'portfolio' }))];
+        }
+
+        setDocuments(combinedDocs);
+
+        // 데이터가 하나라도 있으면 첫 번째 문서를 기본값으로 세팅
+        if (combinedDocs.length > 0) {
+          setSelectedDocId(combinedDocs[0]._id);
+          setSelectedDocType(combinedDocs[0].docType); // 첫 문서의 타입으로 세팅
         }
       } catch (err) {
         console.error("서류 데이터를 불러오지 못했습니다.", err);
@@ -47,7 +64,7 @@ export default function ReverseInterviewPrep() {
     fetchUserDocuments();
   }, [navigate]);
 
-  // 2. 공격 지점 추출 (✨ 진짜 AI 스캔 API 연동)
+  // 2. AI 스캔 API 연동
   const handleScanTarget = async () => {
     if (!selectedDocId) return alert("분석할 서류를 선택해주세요.");
 
@@ -85,6 +102,18 @@ export default function ReverseInterviewPrep() {
         initialAttacks: attackList
       }
     });
+  };
+
+  // 문서 선택 시 실행되는 함수
+  const handleDocSelection = (e) => {
+    const selectedId = e.target.value;
+    setSelectedDocId(selectedId);
+
+    // documents 배열에서 선택된 문서를 찾아서 타입을 알아냅니다.
+    const selectedDoc = documents.find(doc => doc._id === selectedId);
+    if (selectedDoc) {
+      setSelectedDocType(selectedDoc.docType);
+    }
   };
 
   return (
@@ -127,14 +156,31 @@ export default function ReverseInterviewPrep() {
               <select
                 className="rip-select"
                 value={selectedDocId}
-                onChange={(e) => setSelectedDocId(e.target.value)}
+                onChange={handleDocSelection} /* ✨ 새로 만든 함수 연결 */
               >
                 <option value="" disabled>스캔할 서류를 선택하세요</option>
-                {documents.map((doc, idx) => (
-                  <option key={doc._id || idx} value={doc._id}>
-                    {doc.title || `자기소개서 ${idx + 1}`} {doc.targetJob && `(${doc.targetJob})`}
-                  </option>
-                ))}
+                
+                {/* 자기소개서 그룹 */}
+                {documents.filter(doc => doc.docType === 'resume').length > 0 && (
+                  <optgroup label="자기소개서">
+                    {documents.filter(doc => doc.docType === 'resume').map((doc, idx) => (
+                      <option key={doc._id} value={doc._id}>
+                        {doc.title || `자기소개서 ${idx + 1}`} {doc.targetJob && `(${doc.targetJob})`}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+
+                {/* 포트폴리오 그룹 */}
+                {documents.filter(doc => doc.docType === 'portfolio').length > 0 && (
+                  <optgroup label="포트폴리오">
+                    {documents.filter(doc => doc.docType === 'portfolio').map((doc, idx) => (
+                      <option key={doc._id} value={doc._id}>
+                        {doc.title || `포트폴리오 ${idx + 1}`} {doc.targetJob && `(${doc.targetJob})`}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
               </select>
             </div>
 

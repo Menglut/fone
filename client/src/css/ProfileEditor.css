@@ -316,3 +316,50 @@
 .pe-textarea:-webkit-autofill {
   border: 1px solid rgba(255, 255, 255, 0.05) !important;
 }
+
+/* AI 문장 다듬기 버튼 (미니멀 & 힙 스타일) */
+.pe-ai-inline-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  background: #111111; /* 아주 깊은 다크 톤 */
+  border: 1px solid #333333;
+  border-radius: 8px; /* 트렌디한 둥근 모서리 */
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 마우스를 올렸을 때 (호버 효과) */
+.pe-ai-inline-btn:hover:not(:disabled) {
+  background: #222222;
+  border-color: #555555;
+  transform: translateY(-2px); /* 살짝 위로 떠오르는 효과 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 클릭했을 때 */
+.pe-ai-inline-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* 로딩 중일 때 (비활성화) */
+.pe-ai-inline-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 반짝이 아이콘 애니메이션 (선택 사항) */
+.pe-sparkle {
+  display: inline-block;
+}
+.pe-ai-inline-btn:not(:disabled):hover .pe-sparkle {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}

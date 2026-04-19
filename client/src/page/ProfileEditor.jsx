@@ -176,20 +176,15 @@ const handleAiGenerate = async () => {
               <label className="pe-label" style={{ margin: 0 }}>자기 소개 (Introduction)</label>
               
               <button 
+                className="pe-ai-inline-btn"
                 onClick={handleAiGenerate} 
                 disabled={isAiLoading}
-                style={{
-                  padding: '6px 12px',
-                  fontSize: '13px',
-                  backgroundColor: '#111',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: isAiLoading ? 'not-allowed' : 'pointer',
-                  opacity: isAiLoading ? 0.7 : 1
-                }}
               >
-                {isAiLoading ? "✨ 작성 중..." : "✨ AI 문장 다듬기"}
+                {isAiLoading ? (
+                  <><span></span>작성 중...</>
+                ) : (
+                  <><span className="pe-sparkle"></span>AI 문장 다듬기</>
+                )}
               </button>
             </div>
             
@@ -199,9 +194,9 @@ const handleAiGenerate = async () => {
               value={profile.intro}
               onChange={handleChange}
               disabled={isAiLoading}
-              placeholder="키워드나 개요를 적고 우측 상단의 AI 문장 다듬기 버튼을 눌러보세요!"
+              placeholder="핵심 키워드나 경험을 간단히 적고 우측 상단의 AI 문장 다듬기 버튼을 눌러보세요!"
             />
-          </div>
+            </div>
           </div>
         </div>
 
