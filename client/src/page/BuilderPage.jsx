@@ -229,6 +229,24 @@ export default function BuilderPage() {
                   <label>핵심 성과</label>
                   <textarea value={proj.then} onChange={(e) => handleInlineEdit('then', e.target.value)} placeholder="숫자로 표현할 수 있는 성과가 있다면 더 좋습니다." />
                 </div>
+
+                <div className={`draft-input-group ${activeExpert === 'SYSTEM' ? 'active-glow' : ''}`}>
+                  <label>📊 성과 그래프 데이터 (JSON)</label>
+                  <textarea 
+                    value={typeof proj.chartData === 'string' ? proj.chartData : JSON.stringify(proj.chartData)} 
+                    onChange={(e) => handleInlineEdit('chartData', e.target.value)} 
+                    placeholder='[{"name":"전","value":10}, {"name":"후","value":50}]'
+                  />
+                </div>
+
+                <div className={`draft-input-group ${activeExpert === 'SYSTEM' ? 'active-glow' : ''}`}>
+                  <label>🏗️ 아키텍처 설계 (Mermaid)</label>
+                  <textarea 
+                    value={proj.architectureCode} 
+                    onChange={(e) => handleInlineEdit('architectureCode', e.target.value)} 
+                    placeholder="graph TD..."
+                  />
+                </div>
               </div>
             ))}
           </div>

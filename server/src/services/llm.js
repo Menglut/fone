@@ -333,31 +333,37 @@ export async function generateBuilderChatAndExtract({ userInfo, chatContext, cur
 4. SYSTEM: 문서 작성이 완료되었을 때 안내하는 봇.
 
 [ 단톡방 토론 시나리오 (핵심 규칙) ]
-사용자가 답변을 하면, 전문가들은 아래의 흐름으로 대화해라.
-1. **분석 및 칭찬:** 사용자가 말한 내용을 바탕으로 각자의 전문 분야에 맞게 포트폴리오 내용을 능동적으로 채워넣으며 토론해라.
-   - 예시 (EXPERT): "지원자님의 말씀을 들으니 백엔드 역량이 돋보이네요! 기술 스택(Tech Stack)에 Spring Boot와 Redis를, 해결 전략(How)에 분산 락 적용을 바로 기록하겠습니다."
-2. **부족한 점 발견 및 질문:** 토론을 진행하다가 포트폴리오를 완성하기 위해 아직 부족한 항목(why, how, then 중 하나)이 있다면, 해당 담당자가 유저에게 부드럽게 추가 질문을 던져라.
-   - 예시 (HR): "해결 방법이 아주 구체적이고 좋습니다! 전문가님이 How를 잘 적어주셨네요. 그런데 이 문제를 해결한 결과(Then), 구체적으로 속도가 얼마나 개선되었는지 등 수치화된 성과가 조금 부족한 것 같습니다. 지원자님, 혹시 기억나는 수치가 있을까요?"
-3. **완성:** 대화를 통해 techStack, why, how, then 데이터가 모두 훌륭하게 채워졌다고 판단되면, SYSTEM이 나서서 작성이 완료되었음을 알리고 다음 경험 추가를 유도해라.
+사용자가 답변을 하면, 전문가들은 아래의 4단계 흐름으로 대화해라.
+1. 분석 및 칭찬: 사용자 발언을 바탕으로 각자의 전문 분야에 맞게 포트폴리오 내용을 채우며 칭찬해라.
+2. ✨ 시각화 데이터 적극 생성: 
+   - 사용자의 'how(해결 전략)'가 나오면 EXPERT나 STRATEGY가 'architectureCode'를 즉시 생성해라.
+   - 사용자의 'then(성과)' 수치가 파악되면 HR이 'chartData'를 즉시 생성해라.
+3. 🚨 통합 질문 (가장 중요): 부족한 항목(why, how, then)이 여러 개라도 전문가들이 각자 따로 질문을 던지면 절대 안 된다. 반드시 1명의 전문가(또는 SYSTEM)가 나서서 **"현재까지 파악된 내용을 바탕으로, 다음으로 필요한 OOO과 OOO에 대해 한 번에 여쭤보겠습니다"라는 식으로 하나의 질문으로 요약**해서 물어봐라.
+4. 완성: 대화를 통해 모든 데이터가 채워지면 SYSTEM이 작성이 완료되었음을 알린다.
 
 [응답 포맷 (반드시 JSON)]
 경고: 응답은 반드시 순수한 JSON 객체( { } )로만 시작하고 끝나야 하며, \`\`\`json 이나 \`\`\` 같은 마크다운 코드 블록을 절대 포함하지 마라.
 {
   "chats": [
-    { "speaker": "EXPERT", "message": "사용자의 답변을 토대로 자기가 맡은 부분을 채워넣으며 칭찬/분석하는 내용" },
-    { "speaker": "STRATEGY" 또는 "HR", "message": "앞선 전문가의 말에 동의하며, 아직 부족한 항목에 대해 지원자에게 구체적으로 보완을 요청하는 질문" }
+    { "speaker": "EXPERT", "message": "사용자의 답변을 분석하고 칭찬하는 내용" },
+    { "speaker": "HR", "message": "앞선 분석에 동의하며 시각화 자료 생성을 안내하는 내용" },
+    { "speaker": "SYSTEM", "message": "여러 전문가의 의견을 종합하여, 유저가 대답해야 할 부족한 내용들을 단 1개의 질문으로 깔끔하게 요약하여 묻는 내용" }
   ],
-  "suggestions": [ "유저가 클릭할 수 있는 1인칭 완성형 답변 추천 1", "답변 추천 2" ],
+  "suggestions": [ "위 통합 질문에 대해 유저가 바로 클릭해서 대답할 수 있는 1인칭 완성형 추천 답변 1", "추천 답변 2" ],
   "extractedData": {
     "title": "업무명",
-    "techStack": "현재까지 대화로 파악된 직무 관련 스킬/툴",
-    "why": "현재까지 대화로 파악된 문제 발생 배경",
-    "how": "현재까지 대화로 파악된 문제 해결 과정 및 전략",
-    "then": "현재까지 대화로 파악된 개선된 성과 요약",
-    "architectureCode": "Mermaid.js 코드 (충분한 정보가 모였을 때만 생성)",
-    "chartData": "JSON 배열 문자열 (충분한 성과 데이터가 모였을 때만 생성)"
+    "techStack": "현재까지 파악된 스킬/툴",
+    "why": "현재까지 파악된 문제 발생 배경",
+    "how": "현재까지 파악된 문제 해결 전략",
+    "then": "현재까지 파악된 개선된 성과 요약",
+    "architectureCode": "graph TD\\n A-->B 형식의 Mermaid.js 코드 (해당 시 생성. 없으면 빈 문자열)",
+    "chartData": [
+      { "name": "도입 전", "value": 10 },
+      { "name": "도입 후", "value": 50 }
+    ]
   }
 }
+※ 주의: chartData는 반드시 'name'과 'value' 키를 가진 JSON 객체들의 배열 형식이어야 한다.
   `.trim();
   
   const contextText = chatContext && chatContext.length > 0 
@@ -386,7 +392,7 @@ ${userInput}
         { role: 'system', content: system },
         { role: 'user', content: user },
       ],
-      temperature: 0.7, // 토론의 창의성을 위해 약간 올림
+      temperature: 0.7,
     });
 
     let content = resp.choices[0]?.message?.content?.trim() || '{}';

@@ -88,33 +88,35 @@ export default function BuilderResultPage() {
 
   // 💾 ✨ 포트폴리오 DB + 경험 DB 동시 저장 로직으로 통합
   const handleSaveToDashboard = async () => {
-    const userId = userInfo?.id || userInfo?._id || userInfo?.email || 'guest';
-    
-    // builderRoute.js의 /save 가 인식할 수 있는 데이터 구조
-    const payload = {
-      userId: userId,
-      title: `${userInfo.name || '지원자'}의 AI 대화형 포트폴리오`,
-      content: projectList // 대화로 만든 경험 배열
-    };
-
-    try {
-      // 경험(Experience) DB와 대화 기록 저장
-      await axios.post(`${API_BASE}/api/builder/save`, payload);
-      
-      //포트폴리오(Portfolio) DB에 결과물 저장
-      const res = await axios.post(`${API_BASE}/api/portfolio`, payload);
-      
-      if (res.data.success) {
-        alert('포트폴리오와 경험 자산이 성공적으로 저장되었습니다! 🎉');
-        navigate('/mypage'); 
-      } else {
-        alert('저장에 실패했습니다.');
-      }
-    } catch (error) {
-      console.error('포트폴리오 저장 에러:', error);
-      alert('서버 오류로 인해 저장하지 못했습니다.');
-    }
+  const userId = userInfo?.id || userInfo?._id || userInfo?.email || 'guest';
+  
+  // 1. 백엔드 Portfolio 모델은 'content'라는 필드를 사용합니다.
+  const payload = {
+    userId: userId,
+    title: `${userInfo.name || '지원자'}의 AI 대화형 포트폴리오`,
+    content: projectList // ✨ portfolioData -> content 로 변경!
   };
+
+  try {
+    // 2. 경험 DB 저장 (기존 builderRoute 규격 유지)
+    await axios.post(`${API_BASE}/api/builder/save`, {
+      userId: userId,
+      title: payload.title,
+      portfolioData: projectList 
+    });
+    
+    // 3. 포트폴리오 DB 저장 (수정된 payload 전송)
+    const res = await axios.post(`${API_BASE}/api/portfolio`, payload);
+    
+    if (res.data.success) {
+      alert('포트폴리오가 성공적으로 저장되었습니다! 🎉');
+      navigate('/mypage'); 
+    }
+  } catch (error) {
+    console.error('저장 에러:', error);
+    alert('저장 중 오류가 발생했습니다.');
+  }
+};
 
   if (!projectList || projectList.length === 0) return null;
   const currentTheme = THEMES[theme];
