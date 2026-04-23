@@ -271,7 +271,7 @@
     font-family: inherit;
     font-size: 0.9rem;
     color: #334155;
-    resize: vertical;
+    resize: none;
     min-height: 42px;
     transition: all 0.2s;
     box-sizing: border-box;
@@ -610,4 +610,122 @@
 .mission-text::-webkit-scrollbar-thumb {
     background: #cbd5e1;
     border-radius: 2px;
+}
+
+/* =========================================
+   🌟 포트폴리오 결과 뷰어 (강철 PDF 레이아웃 통제)
+   ========================================= */
+
+.theme-modern {
+  --bg: #f1f5f9; --paper-bg: #ffffff; --text: #1e293b; --text-sub: #64748b;
+  --accent: #1e40af; --border: #e2e8f0; --shadow: 0 20px 50px rgba(0,0,0,0.1);
+  --tag-bg: #1e40af; --tag-text: #ffffff;
+}
+.theme-dark {
+  --bg: #0a0a0a; --paper-bg: #141414; --text: #f3f4f6; --text-sub: #9ca3af;
+  --accent: #e10600; --border: #2a2a2a; --shadow: 0 20px 50px rgba(225,6,0,0.15);
+  --tag-bg: #e10600; --tag-text: #ffffff;
+}
+.theme-minimal {
+  --bg: #ffffff; --paper-bg: #ffffff; --text: #000000; --text-sub: #555555;
+  --accent: #000000; --border: #000000; --shadow: none;
+  --tag-bg: #000000; --tag-text: #ffffff;
+}
+
+.portfolio-wrapper {
+  min-height: 100vh; background-color: var(--bg); padding-bottom: 100px;
+  display: flex; flex-direction: column; align-items: center; font-family: 'Pretendard', sans-serif;
+}
+
+.builder-top-header {
+  width: 100%; position: sticky; top: 0; z-index: 100;
+  border-bottom: 1px solid #e2e8f0; background-color: #fff;
+  display: flex; justify-content: space-between; padding: 16px 32px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.header-controls { display: flex; gap: 12px; align-items: center; }
+.theme-select { padding: 8px 12px; border-radius: 4px; border: 1px solid #cbd5e1; outline: none; }
+.action-btn { padding: 8px 16px; border-radius: 4px; font-weight: 600; cursor: pointer; border: 1px solid transparent; }
+.btn-primary { background-color: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-secondary { background-color: #fff; color: #111; border-color: #cbd5e1; }
+
+.pdf-scale-container { width: 100%; display: flex; justify-content: center; margin-top: 40px; }
+.pdf-scale-container.print-mode { justify-content: flex-start; margin-top: 0; }
+
+/* 컨테이너 강제 고정 */
+.portfolio-content-list { display: flex; flex-direction: column; width: 297mm; background-color: var(--bg); }
+.portfolio-content-list.preview-mode { gap: 30px; transform: scale(0.85); transform-origin: top center; }
+.portfolio-content-list.print-mode { gap: 0px !important; margin: 0 !important; padding: 0 !important; transform: none !important; background-color: #fff; }
+
+/* ✨ 핵심: 슬라이드 절대 규격 고정 (209mm) 및 페이지 강제 분할 */
+.portfolio-slide {
+  width: 297mm;
+  height: 209mm;
+  padding: 12mm 15mm;
+  background: var(--paper-bg, #fff);
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+.portfolio-content-list.print-mode .portfolio-slide {  border-radius: 0;  border: none;}
+
+/* 표지 디자인 */
+.cover-slide { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+.cover-header { border-bottom: 3px solid var(--accent); padding-bottom: 20px; margin-bottom: 20px; width: 80%; }
+.cover-title { font-size: 4rem; font-weight: bold; margin-bottom: 15px; }
+.cover-subtitle { color: var(--accent); font-size: 2rem; font-weight: 600; }
+.cover-info { color: var(--text-sub); font-size: 1.2rem; }
+
+/* ✨ 프로젝트 레이아웃: 모든 높이를 절대값(mm)으로 고정하여 붕괴 방지 */
+.project-header {
+  height: 15mm; border-bottom: 2px solid var(--accent); margin-bottom: 5mm;
+  display: flex; align-items: flex-end; padding-bottom: 3mm; box-sizing: border-box;
+}
+.project-title { font-size: 1.8rem; font-weight: bold; margin: 0; }
+.project-title-num { color: var(--accent); margin-right: 10px; font-size: 2rem; }
+
+.project-body {
+  display: flex;
+  flex-direction: row !important;
+  flex: 1;
+  gap: 10mm;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.project-text-area { width: 45%; height: 100%; display: flex; flex-direction: column; gap: 4mm; }
+.project-visual-area { width: 55%; height: 100%; display: flex; flex-direction: column; gap: 4mm; }
+
+.text-box {
+  height: calc(33.33% - 3mm); /* 3등분 절대 높이 */
+  padding: 4mm; background-color: rgba(128, 128, 128, 0.05);
+  border-radius: 8px; border-left: 4px solid #000; box-sizing: border-box;
+}
+.text-box.red { border-left-color: #dc2626; }
+.text-box.green { border-left-color: #16a34a; }
+.text-box.orange { border-left-color: #f59e0b; }
+.text-box-title { font-weight: bold; font-size: 1.1rem; margin-bottom: 2mm; }
+.text-box-content { font-size: 0.95rem; line-height: 1.5; overflow: hidden; }
+
+/* 💡 아키텍처 박스: 70% 비율 차지 */
+.visual-box {
+  flex: 7;
+  min-height: 0;
+  border: 1px solid var(--border); border-radius: 8px; padding: 4mm;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  box-sizing: border-box; overflow: hidden;
+}
+
+/* 💡 차트 박스: 30% 비율 차지 */
+.chart-box {
+  flex: 3;
+  min-height: 0;
+  border: 1px solid var(--border); border-radius: 8px; padding: 10px 20px 0 0;
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+  box-sizing: border-box; overflow: hidden;
+}
+
+/* 차트 내부 컨테이너 (부모 비율에 맞춰 100% 채움) */
+.chart-container-wrapper {
+  width: 100%; height: 100%; display: flex; flex-direction: column; min-height: 0;
 }

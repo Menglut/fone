@@ -1,0 +1,120 @@
+/* =============================================
+   공통 포트폴리오 슬라이드 스타일
+   BuilderResultPage + PortfolioEditPage 공유
+   ============================================= */
+
+/* --- 테마 변수 --- */
+.theme-modern { --accent: #1e40af; --text-sub: #64748b; --border: #e2e8f0; --paper-bg: #ffffff; --text: #1e293b; --tag-bg: #1e40af; --tag-text: #ffffff; }
+.theme-dark    { --accent: #e10600; --text-sub: #9ca3af; --border: #2a2a2a; --paper-bg: #141414; --text: #f3f4f6; --tag-bg: #e10600; --tag-text: #ffffff; }
+.theme-minimal { --accent: #000000; --text-sub: #555555; --border: #000000; --paper-bg: #ffffff; --text: #000000; --tag-bg: #000000; --tag-text: #ffffff; }
+
+/* --- 슬라이드 공통 --- */
+.portfolio-slide {
+  width: 297mm;
+  height: 209mm;
+  padding: 12mm 15mm;
+  background: var(--paper-bg);
+  color: var(--text);
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* --- 표지 슬라이드 --- */
+.cover-slide {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.cover-inner-border {
+  border-bottom: 3px solid var(--accent);
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  width: 80%;
+}
+.cover-title   { font-size: 3.5rem; font-weight: bold; margin-bottom: 15px; color: var(--text); }
+.cover-subtitle { font-size: 1.8rem; font-weight: 600; color: var(--accent); }
+.cover-meta    { color: var(--text-sub); font-size: 1.1rem; }
+.cover-meta p  { margin-bottom: 10px; }
+.cover-intro   { margin-top: 20px; line-height: 1.6; width: 70%; white-space: pre-wrap; }
+
+/* --- 프로젝트 헤더 --- */
+.proj-header {
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+  flex-shrink: 0;
+}
+.proj-title {
+  font-size: 1.6rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  color: var(--text);
+}
+.proj-title-num { color: var(--accent); margin-right: 10px; font-size: 1.8rem; }
+
+/* --- 기술스택 태그 --- */
+.tag-list   { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; }
+.tech-tag   { background: var(--tag-bg); color: var(--tag-text); padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 500; }
+
+/* --- 프로젝트 바디 --- */
+.proj-body {
+  display: flex;
+  gap: 20px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.proj-text-col {
+  flex: 0 0 40%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+}
+.proj-visual-col {
+  flex: 0 0 58%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+/* --- 텍스트 박스 (Why/How/Then) --- */
+.info-box {
+  flex: 1;
+  padding: 10px 12px;
+  background-color: rgba(128,128,128,0.05);
+  border-radius: 8px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.info-box.why  { border-left: 4px solid #dc2626; }
+.info-box.how  { border-left: 4px solid #16a34a; }
+.info-box.then { border-left: 4px solid #f59e0b; }
+.info-box-label { font-weight: bold; font-size: 0.95rem; margin-bottom: 5px; }
+.info-box.why  .info-box-label { color: #dc2626; }
+.info-box.how  .info-box-label { color: #16a34a; }
+.info-box.then .info-box-label { color: #f59e0b; }
+.info-box-text { font-size: 0.88rem; line-height: 1.5; color: var(--text); overflow: hidden; }
+.info-box.then .info-box-text  { font-weight: bold; }
+
+/* --- 시각자료 박스 (Mermaid / Chart) --- */
+.visual-card {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.chart-label { font-size: 0.85rem; font-weight: bold; color: var(--text-sub); margin-bottom: 5px; flex-shrink: 0; }
+.chart-inner { flex: 1; min-height: 0; }

@@ -95,8 +95,10 @@ export default function CoverLetterBuilder() {
   }, []);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isAiThinking]);
+      if (!isAiThinking && currentStep < 4 && textareaRef.current) {
+        textareaRef.current.focus();
+      }
+    }, [isAiThinking, currentStep]);
 
   const handleInputChange = (e) => {
     setUserInput(e.target.value);

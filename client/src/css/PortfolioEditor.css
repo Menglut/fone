@@ -305,3 +305,5 @@ body, html {
     height: 63.6vw; /* 297:210 비율 유지 */
   }
 }
+
+.slide-active { outline: 3px solid var(--accent) !important; }

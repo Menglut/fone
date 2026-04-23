@@ -148,24 +148,6 @@ export default function ResumeEditor() {
 
             <button
               className="re-ai-btn"
-              onClick={() => handleAITuning('grammar')}
-              disabled={isAILoading}
-            >
-              <span>✨ 오탈자 및 문맥 교정</span>
-              {isAILoading ? <div className="re-spinner"></div> : "➔"}
-            </button>
-
-            <button
-              className="re-ai-btn"
-              onClick={() => handleAITuning('professional')}
-              disabled={isAILoading}
-            >
-              <span>👔 전문적인 톤앤매너로 변경</span>
-              {isAILoading ? <div className="re-spinner"></div> : "➔"}
-            </button>
-
-            <button
-              className="re-ai-btn"
               onClick={() => {
                 if(window.confirm("현재 내용을 지우고 처음부터 AI 생성기로 돌아가시겠습니까?")) {
                   navigate('/resume/input');
