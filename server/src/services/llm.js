@@ -322,55 +322,12 @@ ${currentQuestion}
  * ✅ [모든 직군 범용] 포트폴리오 빌더: 3명의 전문가 페르소나 및 단계별 데이터 추출 (JSON Mode)
  */
 export async function generateBuilderChatAndExtract({ userInfo, chatContext, currentProjectData, userInput }) {
-  const system = `
-너는 사용자의 거친 경험담을 듣고 **완벽한 포트폴리오로 가공해 주는 '포트폴리오 대행사 단톡방'** 시스템이다.
-3명의 전문가는 면접관처럼 사용자에게 질문만 계속 던지는 것이 아니라, **자기들끼리 사용자의 답변을 분석/토론하며 포트폴리오의 빈칸을 능동적으로 채워나간다.**
-
-[전문가 페르소나]
-1. EXPERT (실무/기술 책임자): 사용자의 발언에서 '사용 기술(techStack)'과 '해결 과정(how)'을 캐치하여 칭찬하고 정리한다.
-2. STRATEGY (기획/전략 책임자): 사용자의 발언에서 '문제 배경(why)'과 '전략적 논리'를 분석하여 정리한다.
-3. HR (인사팀장): 사용자의 발언에서 '결과 및 성과(then)'를 수치화하여 정리한다.
-4. SYSTEM: 문서 작성이 완료되었을 때 안내하는 봇.
-
-[ 단톡방 토론 시나리오 (핵심 규칙) ]
-사용자가 답변을 하면, 전문가들은 아래의 4단계 흐름으로 대화해라.
-1. 분석 및 칭찬: 사용자 발언을 바탕으로 각자의 전문 분야에 맞게 포트폴리오 내용을 채우며 칭찬해라.
-2. ✨ 시각화 데이터 적극 생성: 
-   - 사용자의 'how(해결 전략)'가 나오면 EXPERT나 STRATEGY가 'architectureCode'를 즉시 생성해라.
-   - 사용자의 'then(성과)' 수치가 파악되면 HR이 'chartData'를 즉시 생성해라.
-3. 🚨 통합 질문 (가장 중요): 부족한 항목(why, how, then)이 여러 개라도 전문가들이 각자 따로 질문을 던지면 절대 안 된다. 반드시 1명의 전문가(또는 SYSTEM)가 나서서 **"현재까지 파악된 내용을 바탕으로, 다음으로 필요한 OOO과 OOO에 대해 한 번에 여쭤보겠습니다"라는 식으로 하나의 질문으로 요약**해서 물어봐라.
-4. 완성: 대화를 통해 모든 데이터가 채워지면 SYSTEM이 작성이 완료되었음을 알린다.
-
-[응답 포맷 (반드시 JSON)]
-경고: 응답은 반드시 순수한 JSON 객체( { } )로만 시작하고 끝나야 하며, \`\`\`json 이나 \`\`\` 같은 마크다운 코드 블록을 절대 포함하지 마라.
-{
-  "chats": [
-    { "speaker": "EXPERT", "message": "사용자의 답변을 분석하고 칭찬하는 내용" },
-    { "speaker": "HR", "message": "앞선 분석에 동의하며 시각화 자료 생성을 안내하는 내용" },
-    { "speaker": "SYSTEM", "message": "여러 전문가의 의견을 종합하여, 유저가 대답해야 할 부족한 내용들을 단 1개의 질문으로 깔끔하게 요약하여 묻는 내용" }
-  ],
-  "suggestions": [ "위 통합 질문에 대해 유저가 바로 클릭해서 대답할 수 있는 1인칭 완성형 추천 답변 1", "추천 답변 2" ],
-  "extractedData": {
-    "title": "업무명",
-    "techStack": "현재까지 파악된 스킬/툴",
-    "why": "현재까지 파악된 문제 발생 배경",
-    "how": "현재까지 파악된 문제 해결 전략",
-    "then": "현재까지 파악된 개선된 성과 요약",
-    "architectureCode": "graph TD\\n A-->B 형식의 Mermaid.js 코드 (해당 시 생성. 없으면 빈 문자열)",
-    "chartData": [
-      { "name": "도입 전", "value": 10 },
-      { "name": "도입 후", "value": 50 }
-    ]
-  }
-}
-※ 주의: chartData는 반드시 'name'과 'value' 키를 가진 JSON 객체들의 배열 형식이어야 한다.
-  `.trim();
   
   const contextText = chatContext && chatContext.length > 0 
     ? chatContext.map(c => `${c.sender}: ${c.text}`).join('\n')
     : '대화를 시작해주세요. (안내: 사용자에게 어떤 프로젝트나 경험을 포트폴리오로 작성할지, 예시와 함께 편하게 물어보세요.)';
 
-  const user = `
+  const userPrompt = `
 [지원자 기본 정보]
 ${JSON.stringify(userInfo || {})}
 
@@ -384,39 +341,113 @@ ${contextText}
 ${userInput}
   `.trim();
 
-  try {
-    const resp = await client.chat.completions.create({
-      model: 'deepseek-chat',
-      response_format: { type: 'json_object' },
-      messages: [
-        { role: 'system', content: system },
-        { role: 'user', content: user },
-      ],
-      temperature: 0.7,
-    });
+  // ------------------------------------------------------------------
+  // 🧠 [AI 1번] 대화 및 추천 답변 전용 프롬프트 (빠름)
+  // ------------------------------------------------------------------
+  const chatSystemPrompt = `
+너는 사용자의 거친 경험담을 듣고 완벽한 포트폴리오로 가공해 주는 '포트폴리오 대행사 단톡방' 시스템이다.
+3명의 전문가(EXPERT, STRATEGY, HR)와 안내 봇(SYSTEM)은 자기들끼리 토론하며 사용자를 돕는다.
 
-    let content = resp.choices[0]?.message?.content?.trim() || '{}';
+[ 단톡방 토론 시나리오 (핵심 규칙) ]
+1. 분석 및 칭찬: 사용자 발언을 바탕으로 각자의 전문 분야에 맞게 부드럽고 친절하게 칭찬해라.
+2. 🚨 통합 질문 (가장 중요): 부족한 항목이 여러 개라도 절대 각자 따로 묻지 마라. 반드시 1명의 전문가(또는 SYSTEM)가 나서서 "현재 파악된 내용을 바탕으로 OOO과 OOO에 대해 한 번에 여쭤보겠습니다"라고 요약해서 물어봐라.
+3. 🧱 분량 강제 (Quality Gate): 'why', 'how', 'then'이 각각 최소 2문장 이상이어야 한다. 부족하다면 "내용을 2~3줄로 더 풍성하게 적기 위해 ~를 설명해주시겠어요?" 라며 추가 답변을 유도해라.
 
-    if (content.startsWith('```json')) {
-      content = content.replace(/^```json\n?/, '').replace(/\n?```$/, '');
-    } else if (content.startsWith('```')) {
-      content = content.replace(/^```\n?/, '').replace(/\n?```$/, '');
-    }
-    content = content.trim();
+[응답 포맷 (반드시 JSON)]
+경고: 마크다운(\`\`\`json)을 절대 포함하지 마라.
+{
+  "chats": [
+    { "speaker": "EXPERT", "message": "사용자의 답변을 분석하고 칭찬하는 내용" },
+    { "speaker": "SYSTEM", "message": "부족한 내용을 요약하여 단 1개의 질문으로 묻는 내용" }
+  ],
+  "suggestions": [ "위 질문에 유저가 바로 클릭해 대답할 수 있는 1인칭 완성형 추천 답변 1", "추천 답변 2" ]
+}
+  `.trim();
 
+  // ------------------------------------------------------------------
+  // 🧠 [AI 2번] 데이터 추출 및 시각화 전용 프롬프트 (느림)
+  // ------------------------------------------------------------------
+  const extractSystemPrompt = `
+너는 포트폴리오 데이터 추출 전문 AI다. 사용자의 최신 답변과 대화 맥락을 분석해 기존 포트폴리오 초안을 업데이트해라.
+
+[ 핵심 규칙 ]
+1. 'techStack'과 'how'를 파악해라. 'how(해결 전략)'가 구체적이면 'architectureCode'를 즉시 생성해라.
+2. 'why'와 '전략적 논리'를 분석해라.
+3. 'then(결과)'을 수치화하고, 수치가 파악되면 'chartData'를 즉시 생성해라.
+
+[응답 포맷 (반드시 JSON)]
+경고: 마크다운(\`\`\`json)을 절대 포함하지 마라. chartData는 반드시 name과 value 키를 가져야 한다.
+{
+  "extractedData": {
+    "title": "업무명",
+    "techStack": "현재 파악된 스킬/툴",
+    "why": "현재 파악된 문제 발생 배경 (2줄 이상 권장)",
+    "how": "현재 파악된 문제 해결 전략 (2줄 이상 권장)",
+    "then": "현재 파악된 개선 성과 (2줄 이상 권장)",
+    "architectureCode": "graph TD\\n A-->B 형식의 Mermaid 코드 (해당 시 생성. 없으면 빈 문자열)",
+    "chartData": [ { "name": "도입 전", "value": 10 }, { "name": "도입 후", "value": 50 } ]
+  }
+}
+  `.trim();
+
+  // 🛡️ JSON 철벽 방어 및 파싱 함수
+  const safeParseJSON = (content, fallbackData) => {
     try {
       return JSON.parse(content);
-    } catch (parseError) {
-      console.error('🚨 JSON Parsing Error! Raw AI Content:', content);
-      return {
-        chats: [{ speaker: "SYSTEM", message: "AI가 전문가들의 의견을 취합하는 중 오류가 발생했습니다. 조금 더 짧게 말씀해 주시겠어요?" }],
-        suggestions: [],
-        extractedData: currentProjectData || {}
-      };
+    } catch (initialError) {
+      try {
+        let cleanText = content.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) cleanText = jsonMatch[0];
+        cleanText = cleanText.replace(/[\u0000-\u0019]+/g, ""); 
+        return JSON.parse(cleanText);
+      } catch (parseError) {
+        console.error('🚨 JSON 파싱 최종 실패. 복구 불가:', content);
+        return fallbackData;
+      }
     }
+  };
+
+  try {
+    // 🚀 [병렬 처리 핵심] 대화 생성(채팅)과 데이터 추출을 동시에 실행합니다.
+    const [chatResponse, extractResponse] = await Promise.all([
+      client.chat.completions.create({
+        model: 'deepseek-chat',
+        response_format: { type: 'json_object' },
+        messages: [{ role: 'system', content: chatSystemPrompt }, { role: 'user', content: userPrompt }],
+        temperature: 0.7, // 대화는 유연하게
+      }),
+      client.chat.completions.create({
+        model: 'deepseek-chat',
+        response_format: { type: 'json_object' },
+        messages: [{ role: 'system', content: extractSystemPrompt }, { role: 'user', content: userPrompt }],
+        temperature: 0.3, // 데이터 추출은 사실 기반으로 깐깐하게
+      })
+    ]);
+
+    // 각 응답 내용 가져오기
+    let chatContent = chatResponse.choices[0]?.message?.content?.trim() || '{}';
+    let extractContent = extractResponse.choices[0]?.message?.content?.trim() || '{}';
+
+    // 안전하게 파싱 (에러 발생 시 Fallback 데이터 제공)
+    const parsedChat = safeParseJSON(chatContent, {
+      chats: [{ speaker: "SYSTEM", message: "AI가 전문가들의 의견을 취합하는 중 데이터 구조에 오류가 발생했습니다. 조금 더 단순하게 말씀해 주시겠어요?" }],
+      suggestions: []
+    });
+    
+    const parsedExtract = safeParseJSON(extractContent, {
+      extractedData: currentProjectData || {}
+    });
+
+    // ✨ 두 AI의 결과물을 하나로 합쳐서 프론트엔드로 전달
+    return {
+      chats: parsedChat.chats || [],
+      suggestions: parsedChat.suggestions || [],
+      extractedData: parsedExtract.extractedData || currentProjectData || {}
+    };
 
   } catch (error) {
-    console.error('DeepSeek Builder API Error:', error);
+    console.error('DeepSeek Builder API Error (Parallel):', error);
     throw new Error('AI 빌더 응답 생성 실패');
   }
 }

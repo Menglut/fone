@@ -79,21 +79,18 @@ export default function BuilderPage() {
     setIsAiThinking(true);
 
     try {
-      // ✨ 핵심: 다른 경험탭을 누르면 맥락이 섞이지 않도록 최근 메시지만 필터링
       const chatContext = messages
         .filter(m => m.id !== 'start')
         .slice(-6)
         .map(m => ({ sender: m.sender === 'user' ? '지원자' : m.expert?.name, text: m.text }));
 
       const res = await axios.post(`${API_BASE}/api/builder/chat`, {
-        // currentStep 삭제됨
         userInfo, chatContext, currentProjectData: projects[currentIdx], userInput: text 
       });
 
       if (res.data.success) {
         const aiData = res.data.data;
         
-        // ✨ 배열로 온 전문가들의 메시지를 순차적으로 화면에 뿌려줌 (진짜 톡방처럼 0.8초 간격)
         if (aiData.chats && aiData.chats.length > 0) {
           for (let i = 0; i < aiData.chats.length; i++) {
             const chat = aiData.chats[i];
@@ -101,8 +98,8 @@ export default function BuilderPage() {
             
             setTimeout(() => {
               setMessages(prev => [...prev, { id: Date.now() + i, sender: chat.speaker, expert: speakerExpert, text: chat.message }]);
-              setActiveExpert(chat.speaker); // 폼 하이라이트 변경
-            }, i * 800); // 0.8초 딜레이
+              setActiveExpert(chat.speaker); 
+            }, i * 800); 
           }
         }
 
@@ -111,7 +108,6 @@ export default function BuilderPage() {
         if (aiData.extractedData) {
           setProjects(prev => {
             const newProjects = [...prev];
-            // 내용이 비어있지 않은 것만 업데이트
             newProjects[currentIdx] = { ...newProjects[currentIdx], ...aiData.extractedData };
             return newProjects;
           });
@@ -144,7 +140,6 @@ export default function BuilderPage() {
     setSuggestedReplies([]);
     setActiveExpert('SYSTEM');
     
-    // ✨ 핵심: 새 경험 추가 시 채팅방 내역을 싹 비우고 새 주제로 시작
     setMessages([
       { id: Date.now(), sender: 'SYSTEM', expert: EXPERTS.SYSTEM, text: "✨ 새로운 캔버스가 준비되었습니다. 이번에는 어떤 경험에 대해 이야기해볼까요?" }
     ]);
@@ -162,23 +157,14 @@ export default function BuilderPage() {
     });
   };
 
-  const stepNames = ['Basic', 'Problem', 'Solution', 'Result'];
-
   return (
     <div className="room-container modern-theme">
       <header className="room-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 32px' }}>
-        {/* ✨ 2. 로고 영역 교체 */}
         <div className="room-logo-btn" onClick={() => navigate('/')}>
-          <img 
-            src={mainLogo} 
-            alt="F1ND YOUR WAY 로고" 
-            className="builder-logo-img" 
-          />
+          <img src={mainLogo} alt="F1ND YOUR WAY 로고" className="builder-logo-img" />
         </div>
         
-        {/* ✨ 4. 기존 1,2,3,4 단계(Step) 프로그레스 바 영역 아예 삭제 (단톡방 컨셉이므로 불필요) */}
         <div className="modern-step-indicator dark-header-compat" style={{ color: '#fff', fontSize: '0.9rem' }}>
-          {/* 단계 대신 현재 작성 중인 프로젝트 인덱스 표시 */}
           Currently Editing: Project {currentIdx + 1}
         </div>
 
@@ -212,19 +198,16 @@ export default function BuilderPage() {
                   <textarea value={proj.techStack} onChange={(e) => handleInlineEdit('techStack', e.target.value)} placeholder="ex) React, Figma, GA4..." />
                 </div>
                 
-                {/* ✨ 4. 새로 추가됨: why (문제/배경) */}
                 <div className={`draft-input-group ${activeExpert === 'STRATEGY' ? 'active-glow' : ''}`} style={{ '--accent': EXPERTS.STRATEGY.color }}>
                   <label>배경 및 문제점</label>
                   <textarea value={proj.why} onChange={(e) => handleInlineEdit('why', e.target.value)} placeholder="어떤 상황이나 문제가 있었나요?" />
                 </div>
                 
-                {/* ✨ 5. 변수명 변경: problemSolving -> how */}
                 <div className={`draft-input-group ${activeExpert === 'STRATEGY' ? 'active-glow' : ''}`} style={{ '--accent': EXPERTS.STRATEGY.color }}>
                   <label>해결 전략</label>
                   <textarea value={proj.how} onChange={(e) => handleInlineEdit('how', e.target.value)} placeholder="문제를 어떻게 해결했나요?" />
                 </div>
                 
-                {/* ✨ 6. 변수명 변경: impact -> then */}
                 <div className={`draft-input-group ${activeExpert === 'HR' ? 'active-glow' : ''}`} style={{ '--accent': EXPERTS.HR.color }}>
                   <label>핵심 성과</label>
                   <textarea value={proj.then} onChange={(e) => handleInlineEdit('then', e.target.value)} placeholder="숫자로 표현할 수 있는 성과가 있다면 더 좋습니다." />
@@ -253,21 +236,26 @@ export default function BuilderPage() {
         </aside>
 
         <section className="modern-chat-section">
-          {/* ✨ 상단 배너 및 여백 삭제됨 */}
           <div className="modern-chat-history">
             {messages.map((msg) => (
               <div key={msg.id} className={`chat-row ${msg.sender === 'user' ? 'row-user' : 'row-ai'}`}>
-                {msg.sender !== 'user' && msg.sender !== 'SYSTEM' && msg.expert && (
+                
+                {/* ✨ 수정 1: msg.sender !== 'SYSTEM' 조건을 빼서 시스템도 아바타(✨)가 정상적으로 나타나게 수정했습니다 */}
+                {msg.sender !== 'user' && msg.expert && (
                   <div className="expert-avatar" style={{ background: msg.expert.color }}>{msg.expert.icon}</div>
                 )}
+                
                 <div className="chat-content">
                   {msg.expert && msg.sender !== 'user' && <span className="expert-name" style={{ color: msg.expert.color }}>{msg.expert.name}</span>}
-                  <div className={`chat-bubble ${msg.sender === 'user' ? 'bubble-user' : (msg.sender === 'SYSTEM' ? 'bubble-system' : 'bubble-ai')}`} style={{ whiteSpace: 'pre-wrap' }}>
+                  
+                  {/* ✨ 수정 2: 'bubble-system'이라는 별도 클래스 대신 확실하게 디자인이 들어간 'bubble-ai'로 통일했습니다 */}
+                  <div className={`chat-bubble ${msg.sender === 'user' ? 'bubble-user' : 'bubble-ai'}`} style={{ whiteSpace: 'pre-wrap' }}>
                     {msg.text}
                   </div>
                 </div>
               </div>
             ))}
+            
             {isAiThinking && (
               <div className="chat-row row-ai">
                 <div className="chat-bubble bubble-ai typing-indicator">
@@ -275,7 +263,6 @@ export default function BuilderPage() {
                 </div>
               </div>
             )}
-            {/* ✨ 수정: 길어진 추천 답변 박스 높이에 맞춰 하단 여백 대폭 증가 */}
             <div ref={messagesEndRef} style={{ height: '280px' }} /> 
           </div>
 

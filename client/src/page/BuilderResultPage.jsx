@@ -7,13 +7,12 @@ import mainLogo from '../assets/logo.png';
 
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
-// ✨ 이미 프로젝트에 존재하는 완벽한 CSS들을 그대로 재활용합니다!
 import '../css/BuilderPage.css'; 
 import '../css/PortfolioEditor.css'; 
 
 const API_BASE = process.env.REACT_APP_API_BASE;
 
-// 🎨 테마 팔레트 데이터
+// 🎨 테마 팔레트 데이터 (유지)
 const THEMES = {
   modern: {
     bg: '#f1f5f9', paperBg: '#ffffff', text: '#1e293b', textSub: '#64748b',
@@ -32,7 +31,6 @@ const THEMES = {
   }
 };
 
-// 📊 다이어그램 뷰어
 const MermaidViewer = ({ code, themeMode }) => {
   const ref = useRef(null);
   useEffect(() => {
@@ -57,8 +55,27 @@ export default function BuilderResultPage() {
   const printRef = useRef(null);
   const [theme, setTheme] = useState('modern');
 
+  // ✨ 수정 1: AI가 준 데이터의 중첩(troubleshootings) 구조를 평탄화하는 헬퍼 함수 적용
+  const rawContentExtraction = (projectArray) => {
+    return projectArray.map(proj => {
+      if (proj.troubleshootings && proj.troubleshootings.length > 0) {
+        const first = proj.troubleshootings[0];
+        return {
+          ...proj,
+          why: first.why || proj.why || "",
+          how: first.how || proj.how || "",
+          then: first.then || proj.then || "",
+          architectureCode: first.architectureCode || proj.architectureCode || "",
+          chartData: first.chartData || proj.chartData || []
+        };
+      }
+      return proj;
+    });
+  };
+
   const rawData = location.state?.portfolioData;
-  const projectList = Array.isArray(rawData) ? rawData : (rawData ? [rawData] : []);
+  const initialProjectList = Array.isArray(rawData) ? rawData : (rawData ? [rawData] : []);
+  const projectList = rawContentExtraction(initialProjectList); // 평탄화 적용
 
   const getUserInfo = () => {
     const userStr = localStorage.getItem('user');
@@ -73,50 +90,47 @@ export default function BuilderResultPage() {
     }
   }, [projectList, navigate]);
 
-  // 🖨️ PDF 다운로드 (html2pdf는 printRef 안의 내용만 깔끔하게 캡처합니다)
+  // ✨ 수정 2: PDF 다운로드 규격 동기화 (여백 추가, 가로 너비 고정, 페이지 잘림 방지)
   const handleDownloadPdf = () => {
     const element = printRef.current;
     const opt = {
-      margin: 0,
-      filename: `${userInfo.name || '포트폴리오'}_AI_Builder.pdf`,
+      margin: [10, 10, 10, 10], 
+      filename: `${userInfo.name || '포트폴리오'}_F1ND.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      html2canvas: { scale: 2, useCORS: true, windowWidth: 800 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
     html2pdf().set(opt).from(element).save();
   };
 
-  // 💾 ✨ 포트폴리오 DB + 경험 DB 동시 저장 로직으로 통합
   const handleSaveToDashboard = async () => {
-  const userId = userInfo?.id || userInfo?._id || userInfo?.email || 'guest';
-  
-  // 1. 백엔드 Portfolio 모델은 'content'라는 필드를 사용합니다.
-  const payload = {
-    userId: userId,
-    title: `${userInfo.name || '지원자'}의 AI 대화형 포트폴리오`,
-    content: projectList // ✨ portfolioData -> content 로 변경!
-  };
-
-  try {
-    // 2. 경험 DB 저장 (기존 builderRoute 규격 유지)
-    await axios.post(`${API_BASE}/api/builder/save`, {
+    const userId = userInfo?.id || userInfo?._id || userInfo?.email || 'guest';
+    
+    const payload = {
       userId: userId,
-      title: payload.title,
-      portfolioData: projectList 
-    });
-    
-    // 3. 포트폴리오 DB 저장 (수정된 payload 전송)
-    const res = await axios.post(`${API_BASE}/api/portfolio`, payload);
-    
-    if (res.data.success) {
-      alert('포트폴리오가 성공적으로 저장되었습니다! 🎉');
-      navigate('/mypage'); 
+      title: `${userInfo.name || '지원자'}의 AI 대화형 포트폴리오`,
+      content: projectList 
+    };
+
+    try {
+      await axios.post(`${API_BASE}/api/builder/save`, {
+        userId: userId,
+        title: payload.title,
+        portfolioData: projectList 
+      });
+      
+      const res = await axios.post(`${API_BASE}/api/portfolio`, payload);
+      
+      if (res.data.success) {
+        alert('포트폴리오가 성공적으로 저장되었습니다! 🎉');
+        navigate('/mypage'); 
+      }
+    } catch (error) {
+      console.error('저장 에러:', error);
+      alert('저장 중 오류가 발생했습니다.');
     }
-  } catch (error) {
-    console.error('저장 에러:', error);
-    alert('저장 중 오류가 발생했습니다.');
-  }
-};
+  };
 
   if (!projectList || projectList.length === 0) return null;
   const currentTheme = THEMES[theme];
@@ -124,14 +138,9 @@ export default function BuilderResultPage() {
   return (
     <div className="rwPreviewArea" style={{ minHeight: '100vh', backgroundColor: currentTheme.bg, paddingBottom: '100px' }}>
       
-      {/* 🚀 기존 헤더 스타일 완벽 복구 */}
       <header className="room-header" style={{ position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid #e2e8f0', backgroundColor: '#fff' }}>
         <div className="room-logo-btn" onClick={() => navigate('/')}>
-          <img 
-            src={mainLogo} 
-            alt="F1ND YOUR WAY 로고" 
-            className="builder-logo-img" 
-          />
+          <img src={mainLogo} alt="F1ND YOUR WAY 로고" className="builder-logo-img" />
         </div>
         
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -161,24 +170,15 @@ export default function BuilderResultPage() {
         </div>
       </header>
 
-      {/* 📄 A4 용지 프리뷰 영역 (PortfolioEditor.css 클래스 사용) */}
       <div className="a4-paper-container" style={{ marginTop: '40px' }}>
         <div
           className="a4-paper"
           ref={printRef}
-          style={{
-            backgroundColor: currentTheme.paperBg,
-            color: currentTheme.text,
-            boxShadow: currentTheme.shadow,
-            border: theme === 'minimal' ? '1px solid #000' : 'none'
-          }}
+          style={{ backgroundColor: currentTheme.paperBg, color: currentTheme.text, boxShadow: currentTheme.shadow, border: theme === 'minimal' ? '1px solid #000' : 'none' }}
         >
-          {/* 헤더 프로필 */}
           <header className="preview-header" style={{ borderBottomColor: currentTheme.accent }}>
             <h1 className="preview-name">{userInfo.name || '지원자'}</h1>
-            <div className="preview-job" style={{ color: currentTheme.accent }}>
-              AI 역량 추출 포트폴리오
-            </div>
+            <div className="preview-job" style={{ color: currentTheme.accent }}>AI 역량 추출 포트폴리오</div>
             <div className="preview-contact" style={{ color: currentTheme.textSub }}>
               {userInfo.email && <span>Email. {userInfo.email}</span>}
             </div>
@@ -187,20 +187,22 @@ export default function BuilderResultPage() {
             </p>
           </header>
 
-          {/* 프로젝트 리스트 렌더링 */}
           {projectList.map((project, idx) => {
             
-            // ✨ 추가된 핵심 방어 코드: 차트 데이터가 무조건 '배열' 형태를 유지하도록 강제 변환
+            // ✨ 수정 3: 차트 데이터 강력 정제 로직 동기화 (에러 완벽 방지)
             let safeChartData = [];
             try {
-              if (Array.isArray(project.chartData)) {
-                safeChartData = project.chartData;
-              } else if (typeof project.chartData === 'string' && project.chartData.trim() !== '') {
-                const parsed = JSON.parse(project.chartData);
-                safeChartData = Array.isArray(parsed) ? parsed : [];
+              let rawChart = project.chartData;
+              if (typeof rawChart === 'string' && rawChart.trim() !== '') {
+                rawChart = JSON.parse(rawChart);
+              }
+              if (Array.isArray(rawChart)) {
+                safeChartData = rawChart
+                  .filter(item => item && typeof item.name === 'string' && item.value !== undefined)
+                  .slice(0, 5);
               }
             } catch (e) {
-              safeChartData = [];
+              console.error("차트 데이터 변환 오류:", e);
             }
 
             return (
@@ -217,40 +219,29 @@ export default function BuilderResultPage() {
                     <span
                       key={i}
                       className="preview-tag"
-                      style={{
-                        background: currentTheme.tagBg,
-                        color: currentTheme.tagText,
-                        border: theme === 'minimal' ? '1px solid #000' : 'none'
-                      }}
+                      style={{ background: currentTheme.tagBg, color: currentTheme.tagText, border: theme === 'minimal' ? '1px solid #000' : 'none' }}
                     >
                       #{tag.trim()}
                     </span>
                   ))}
                 </div>
 
-                <div
-                  className="troubleshooting-card"
-                  style={{ borderLeftColor: `${currentTheme.accent}33` }}
-                >
+                <div className="troubleshooting-card" style={{ borderLeftColor: `${currentTheme.accent}33` }}>
                   <h4 className="trouble-title">💡 핵심 경험 및 전략</h4>
 
-                  {/* 시각화 영역 (다이어그램 & 성과 그래프) */}
                   {(project.architectureCode || safeChartData.length > 0) && (
                     <div className="trouble-visuals" style={{ display: 'grid', gap: '15px', marginBottom: '20px' }}>
                       
-                      {/* 다이어그램 */}
                       {project.architectureCode && (
                         <div className="visual-box" style={{ borderColor: currentTheme.border, padding: '20px', borderRadius: '8px', border: `1px solid ${currentTheme.border}` }}>
                             <MermaidViewer code={project.architectureCode} themeMode={currentTheme.mermaidTheme} />
                         </div>
                       )}
 
-                      {/* 성과 그래프 */}
                       {safeChartData.length > 0 && (
                         <div className="visual-box" style={{ borderColor: currentTheme.border, padding: '20px', borderRadius: '8px', border: `1px solid ${currentTheme.border}`, height: '250px' }}>
                           <h5 style={{ marginBottom: '15px', color: currentTheme.textSub, fontSize: '0.9rem' }}>📈 성과 지표 변화</h5>
                           <ResponsiveContainer width="100%" height="100%">
-                            {/* ✨ 기존의 복잡했던 파싱 로직을 빼고 안전한 safeChartData로 렌더링 */}
                             <AreaChart data={safeChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                               <defs>
                                 <linearGradient id={`colorValue-${idx}`} x1="0" y1="0" x2="0" y2="1">
