@@ -126,7 +126,7 @@ const Homepage = () => {
                     </h1>
                     <div className="hero-footer">
                         <div className="scroll-indicator">
-                            &nbsp;&nbsp;&nbsp;START YOUR RACING
+                            &nbsp;&nbsp;&nbsp;AI 서류 세팅 시작하기
                             <span className="arrow-down">↓</span>
                         </div>
                         <p className="hero-desc">
