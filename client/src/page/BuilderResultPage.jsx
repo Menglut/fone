@@ -1,563 +1,335 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import mermaid from 'mermaid';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 import axios from 'axios';
-import '../css/BuilderPage.css';
 import mainLogo from '../assets/logo.png';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+
+import '../css/BuilderPage.css';
+import '../css/PortfolioEditor.css';
 
 const API_BASE = process.env.REACT_APP_API_BASE;
 
-const CONSULTANT = {
-  name: 'AI 컨설턴트',
-  icon: '✦',
-  color: '#db2777',
+const THEME_COLORS = {
+  modern: { accent: '#1e40af', textSub: '#64748b', border: '#e2e8f0' },
+  dark: { accent: '#e10600', textSub: '#9ca3af', border: '#2a2a2a' },
+  minimal: { accent: '#000000', textSub: '#555555', border: '#000000' }
 };
 
-const JOB_SITES = [
-  {
-    name: '자소설닷컴',
-    url: 'https://jasoseol.com/recruit',
-    desc: '자기소개서 문항과 채용공고를 함께 확인하기 좋아요.',
-  },
-  {
-    name: '잡코리아',
-    url: 'https://www.jobkorea.co.kr/recruit/joblist',
-    desc: '직무, 지역, 기업별 채용공고를 폭넓게 확인할 수 있어요.',
-  },
-  {
-    name: '사람인',
-    url: 'https://www.saramin.co.kr/zf_user/jobs/list/job-category',
-    desc: '신입, 인턴, 경력 공고를 빠르게 찾아볼 수 있어요.',
-  },
-];
+const MermaidViewer = ({ code, themeMode }) => {
+  const ref = useRef(null);
 
-const JOB_POST_KEYWORDS = [
-  '채용',
-  '공고',
-  '모집',
-  '담당업무',
-  '주요업무',
-  '자격요건',
-  '우대사항',
-  '지원자격',
-  '직무',
-  '포지션',
-  '자소서',
-  '자기소개서',
-  '문항',
-  '신입',
-  '경력',
-  '인턴',
-  '회사',
-  '기업',
-];
+  useEffect(() => {
+    if (!code || !ref.current) return;
 
-const NO_JOB_POST_PHRASES = [
-  '못 찾',
-  '못찾',
-  '없어',
-  '모르',
-  '아직',
-  '공고 없음',
-  '찾아줘',
-  '어디서',
-];
+    let cleanCode = code
+      .replace(/```mermaid\n?/gi, '')
+      .replace(/```\n?/g, '')
+      .trim();
 
-function getStoredUser() {
-  try {
-    const userStr = localStorage.getItem('user');
-    return userStr ? JSON.parse(userStr) : null;
-  } catch (error) {
-    return null;
-  }
-}
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: themeMode === 'dark' ? 'dark' : 'default',
+      flowchart: {
+        useMaxWidth: true, // ✅ 핵심: 축소 비활성화
+        htmlLabels: true,
+      }});
 
-function getCareerLabel(user) {
-  const career = user?.careerProfile || {};
-  return career.jobDetail || career.jobCategory || user?.jobTitle || '';
-}
+    const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+    mermaid.render(id, cleanCode)
+      .then(({ svg }) => {
+        if (!ref.current) return;
+        ref.current.innerHTML = svg;
 
-function looksLikeJobPosting(text) {
-  const normalized = text.replace(/\s+/g, ' ').trim();
+        const svgEl = ref.current.querySelector('svg');
+        if (svgEl) {
+          // width/height 속성 제거 → CSS로 제어
+          svgEl.removeAttribute('width');
+          svgEl.removeAttribute('height');
 
-  if (normalized.length >= 180) return true;
+          // ✅ 핵심: SVG가 컨테이너보다 크면 원본 크기 유지 (축소 안 함)
+          svgEl.style.width = '100%';
+          svgEl.style.height = '100%';
+          svgEl.style.maxHeight = '100%';
+        }
+      })
+      .catch((e) => {
+        if (ref.current) ref.current.innerHTML = '<p style="color:red">다이어그램 렌더링 실패</p>';
+        console.error('Mermaid Error', e);
+      });
+  }, [code, themeMode]);
 
-  const matchedKeywordCount = JOB_POST_KEYWORDS.filter((keyword) =>
-    normalized.includes(keyword)
-  ).length;
-
-  if (normalized.startsWith('http') && matchedKeywordCount >= 1) return true;
-
-  return normalized.length >= 45 && matchedKeywordCount >= 2;
-}
-
-function isJobPostMissingMessage(text) {
-  const normalized = text.replace(/\s+/g, '').trim();
-  return NO_JOB_POST_PHRASES.some((phrase) => normalized.includes(phrase.replace(/\s+/g, '')));
-}
-
-function buildInitialMessage(user) {
-  const name = user?.name ? `${user.name}님, ` : '';
-  const targetJob = getCareerLabel(user);
-
-  if (targetJob) {
-    return `${name}안녕하세요! ${targetJob} 직무에 맞춘 자기소개서를 함께 만들어볼게요.\n\n먼저 지원하려는 채용공고, 자소서 문항, 또는 공고 URL을 붙여넣어 주세요. 공고를 아직 못 찾았다면 아래 채용 사이트에서 공고를 확인한 뒤 돌아와도 괜찮아요.`;
-  }
-
-  return `${name}안녕하세요! 지원 직무와 공고에 맞춘 자기소개서를 함께 만들어볼게요.\n\n먼저 지원하려는 채용공고, 자소서 문항, 또는 공고 URL을 붙여넣어 주세요. 공고를 아직 못 찾았다면 아래 채용 사이트에서 공고를 확인한 뒤 돌아와도 괜찮아요.`;
-}
-
-function buildExperiencePrompt(jobPost, user) {
-  const targetJob = getCareerLabel(user);
-  const hasQuestion = /자소서|자기소개서|문항|질문/.test(jobPost);
-
-  if (targetJob && hasQuestion) {
-    return `좋아요. ${targetJob} 직무와 입력해주신 자소서 문항을 기준으로 작성 방향을 잡아볼게요.\n\n이제 이 문항에 연결할 수 있는 핵심 경험을 알려주세요. 프로젝트, 수업, 대외활동, 인턴, 팀플, 아르바이트 경험 모두 괜찮고 키워드 형태로 적어도 됩니다.`;
-  }
-
-  if (targetJob) {
-    return `좋아요. ${targetJob} 직무에 맞춰 공고 내용을 반영해볼게요.\n\n다음으로 이 직무와 연결할 수 있는 핵심 경험이나 어필하고 싶은 이력을 편하게 적어주세요. 문제 상황, 내가 한 역할, 결과 수치가 있으면 더 좋아요.`;
-  }
-
-  return `좋아요. 입력해주신 공고 내용을 기준으로 자기소개서 방향을 잡아볼게요.\n\n다음으로 이 직무와 관련된 핵심 경험이나 어필하고 싶은 이력을 편하게 적어주세요. 문제 상황, 내가 한 역할, 결과 수치가 있으면 더 좋아요.`;
-}
-
-function buildInputPlaceholder(currentStep, user) {
-  const targetJob = getCareerLabel(user);
-
-  if (currentStep === 1) {
-    return targetJob
-      ? `${targetJob} 관련 채용공고, 자소서 문항, 공고 URL을 붙여넣어 주세요.`
-      : '지원할 채용공고, 자소서 문항, 공고 URL을 붙여넣어 주세요.';
-  }
-
-  if (currentStep === 2) {
-    return '관련 경험을 자유롭게 적어주세요. 예: 프로젝트명, 역할, 문제, 해결 과정, 결과';
-  }
-
-  return '질문에 대한 답변을 입력해주세요.';
-}
-
-function JobSiteHelp({ compact = false }) {
   return (
-    <div className={compact ? 'job-help-card compact' : 'job-help-card'}>
-      <strong>채용공고를 아직 못 찾았다면</strong>
-      <p>아래 사이트에서 지원할 공고를 확인한 뒤, 공고 내용이나 자소서 문항을 복사해서 붙여넣어 주세요.</p>
-
-      <div className="job-help-links">
-        {JOB_SITES.map((site) => (
-          <a key={site.name} href={site.url} target="_blank" rel="noreferrer">
-            <span>{site.name}</span>
-            <small>{site.desc}</small>
-          </a>
-        ))}
-      </div>
-    </div>
+    // ✅ 핵심: 가로 스크롤 허용 컨테이너
+    <div
+      ref={ref}
+      style={{
+        width: '100%',
+        height: '100%',
+        overflowX: 'auto',  // 가로 스크롤
+        overflowY: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    />
   );
-}
+};
 
-export default function CoverLetterBuilder() {
+export default function BuilderResultPage() {
+  const location = useLocation();
   const navigate = useNavigate();
-  const storedUser = useMemo(() => getStoredUser(), []);
+  const [theme, setTheme] = useState('modern');
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
-  const [messages, setMessages] = useState([]);
-  const [userInput, setUserInput] = useState('');
-  const [isAiThinking, setIsAiThinking] = useState(false);
+  const rawData = location.state?.portfolioData;
+  const initialProjectList = Array.isArray(rawData) ? rawData : (rawData ? [rawData] : []);
 
-  const [currentStep, setCurrentStep] = useState(1);
-  const [jobPost, setJobPost] = useState('');
-  const [baseExperience, setBaseExperience] = useState('');
-  const [followUpQuestions, setFollowUpQuestions] = useState([]);
-  const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
-  const [interviewAnswers, setInterviewAnswers] = useState([]);
-
-  const [resultText, setResultText] = useState('');
-
-  const isInitialized = useRef(false);
-  const messagesEndRef = useRef(null);
-  const textareaRef = useRef(null);
-  const resultTextareaRef = useRef(null);
-
-  useEffect(() => {
-    if (isInitialized.current) return;
-    isInitialized.current = true;
-
-    setMessages([
-      {
-        id: 'start',
-        sender: 'SYSTEM',
-        text: '✨ AI 자기소개서 컨설팅을 시작합니다.',
-      },
-      {
-        id: Date.now(),
-        sender: 'AI',
-        expert: CONSULTANT,
-        text: buildInitialMessage(storedUser),
-      },
-    ]);
-  }, [storedUser]);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  }, [messages, isAiThinking]);
-
-  useEffect(() => {
-    if (!isAiThinking && currentStep < 4 && textareaRef.current) {
-      textareaRef.current.focus();
+  const projectList = initialProjectList.map(proj => {
+    if (proj.troubleshootings && proj.troubleshootings.length > 0) {
+      const first = proj.troubleshootings[0];
+      return { ...proj, why: first.why || proj.why, how: first.how || proj.how, then: first.then || proj.then, architectureCode: first.architectureCode || proj.architectureCode, chartData: first.chartData || proj.chartData };
     }
-  }, [isAiThinking, currentStep]);
+    return proj;
+  });
 
-  useEffect(() => {
-    if (!resultTextareaRef.current) return;
-
-    resultTextareaRef.current.style.height = 'auto';
-    resultTextareaRef.current.style.height = `${resultTextareaRef.current.scrollHeight}px`;
-  }, [resultText]);
-
-  const handleInputChange = (e) => {
-    setUserInput(e.target.value);
-
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-    }
+  const getUserInfo = () => {
+    const userStr = localStorage.getItem('user');
+    return userStr ? JSON.parse(userStr) : { name: "지원자", email: "" };
   };
+  const userInfo = getUserInfo();
 
-  const addAiMessage = (text) => {
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now() + Math.random(),
-        sender: 'AI',
-        expert: CONSULTANT,
-        text,
-      },
-    ]);
-  };
+  // 완벽하게 동작하는 PDF 다운로드 로직 (유지)
+  const handleDownloadPdf = async () => {
+    setIsGeneratingPdf(true);
 
-  const addSystemMessage = (text) => {
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now() + Math.random(),
-        sender: 'SYSTEM',
-        text,
-      },
-    ]);
-  };
-
-  const handleSaveAndExit = async () => {
-    if (!resultText.trim()) {
-      navigate('/mypage');
-      return;
-    }
-
-    const customTitle = window.prompt('저장할 자기소개서의 제목을 입력해주세요.', 'AI 자기소개서 초안');
-    if (customTitle === null) return;
-
-    const finalTitle = customTitle.trim() === '' ? '이름 없는 자기소개서' : customTitle.trim();
+    await new Promise(resolve => setTimeout(resolve, 800));
 
     try {
-      const user = getStoredUser();
-      const userId = user ? user.id || user._id || user.email : 'guest';
+      const slides = document.querySelectorAll('#portfolio-content .portfolio-slide');
+      if (!slides || slides.length === 0) {
+        setIsGeneratingPdf(false);
+        return;
+      }
 
-      await axios.post(`${API_BASE}/api/resume`, {
-        userId,
-        title: finalTitle,
-        content: resultText,
+      const firstCanvas = await html2canvas(slides[0], {
+        scale: 2,
+        useCORS: true,
+        scrollX: 0,
+        scrollY: 0,
+        backgroundColor: '#ffffff',
       });
 
-      alert(`[${finalTitle}] 자기소개서가 저장되었습니다.`);
-      navigate('/mypage');
-    } catch (error) {
-      console.error('저장 실패:', error);
-      alert('저장 중 오류가 발생했습니다. 글이 날아가지 않게 본문을 복사해 두세요.');
+      const pxWidth = firstCanvas.width;
+      const pxHeight = firstCanvas.height;
+
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'px',
+        format: [pxWidth, pxHeight],
+      });
+
+      for (let i = 0; i < slides.length; i++) {
+        const canvas = await html2canvas(slides[i], {
+          scale: 2,
+          useCORS: true,
+          scrollX: 0,
+          scrollY: 0,
+          backgroundColor: '#ffffff',
+          windowWidth: slides[i].scrollWidth,
+          windowHeight: slides[i].scrollHeight,
+        });
+
+        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+
+        if (i > 0) {
+          pdf.addPage([pxWidth, pxHeight], 'landscape');
+        }
+
+        pdf.addImage(imgData, 'JPEG', 0, 0, pxWidth, pxHeight);
+      }
+
+      pdf.save(`${userInfo.name}_포트폴리오.pdf`);
+    } catch (e) {
+      console.error('PDF 생성 오류:', e);
+      alert('PDF 생성 중 오류가 발생했습니다.');
+    } finally {
+      setIsGeneratingPdf(false);
     }
   };
 
-  const handleSendMessage = async (e) => {
-    if (e) e.preventDefault();
-
-    const currentInput = userInput.trim();
-    if (!currentInput || isAiThinking) return;
-
-    setMessages((prev) => [...prev, { id: Date.now(), sender: 'user', text: currentInput }]);
-    setUserInput('');
-
-    if (textareaRef.current) textareaRef.current.style.height = 'auto';
-
-    setIsAiThinking(true);
-
+  const handleSaveToDashboard = async () => {
+    const userId = userInfo?.id || userInfo?._id || userInfo?.email || 'guest';
+    const payload = { userId, title: `${userInfo.name}의 포트폴리오`, content: projectList };
     try {
-      if (currentStep === 1) {
-        if (isJobPostMissingMessage(currentInput) || !looksLikeJobPosting(currentInput)) {
-          addAiMessage(
-            '아직 채용공고 내용이 충분히 확인되지 않았어요.\n\n공고 전문이 아니어도 괜찮으니, 회사명/직무명/자격요건/자소서 문항 중 확인 가능한 내용을 붙여넣어 주세요. 공고를 아직 못 찾았다면 아래 추천 사이트에서 먼저 확인해도 좋아요.'
-          );
-          setIsAiThinking(false);
-          return;
-        }
-
-        setJobPost(currentInput);
-        setCurrentStep(2);
-
-        setTimeout(() => {
-          addAiMessage(buildExperiencePrompt(currentInput, storedUser));
-          setIsAiThinking(false);
-        }, 600);
-
-        return;
-      }
-
-      if (currentStep === 2) {
-        setBaseExperience(currentInput);
-
-        const res = await axios.post(`${API_BASE}/api/generate/followup`, {
-          experienceText: currentInput,
-          companyQuestion: jobPost,
-        });
-
-        const questions = res.data?.questions || [];
-
-        if (!questions.length) {
-          addAiMessage(
-            '경험을 분석했지만 추가 질문을 만들지 못했어요. 경험을 조금 더 구체적으로 적어주시면 다시 질문을 만들어볼게요.'
-          );
-          setIsAiThinking(false);
-          return;
-        }
-
-        setFollowUpQuestions(questions);
-        setCurrentQuestionIdx(0);
-        setCurrentStep(3);
-
-        addSystemMessage('경험 분석을 바탕으로 추가 질문을 시작합니다.');
-        addAiMessage(`조금 더 구체적인 내용을 위해 몇 가지 질문을 드릴게요.\n\n첫 번째 질문입니다.\n\n${questions[0].text}`);
-
-        setIsAiThinking(false);
-        return;
-      }
-
-      if (currentStep === 3) {
-        const currentQuestion = followUpQuestions[currentQuestionIdx];
-        const nextAnswers = [
-          ...interviewAnswers,
-          {
-            category: currentQuestion?.category || 'etc',
-            question: currentQuestion?.text || '',
-            answer: currentInput,
-          },
-        ];
-
-        setInterviewAnswers(nextAnswers);
-
-        const nextIdx = currentQuestionIdx + 1;
-        const questionLimit = Math.min(followUpQuestions.length, 3);
-
-        if (nextIdx < questionLimit) {
-          setCurrentQuestionIdx(nextIdx);
-
-          setTimeout(() => {
-            addAiMessage(`좋습니다. 다음 질문입니다.\n\n${followUpQuestions[nextIdx].text}`);
-            setIsAiThinking(false);
-          }, 500);
-
-          return;
-        }
-
-        setCurrentStep(4);
-        addAiMessage('충분한 정보가 모였습니다. 지금부터 우측 자기소개서 캔버스에 초안을 작성해볼게요.');
-
-        const finalRes = await axios.post(`${API_BASE}/api/generate/cover-letter`, {
-          resume: {
-            experience: baseExperience,
-            interviewAnswers: nextAnswers,
-          },
-          jobPost,
-          options: {
-            tone: '전문적이고 설득력 있는',
-            length: '1000자',
-            type: '자유형',
-          },
-        });
-
-        setResultText(finalRes.data?.content || finalRes.data || '');
-        addSystemMessage('✨ 자기소개서 생성이 완료되었습니다. 우측에서 바로 수정할 수 있습니다.');
-        setIsAiThinking(false);
-      }
-    } catch (error) {
-      console.error('AI 챗 통신 오류:', error);
-      addSystemMessage('서버와의 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
-      setIsAiThinking(false);
-    }
+      await axios.post(`${API_BASE}/api/builder/save`, { userId, title: payload.title, portfolioData: projectList });
+      const res = await axios.post(`${API_BASE}/api/portfolio`, payload);
+      if (res.data.success) { alert('저장 성공! 🎉'); navigate('/mypage'); }
+    } catch (e) { alert('저장 중 오류 발생'); }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
-  const inputPlaceholder = buildInputPlaceholder(currentStep, storedUser);
+  if (!projectList || projectList.length === 0) return null;
+  const currentThemeColor = THEME_COLORS[theme];
 
   return (
-    <div className="room-container modern-theme cover-letter-room">
-      <header className="builder-top-header cover-letter-header">
-        <button className="room-logo-btn" type="button" onClick={() => navigate('/')}>
-          <img src={mainLogo} alt="F1ND YOUR WAY 로고" className="builder-logo-img" />
-        </button>
+    <div className={`portfolio-wrapper theme-${theme}`}>
 
-        <div className="cover-step-status">
-          <span className={currentStep >= 1 ? 'active' : ''}>공고</span>
-          <span className={currentStep >= 2 ? 'active' : ''}>경험</span>
-          <span className={currentStep >= 3 ? 'active' : ''}>질문</span>
-          <span className={currentStep >= 4 ? 'active' : ''}>완성</span>
+      {/* ✨ 수정됨: width: '100%' 추가로 쪼그라드는 현상 완벽 방어 */}
+        <header className="room-header" style={{
+          width: '100%', /* 🔥 핵심: 화면 전체 너비 강제 고정 */
+          boxSizing: 'border-box',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '16px 32px',
+          flexShrink: 0,
+          position: 'relative',
+          borderBottom: '1px solid #e2e8f0',
+          backgroundColor: '#000',
+          zIndex: 100
+        }}>
+
+          {/* 좌측: 로고 */}
+          <div className="room-logo-btn" onClick={() => navigate('/')} style={{ position: 'relative', zIndex: 20 }}>
+            <img src={mainLogo} alt="로고" className="builder-logo-img" style={{ mixBlendMode: 'unset' }} />
+          </div>
+
+          {/* 우측: 컨트롤 버튼들 */}
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', position: 'relative', zIndex: 20 }}>
+          <select value={theme} onChange={(e) => setTheme(e.target.value)} style={{ padding: '8px 12px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', cursor: 'pointer', backgroundColor: '#fff' }}>
+            <option value="modern">Modern (Blue)</option>
+            <option value="dark">Dark (Red)</option>
+            <option value="minimal">Minimal (B&W)</option>
+          </select>
+
+          {/* ✨ 버튼 디자인 PortfolioEditPage와 동일하게 통일 */}
+          <button
+            className="room-exit-btn"
+            onClick={handleDownloadPdf}
+            disabled={isGeneratingPdf}
+            style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: '#fff' }}
+          >
+            {isGeneratingPdf ? '⏳ 캡처중...' : '📄 PDF'}
+          </button>
+
+          <button
+            className="room-exit-btn"
+            onClick={handleSaveToDashboard}
+            style={{ backgroundColor: '#fff', color: '#111' }}
+          >
+            📊 대시보드로 이동
+          </button>
         </div>
+        </header>
 
-        <button className="modern-finish-btn" type="button" onClick={handleSaveAndExit}>
-          SAVE & EXIT
-        </button>
-      </header>
+      <div className={`pdf-scale-container ${isGeneratingPdf ? 'print-mode' : 'preview-mode'}`}>
+        <div id="portfolio-content" className={`portfolio-content-list theme-${theme} ${isGeneratingPdf ? 'print-mode' : 'preview-mode'}`}>
 
-      <main className="modern-layout cover-letter-layout">
-        <section className="modern-chat-section cover-chat-panel">
-          <div className="modern-chat-history">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`chat-row ${
-                  msg.sender === 'user'
-                    ? 'row-user'
-                    : msg.sender === 'SYSTEM'
-                      ? 'row-system'
-                      : 'row-ai'
-                }`}
-              >
-                {msg.sender !== 'user' && msg.sender !== 'SYSTEM' && msg.expert && (
-                  <div className="expert-avatar" style={{ backgroundColor: msg.expert.color }}>
-                    {msg.expert.icon}
+          <section className="portfolio-slide cover-slide">
+            <div className="cover-header">
+              <h1 className="cover-title">{userInfo.name}</h1>
+              <h2 className="cover-subtitle">AI 역량 추출 포트폴리오</h2>
+            </div>
+            <div className="cover-info">
+              {userInfo.email && <p>Email: {userInfo.email}</p>}
+              <p className="cover-desc">해당 문서는 AI 전문가 패널과의 심층 대화를 통해 추출된 핵심 경험 리포트입니다.</p>
+            </div>
+          </section>
+
+          {projectList.map((project, idx) => {
+            let safeChartData = [];
+            try {
+              let rawChart = project.chartData;
+              if (typeof rawChart === 'string' && rawChart.trim() !== '') rawChart = JSON.parse(rawChart);
+              if (Array.isArray(rawChart)) {
+                safeChartData = rawChart.map(item => ({ ...item, value: Number(item.value) })).slice(0, 5);
+              }
+            } catch (e) {}
+
+            return (
+              <section key={idx} className="portfolio-slide">
+                {/* 1. 프로젝트 제목 & 경계선 */}
+                <div className="project-header">
+                  <h2 className="project-title">
+                    <span className="project-title-num">0{idx + 1}.</span> {project.title}
+                  </h2>
+                </div>
+
+                {/* ✨ 2. 새로 이동한 기술 스택 영역 (경계선 바로 아래에 위치) */}
+                {project.techStack && (
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px', paddingLeft: '2px' }}>
+                    {project.techStack.split(',').map((tag, i) => tag.trim() && (
+                      <span key={i} style={{
+                        background: currentThemeColor.accent,
+                        color: '#fff',
+                        padding: '4px 12px',
+                        borderRadius: '20px', /* 동글동글한 칩 형태 */
+                        fontSize: '0.8rem',
+                        fontWeight: '600',
+                      }}>
+                        #{tag.trim()}
+                      </span>
+                    ))}
                   </div>
                 )}
 
-                <div className="chat-content">
-                  {msg.expert && msg.sender !== 'user' && (
-                    <span className="expert-name" style={{ color: msg.expert.color }}>
-                      {msg.expert.name}
-                    </span>
-                  )}
-                  <div
-                    className={`chat-bubble ${
-                      msg.sender === 'user'
-                        ? 'bubble-user'
-                        : msg.sender === 'SYSTEM'
-                          ? 'bubble-system'
-                          : 'bubble-ai'
-                    }`}
-                  >
-                    {msg.text}
-                  </div>
-
-                  {msg.id !== 'start' && currentStep === 1 && msg.sender === 'AI' && (
-                    <JobSiteHelp compact />
-                  )}
-                </div>
-              </div>
-            ))}
-
-            {isAiThinking && (
-              <div className="chat-row row-ai">
-                <div className="expert-avatar" style={{ backgroundColor: CONSULTANT.color }}>
-                  {CONSULTANT.icon}
-                </div>
-                <div className="chat-content">
-                  <span className="expert-name" style={{ color: CONSULTANT.color }}>
-                    {CONSULTANT.name}
-                  </span>
-                  <div className="chat-bubble bubble-ai">
-                    <div className="typing-indicator">
-                      <span></span>
-                      <span></span>
-                      <span></span>
+                {/* 3. 본문 영역 (기술 스택 아래 남은 공간을 알아서 채움) */}
+                <div className="project-body">
+                  <div className="project-text-area">
+                    <div className="text-box red">
+                      <div className="text-box-title" style={{ color: currentThemeColor.accent }}>📌 배경</div>
+                      <div className="text-box-content">{project.why}</div>
+                    </div>
+                    <div className="text-box green">
+                      <div className="text-box-title" style={{ color: currentThemeColor.accent }}>🚀 전략</div>
+                      <div className="text-box-content">{project.how}</div>
+                    </div>
+                    <div className="text-box orange">
+                      <div className="text-box-title" style={{ color: currentThemeColor.accent }}>🏆 성과</div>
+                      <div className="text-box-content bold">{project.then}</div>
                     </div>
                   </div>
+
+                  {(project.architectureCode || safeChartData.length > 0) && (
+                    <div className="project-visual-area">
+                      {project.architectureCode && (
+                        <div className="visual-box">
+                          <MermaidViewer code={project.architectureCode} themeMode={theme} />
+                        </div>
+                      )}
+
+                      {safeChartData.length > 0 && (
+                        <div className="chart-box">
+                          <h5 style={{ margin: '0 0 10px 10px', color: currentThemeColor.textSub, fontSize: '1rem', fontWeight: 'bold' }}>📈 성과 지표</h5>
+                          <div className="chart-container-wrapper">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <AreaChart data={safeChartData} margin={{ top: 10, right: 10, left: 15, bottom: 0 }}>
+                                <defs>
+                                  <linearGradient id={`colorValue-${idx}`} x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor={currentThemeColor.accent} stopOpacity={0.3}/>
+                                    <stop offset="95%" stopColor={currentThemeColor.accent} stopOpacity={0}/>
+                                  </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={currentThemeColor.border} />
+                                <XAxis dataKey="name" stroke={currentThemeColor.textSub} fontSize={10} tickLine={false} axisLine={false} />
+                                <YAxis stroke={currentThemeColor.textSub} fontSize={10} width={60} tickLine={false} axisLine={false} />
+                                <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', fontSize: '12px' }} />
+                                <Area isAnimationActive={false} type="monotone" dataKey="value" stroke={currentThemeColor.accent} strokeWidth={2} fillOpacity={1} fill={`url(#colorValue-${idx})`} />
+                              </AreaChart>
+                            </ResponsiveContainer>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
-
-            <div ref={messagesEndRef} />
-          </div>
-
-          {currentStep === 1 && !isAiThinking && (
-            <div className="job-source-panel">
-              <JobSiteHelp />
-            </div>
-          )}
-
-          {currentStep < 4 && (
-            <form className="floating-input-wrapper cover-floating-input" onSubmit={handleSendMessage}>
-              <div className="floating-input-box">
-                <textarea
-                  ref={textareaRef}
-                  value={userInput}
-                  onChange={handleInputChange}
-                  onKeyDown={handleKeyDown}
-                  placeholder={inputPlaceholder}
-                  rows={1}
-                  disabled={isAiThinking}
-                />
-                <button
-                  type="submit"
-                  className="send-circle-btn"
-                  disabled={isAiThinking || !userInput.trim()}
-                >
-                  ↑
-                </button>
-              </div>
-            </form>
-          )}
-        </section>
-
-        <section className="cover-preview-section">
-          <div className="cover-preview-scroll">
-            <div className="cover-preview-paper">
-              {currentStep === 4 && isAiThinking ? (
-                <div className="cover-preview-empty">
-                  <div className="pulse-dot large"></div>
-                  <h3>대화 내용을 바탕으로 자기소개서를 작성 중입니다</h3>
-                  <p>잠시 후 이곳에서 초안을 바로 확인하고 수정할 수 있어요.</p>
-                </div>
-              ) : resultText ? (
-                <>
-                  <div className="cover-preview-head">
-                    <span>AI COVER LETTER</span>
-                    <h2>자기소개서 초안</h2>
-                  </div>
-
-                  <textarea
-                    ref={resultTextareaRef}
-                    value={resultText}
-                    onChange={(e) => {
-                      setResultText(e.target.value);
-                      e.target.style.height = 'auto';
-                      e.target.style.height = `${e.target.scrollHeight}px`;
-                    }}
-                    className="cover-result-textarea"
-                  />
-                </>
-              ) : (
-                <div className="cover-preview-empty">
-                  <div className="cover-preview-icon">✍️</div>
-                  <h2>우측에서 자기소개서가 완성됩니다</h2>
-                  <p>
-                    좌측에서 공고와 경험을 입력하면, 수집된 정보를 바탕으로 이 영역 전체에
-                    자기소개서 초안이 표시됩니다.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-      </main>
+              </section>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
