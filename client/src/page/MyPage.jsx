@@ -222,7 +222,7 @@ export default function MyPage() {
               className="profile-edit-btn"
               onClick={() => navigate('/profile/edit')}
             >
-              커리어 프로필 설정
+              프로필 설정
             </button>
           </div>
 

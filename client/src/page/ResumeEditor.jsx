@@ -106,10 +106,10 @@ export default function ResumeEditor() {
       {/* 🏎️ 다크 헤더 */}
       <header className="re-header">
         <div className="re-logo-btn" onClick={() => navigate('/')}>
-          <img 
-            src={mainLogo} 
-            alt="F1ND YOUR WAY 로고" 
-            className="pe-logo-img" 
+          <img
+            src={mainLogo}
+            alt="F1ND YOUR WAY 로고"
+            className="pe-logo-img"
           />
         </div>
         <button className="re-back-btn" onClick={() => navigate('/mypage')}>
