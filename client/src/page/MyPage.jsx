@@ -10,6 +10,35 @@ import mainLogo from '../assets/logo.png';
 
 const API_BASE = process.env.REACT_APP_API_BASE;
 
+const STATUS_LABELS = {
+  rookie: '루키 / 신입',
+  career: '경력 / 이직',
+};
+
+const JOB_CATEGORY_LABELS = {
+  dev: '개발',
+  plan: '기획',
+  design: '디자인',
+  marketing: '마케팅',
+  sales: '영업',
+  hr: 'HR',
+  finance: '금융',
+  manufacturing: '제조',
+  etc: '기타',
+};
+
+function getUserId(user) {
+  return user?.id || user?._id || user?.email;
+}
+
+function getCareerLabels(careerProfile = {}) {
+  return {
+    jobCategory:
+      JOB_CATEGORY_LABELS[careerProfile.jobCategory] || '아직 선택되지 않음',
+    jobDetail: careerProfile.jobDetail || '아직 선택되지 않음',
+  };
+}
+
 export default function MyPage() {
   const navigate = useNavigate();
 
@@ -34,7 +63,25 @@ export default function MyPage() {
 
   const fetchDashboardData = async (currentUser) => {
     try {
-      const userId = currentUser.id || currentUser._id || currentUser.email;
+      const userId = getUserId(currentUser);
+
+      // DB에 저장된 최신 프로필을 다시 가져와서 localStorage와 화면을 동기화합니다.
+      try {
+        const profileRes = await axios.get(`${API_BASE}/api/profile/${userId}`);
+
+        if (profileRes.data.success && profileRes.data.data) {
+          const latestUser = {
+            ...currentUser,
+            ...profileRes.data.data,
+            id: currentUser.id || profileRes.data.data._id,
+          };
+
+          setUser(latestUser);
+          localStorage.setItem('user', JSON.stringify(latestUser));
+        }
+      } catch (e) {
+        console.log('프로필 정보 없음');
+      }
 
       try {
         const portRes = await axios.get(`${API_BASE}/api/portfolio/${userId}`);
@@ -89,6 +136,9 @@ export default function MyPage() {
   };
 
   if (!user) return null;
+
+  const careerLabels = getCareerLabels(user.careerProfile);
+  const avatarLetter = user.name?.charAt(0) || 'U';
 
   return (
     <div className="mp-container">
@@ -147,9 +197,7 @@ export default function MyPage() {
             <h2 className="bento-title">DRIVER PROFILE</h2>
 
             <div className="profile-info-wrap">
-              <div className="profile-avatar">
-                {user.name.charAt(0)}
-              </div>
+              <div className="profile-avatar">{avatarLetter}</div>
 
               <div className="profile-details">
                 <p className="p-name">{user.name}</p>
@@ -157,19 +205,18 @@ export default function MyPage() {
               </div>
             </div>
 
-            {user.careerProfile && (
-              <div className="career-profile-preview">
-                <p>
-                  <strong>지원 상태</strong>
-                  <span>{user.careerProfile.status}</span>
-                </p>
+            <div className="career-profile-preview">
 
-                <p>
-                  <strong>희망 직무</strong>
-                  <span>{user.careerProfile.jobs?.length || 0}개 선택</span>
-                </p>
-              </div>
-            )}
+              <p>
+                <strong>희망 직군</strong>
+                <span>{careerLabels.jobCategory}</span>
+              </p>
+
+              <p>
+                <strong>세부 직무</strong>
+                <span>{careerLabels.jobDetail}</span>
+              </p>
+            </div>
 
             <button
               className="profile-edit-btn"

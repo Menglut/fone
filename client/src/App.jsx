@@ -45,12 +45,7 @@ return(
                     <Route path="/auth" element={<AuthPage />} />
                     <Route path="/mypage" element={<MyPage />} />
 
-                    {/* 자소서 흐름 
-                    <Route path="/resume" element={<Navigate to="/resume/input" replace />} />
-                    <Route path="/resume/input" element={<ResumeInput />} />
-                    <Route path="/resume/interview" element={<ResumeInterview />} />
-                    <Route path="/resume/result" element={<ResumeResult />} />
-                    */}
+                    {/* 자소서 흐름 */}
                     <Route path="/resume" element={<CoverLetterBuilder />} />
 
                     { /* 포트폴리오 흐름 
