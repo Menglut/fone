@@ -214,3 +214,39 @@
 
 .empty-state { text-align: center; padding: 40px 0; border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; color: #666; font-size: 0.95rem; }
 .empty-text { color: #666; }
+
+.career-profile-preview {
+  width: 100%;
+  margin-top: 22px;
+  padding: 14px 16px;
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.career-profile-preview p {
+  margin: 0 0 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.career-profile-preview p:last-child {
+  margin-bottom: 0;
+}
+
+.career-profile-preview strong {
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 700;
+}
+
+.career-profile-preview span {
+  color: #e72b35;
+  font-weight: 700;
+}

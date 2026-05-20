@@ -1,0 +1,532 @@
+/* src/components/CareerProfileModal.css */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(5px);
+}
+
+.career-modal {
+  position: relative;
+
+  width: 560px;
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 40px);
+  padding: 46px 32px 28px;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  color: #f5f5f5;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 18px;
+
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.08), transparent 34%),
+    linear-gradient(145deg, rgba(18, 23, 28, 0.96), rgba(6, 8, 11, 0.96));
+
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, 0.75),
+    inset 0 0 45px rgba(255, 255, 255, 0.03);
+
+  font-family: Pretendard, "Noto Sans KR", system-ui, sans-serif;
+}
+
+.career-modal button {
+  font-family: inherit;
+}
+
+.career-modal::-webkit-scrollbar {
+  width: 6px;
+}
+
+.career-modal::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.modal-close {
+  position: absolute;
+  top: 22px;
+  right: 26px;
+
+  width: 34px;
+  height: 34px;
+
+  border: none;
+  background: transparent;
+  color: #ffffff;
+
+  font-size: 34px;
+  font-weight: 200;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.career-modal h2 {
+  margin: 0;
+  text-align: center;
+
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.progress-area {
+  position: relative;
+  width: 220px;
+  height: 20px;
+  margin: 22px auto 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.progress-line {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 50%;
+
+  height: 2px;
+  transform: translateY(-50%);
+
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.progress-dot {
+  position: relative;
+  z-index: 1;
+
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+
+  background: #4d535a;
+}
+
+.progress-dot.active {
+  background: #e32932;
+  box-shadow: 0 0 14px rgba(227, 41, 50, 0.75);
+}
+
+.step-count {
+  margin: 4px 0 26px;
+
+  text-align: center;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.modal-section h3 {
+  margin: 0 0 18px;
+
+  color: #ffffff;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+/* STEP 1 */
+
+.status-card-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.status-card {
+  position: relative;
+  height: 220px;
+  padding: 24px 18px 20px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  color: #f3f3f3;
+  text-align: center;
+
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 14px;
+
+  background: rgba(255, 255, 255, 0.035);
+
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.status-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.status-card.selected {
+  border-color: #e32932;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(227, 41, 50, 0.16),
+      rgba(255, 255, 255, 0.035)
+    );
+}
+
+.check-mark {
+  position: absolute;
+  top: 22px;
+  left: 22px;
+
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: transparent;
+
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.status-card.selected .check-mark {
+  color: #ffffff;
+  border-color: #e32932;
+  background: linear-gradient(135deg, #d92731, #841820);
+}
+
+.status-icon {
+  width: 72px;
+  height: 72px;
+  margin: 20px 0 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #ffffff;
+  line-height: 1;
+}
+
+.status-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.sprout-icon svg {
+  transform: rotate(-6deg);
+}
+
+.briefcase-icon svg {
+  transform: rotate(0deg);
+}
+
+.status-card.selected .status-icon {
+  color: #ffffff;
+  filter: drop-shadow(0 0 12px rgba(227, 41, 50, 0.35));
+}
+
+.status-card strong {
+  display: block;
+  margin-bottom: 12px;
+
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.status-card p {
+  margin: 0;
+
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+/* STEP 2 */
+
+.company-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.choice-box {
+  height: 70px;
+  padding: 0 18px;
+
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  color: #f3f3f3;
+  text-align: left;
+
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.18s ease;
+}
+
+.choice-box:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.choice-box.selected {
+  border-color: rgba(227, 41, 50, 0.8);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(227, 41, 50, 0.24),
+      rgba(255, 255, 255, 0.04)
+    );
+}
+
+.choice-box small {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.box-check {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 3px;
+  background: transparent;
+}
+
+.choice-box.selected .box-check {
+  border-color: #e32932;
+  background: linear-gradient(135deg, #d92731, #841820);
+}
+
+/* STEP 3 */
+
+.chip-panel {
+  padding: 18px;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.chip-panel.second {
+  margin-top: 18px;
+}
+
+.job-chip {
+  height: 38px;
+  padding: 0 17px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  color: #f0f0f0;
+  white-space: nowrap;
+
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.18s ease;
+}
+
+.job-chip:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.job-chip.selected {
+  color: #ffffff;
+  border-color: rgba(227, 41, 50, 0.9);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(227, 41, 50, 0.82),
+      rgba(130, 24, 31, 0.88)
+    );
+}
+
+/* BUTTONS */
+
+.modal-actions {
+  margin-top: 24px;
+
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+}
+
+.ghost-btn,
+.primary-btn {
+  width: 160px;
+  height: 54px;
+
+  border-radius: 7px;
+  font-size: 20px;
+  font-weight: 700;
+
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.ghost-btn {
+  color: #f2f2f2;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.ghost-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.primary-btn {
+  color: #ffffff;
+  border: 1px solid rgba(255, 70, 80, 0.75);
+  background: linear-gradient(135deg, #d72b35, #981c25);
+}
+
+.primary-btn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+/* 작은 화면 대응 */
+
+@media (max-height: 760px) {
+  .modal-backdrop {
+    padding: 14px;
+  }
+
+  .modal-close {
+    top: 16px;
+    right: 18px;
+  }
+
+  .career-modal {
+    max-height: calc(100vh - 28px);
+    padding: 38px 28px 22px;
+  }
+
+  .career-modal h2 {
+    font-size: 24px;
+  }
+
+  .progress-area {
+    margin-top: 18px;
+  }
+
+  .step-count {
+    margin-bottom: 22px;
+  }
+
+  .modal-section h3 {
+    font-size: 19px;
+    margin-bottom: 14px;
+  }
+
+  .status-card {
+    height: 200px;
+    padding: 22px 14px 18px;
+  }
+
+  .status-icon {
+    font-size: 46px;
+    margin: 18px 0 14px;
+  }
+
+  .status-card strong {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .status-card p {
+    font-size: 15px;
+    line-height: 1.4;
+  }
+
+  .modal-actions {
+    margin-top: 20px;
+  }
+
+  .ghost-btn,
+  .primary-btn {
+    height: 50px;
+  }
+}
+
+@media (max-width: 520px) {
+  .status-card-wrap,
+  .company-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .status-card {
+    height: 190px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .ghost-btn,
+  .primary-btn {
+    width: 100%;
+  }
+}
+
+.job-detail-title {
+  margin: 18px 0 10px;
+
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.job-empty-text {
+  margin: 0;
+  padding: 8px 2px;
+
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 15px;
+}
