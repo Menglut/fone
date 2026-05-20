@@ -1,27 +1,16 @@
 import { useState } from "react";
 import "./CareerProfileModal.css";
 
-const companyTypes = [
-  { id: "large", ko: "대기업", en: "Conglomerates" },
-  { id: "mid", ko: "중견기업", en: "Mid-sized Corps" },
-  { id: "sme", ko: "중소기업", en: "SMEs" },
-  { id: "public", ko: "공기업", en: "Public Corps" },
-  { id: "startup", ko: "스타트업", en: "Startups" },
-  { id: "foreign", ko: "외국계 기업", en: "Foreign Corps" },
-  { id: "professional", ko: "전문직", en: "Professionals" },
-  { id: "government", ko: "정부/공공기관", en: "Government" },
-];
-
 const jobCategories = [
-  { id: "dev", label: "개발 (Dev)" },
-  { id: "plan", label: "기획 (Plan)" },
-  { id: "design", label: "디자인 (Design)" },
-  { id: "marketing", label: "마케팅 (Mktg)" },
-  { id: "sales", label: "영업 (Sales)" },
-  { id: "hr", label: "HR" },
-  { id: "finance", label: "금융 (Fin)" },
-  { id: "manufacturing", label: "제조 (Mfg)" },
-  { id: "etc", label: "etc." },
+  { id: "dev", label: "개발", short: "Dev" },
+  { id: "plan", label: "기획", short: "Plan" },
+  { id: "design", label: "디자인", short: "Design" },
+  { id: "marketing", label: "마케팅", short: "Mktg" },
+  { id: "sales", label: "영업", short: "Sales" },
+  { id: "hr", label: "HR", short: "People" },
+  { id: "finance", label: "금융", short: "Finance" },
+  { id: "manufacturing", label: "제조", short: "Mfg" },
+  { id: "etc", label: "기타", short: "Etc" },
 ];
 
 const jobDetailMap = {
@@ -75,9 +64,7 @@ const jobDetailMap = {
     "공정 엔지니어",
     "제조 엔지니어",
   ],
-  etc: [
-    "기타 직무",
-  ],
+  etc: ["기타 직무"],
 };
 
 function SproutIcon() {
@@ -152,43 +139,31 @@ function BriefcaseIcon() {
   );
 }
 
-function CareerProfileModal({ onClose, onSave }) {
+function CareerProfileModal({ onClose, onSave, initialData = {} }) {
   const [step, setStep] = useState(1);
-  const [status, setStatus] = useState("rookie");
+  const [status, setStatus] = useState(initialData.status || "rookie");
+  const [selectedJobCategory, setSelectedJobCategory] = useState(
+    initialData.jobCategory || ""
+  );
+  const [selectedJobDetail, setSelectedJobDetail] = useState(
+    initialData.jobDetail || ""
+  );
 
-    const [companyTypeIds, setCompanyTypeIds] = useState([]);
-
-    const [selectedJobCategory, setSelectedJobCategory] = useState("");
-    const [selectedJobDetail, setSelectedJobDetail] = useState("");
-
-  const toggleCompany = (id) => {
-    setCompanyTypeIds((prev) =>
-      prev.includes(id)
-        ? prev.filter((item) => item !== id)
-        : [...prev, id]
-    );
+  const selectJobCategory = (categoryId) => {
+    setSelectedJobCategory(categoryId);
+    setSelectedJobDetail("");
   };
 
-    const selectJobCategory = (categoryId) => {
-        setSelectedJobCategory(categoryId);
-        setSelectedJobDetail("");
-    };
-
-    const selectJobDetail = (detail) => {
-        setSelectedJobDetail(detail);
-    };
-
   const handleNext = () => {
-    if (step < 3) {
+    if (step < 2) {
       setStep((prev) => prev + 1);
       return;
     }
 
     onSave({
-        status,
-        companyTypes: companyTypeIds,
-        jobCategory: selectedJobCategory,
-        jobDetail: selectedJobDetail,
+      status,
+      jobCategory: selectedJobCategory,
+      jobDetail: selectedJobDetail,
     });
   };
 
@@ -197,18 +172,21 @@ function CareerProfileModal({ onClose, onSave }) {
   };
 
   return (
-    <div className="modal-backdrop">
+    <div className="modal-backdrop" role="dialog" aria-modal="true">
       <div className="career-modal">
-        <button className="modal-close" onClick={onClose}>
+        <button className="modal-close" onClick={onClose} aria-label="닫기">
           ×
         </button>
 
-        <h2>커리어 프로필 완성</h2>
+        <div className="career-modal-hero">
+          <span className="modal-eyebrow">Career Setup</span>
+          <h2>커리어 프로필 수정</h2>
+          <p>지원 상태와 희망 직무만 간단하게 선택하세요.</p>
+        </div>
 
         <div className="progress-area">
           <div className="progress-line" />
-
-          {[1, 2, 3].map((num) => (
+          {[1, 2].map((num) => (
             <span
               key={num}
               className={`progress-dot ${step >= num ? "active" : ""}`}
@@ -216,52 +194,51 @@ function CareerProfileModal({ onClose, onSave }) {
           ))}
         </div>
 
-        <p className="step-count">{step} / 3</p>
+        <p className="step-count">STEP {step} / 2</p>
 
         {step === 1 && (
           <section className="modal-section">
-            <h3>루키자 상태 선택</h3>
+            <div className="section-title-row">
+              <span>01</span>
+              <h3>지원 상태 선택</h3>
+            </div>
 
             <div className="status-card-wrap">
               <button
-                className={`status-card ${
-                  status === "rookie" ? "selected" : ""
-                }`}
+                type="button"
+                className={`status-card ${status === "rookie" ? "selected" : ""}`}
                 onClick={() => setStatus("rookie")}
               >
                 <span className="check-mark">✓</span>
 
                 <div className="status-icon sprout-icon">
-                    <SproutIcon />
+                  <SproutIcon />
                 </div>
 
-                <strong>루키 &#40;신입&#41;</strong>
-
+                <strong>루키 · 신입</strong>
                 <p>
-                  새로운 도전을
+                  첫 커리어를 시작하는
                   <br />
-                  시작하는 지원자
+                  신입 지원자
                 </p>
               </button>
 
               <button
-                className={`status-card ${
-                  status === "career" ? "selected" : ""
-                }`}
+                type="button"
+                className={`status-card ${status === "career" ? "selected" : ""}`}
                 onClick={() => setStatus("career")}
               >
                 <span className="check-mark">✓</span>
 
                 <div className="status-icon briefcase-icon">
-                    <BriefcaseIcon />
+                  <BriefcaseIcon />
                 </div>
 
-                <strong>경력/이직 지원자</strong>
-
+                <strong>경력 · 이직</strong>
                 <p>
-                  새로운 트랙으로
+                  경험을 바탕으로
                   <br />
-                  도약하는 지원자
+                  다음 트랙을 준비하는 지원자
                 </p>
               </button>
             </div>
@@ -270,86 +247,66 @@ function CareerProfileModal({ onClose, onSave }) {
 
         {step === 2 && (
           <section className="modal-section">
-            <h3>희망 기업 분류 선택</h3>
+            <div className="section-title-row">
+              <span>02</span>
+              <h3>희망 직군/직무 선택</h3>
+            </div>
 
-            <div className="company-grid">
-              {companyTypes.map((item) => {
-                const selected = companyTypeIds.includes(item.id);
+            <div className="job-category-grid">
+              {jobCategories.map((job) => {
+                const selected = selectedJobCategory === job.id;
 
                 return (
                   <button
-                    key={item.id}
-                    className={`choice-box ${selected ? "selected" : ""}`}
-                    onClick={() => toggleCompany(item.id)}
+                    type="button"
+                    key={job.id}
+                    className={`job-category-card ${selected ? "selected" : ""}`}
+                    onClick={() => selectJobCategory(job.id)}
                   >
-                    <span className="box-check">{selected ? "✓" : ""}</span>
-
-                    <span>
-                      {item.ko}
-                      <br />
-                      <small>&#40;{item.en}&#41;</small>
-                    </span>
+                    <span className="job-category-short">{job.short}</span>
+                    <strong>{job.label}</strong>
                   </button>
                 );
               })}
             </div>
-          </section>
-        )}
 
-        {step === 3 && (
-            <section className="modal-section">
-                <h3>희망 직군/직무 선택</h3>
+            <div className="job-detail-block">
+              <p className="job-detail-title">세부 직무 선택</p>
 
-                <div className="chip-panel">
-                {jobCategories.map((job) => {
-                    const selected = selectedJobCategory === job.id;
-
-                    return (
-                    <button
-                        key={job.id}
-                        className={`job-chip ${selected ? "selected" : ""}`}
-                        onClick={() => selectJobCategory(job.id)}
-                    >
-                        {selected && <span>✓</span>}
-                        {job.label}
-                    </button>
-                    );
-                })}
-                </div>
-
-                <p className="job-detail-title">세부 직무 선택</p>
-
-                <div className="chip-panel second">
+              <div className="chip-panel second">
                 {selectedJobCategory ? (
-                    jobDetailMap[selectedJobCategory].map((detail) => {
+                  jobDetailMap[selectedJobCategory].map((detail) => {
                     const selected = selectedJobDetail === detail;
 
                     return (
-                        <button
+                      <button
+                        type="button"
                         key={detail}
                         className={`job-chip ${selected ? "selected" : ""}`}
-                        onClick={() => selectJobDetail(detail)}
-                        >
+                        onClick={() => setSelectedJobDetail(detail)}
+                      >
                         {selected && <span>✓</span>}
                         {detail}
-                        </button>
+                      </button>
                     );
-                    })
+                  })
                 ) : (
-                    <p className="job-empty-text">먼저 희망 직군을 선택해주세요.</p>
+                  <p className="job-empty-text">먼저 희망 직군을 선택해주세요.</p>
                 )}
-                </div>
-            </section>
-            )}
+              </div>
+            </div>
+          </section>
+        )}
+
         <div className="modal-actions">
           {step > 1 && (
-            <button className="ghost-btn" onClick={handlePrev}>
+            <button type="button" className="ghost-btn" onClick={handlePrev}>
               이전
             </button>
           )}
 
-          <button className="primary-btn" onClick={handleNext}>
-            {step === 3 ? "완료 및 저장" : "다음"}
+          <button type="button" className="primary-btn" onClick={handleNext}>
+            {step === 2 ? "완료 및 저장" : "다음"}
           </button>
         </div>
       </div>

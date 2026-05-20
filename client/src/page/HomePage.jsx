@@ -93,6 +93,27 @@ const Homepage = () => {
   const containerRef = useRef(null);
   const navigate = useNavigate();
 
+  const jobSites = [
+    {
+      name: "자소설닷컴",
+      desc: "대기업·공기업 채용공고와 자기소개서 문항을 함께 확인할 수 있어요.",
+      url: "https://jasoseol.com/recruit",
+      tag: "자소서 중심",
+    },
+    {
+      name: "잡코리아",
+      desc: "직무, 지역, 기업형태별 채용공고를 폭넓게 확인할 수 있어요.",
+      url: "https://www.jobkorea.co.kr/recruit/joblist",
+      tag: "전체 채용",
+    },
+    {
+      name: "사람인",
+      desc: "신입·인턴 공고와 취업 준비 정보를 함께 확인할 수 있어요.",
+      url: "https://www.saramin.co.kr/zf_user/jobs/public/home",
+      tag: "신입·인턴",
+    },
+  ];
+
   useEffect(() => {
     try {
       const storedUser = localStorage.getItem('user');
@@ -106,41 +127,91 @@ const Homepage = () => {
     const container = containerRef.current;
     if (!container) return undefined;
 
-    const sections = Array.from(container.querySelectorAll('.snap-section'));
-    let isLocked = false;
+    const sectionIds = ['hero', 'flow', 'recruit', 'strength', 'start'];
+    const getSections = () =>
+      sectionIds
+        .map((id) => container.querySelector(`#${id}`))
+        .filter(Boolean);
 
-    const getCurrentIndex = () => {
+    let activeIndex = 0;
+    let isAnimating = false;
+    let unlockTimer = null;
+    let rafId = null;
+
+    const getClosestIndex = () => {
+      const sections = getSections();
       const top = container.scrollTop;
-      let current = 0;
-      sections.forEach((section, index) => {
-        if (Math.abs(section.offsetTop - top) < Math.abs(sections[current].offsetTop - top)) {
-          current = index;
+
+      return sections.reduce((closest, section, index) => {
+        const currentDistance = Math.abs(section.offsetTop - top);
+        const closestDistance = Math.abs(sections[closest].offsetTop - top);
+        return currentDistance < closestDistance ? index : closest;
+      }, 0);
+    };
+
+    const unlockWhenArrived = (targetTop) => {
+      const startedAt = Date.now();
+
+      const check = () => {
+        const arrived = Math.abs(container.scrollTop - targetTop) < 3;
+        const timedOut = Date.now() - startedAt > 1100;
+
+        if (arrived || timedOut) {
+          isAnimating = false;
+          return;
         }
+
+        rafId = window.requestAnimationFrame(check);
+      };
+
+      rafId = window.requestAnimationFrame(check);
+    };
+
+    const moveToSection = (nextIndex) => {
+      const sections = getSections();
+      const target = sections[nextIndex];
+      if (!target) return;
+
+      activeIndex = nextIndex;
+      isAnimating = true;
+
+      if (unlockTimer) window.clearTimeout(unlockTimer);
+      if (rafId) window.cancelAnimationFrame(rafId);
+
+      container.scrollTo({
+        top: target.offsetTop,
+        behavior: 'smooth',
       });
-      return current;
+
+      unlockWhenArrived(target.offsetTop);
+      unlockTimer = window.setTimeout(() => {
+        isAnimating = false;
+      }, 1200);
     };
 
     const handleScroll = () => {
       setIsScrolled(container.scrollTop > 24);
+
+      if (!isAnimating) {
+        activeIndex = getClosestIndex();
+      }
     };
 
     const handleWheel = (event) => {
       const desktop = window.matchMedia('(min-width: 1025px)').matches;
+      const sections = getSections();
       if (!desktop || sections.length === 0) return;
 
       event.preventDefault();
-      if (isLocked || Math.abs(event.deltaY) < 8) return;
 
-      const current = getCurrentIndex();
+      if (isAnimating || Math.abs(event.deltaY) < 12) return;
+
+      activeIndex = getClosestIndex();
       const direction = event.deltaY > 0 ? 1 : -1;
-      const next = Math.max(0, Math.min(sections.length - 1, current + direction));
-      if (next === current) return;
+      const nextIndex = Math.max(0, Math.min(sections.length - 1, activeIndex + direction));
 
-      isLocked = true;
-      sections[next].scrollIntoView({ behavior: 'smooth', block: 'start' });
-      window.setTimeout(() => {
-        isLocked = false;
-      }, 850);
+      if (nextIndex === activeIndex) return;
+      moveToSection(nextIndex);
     };
 
     container.addEventListener('scroll', handleScroll, { passive: true });
@@ -149,6 +220,8 @@ const Homepage = () => {
     return () => {
       container.removeEventListener('scroll', handleScroll);
       container.removeEventListener('wheel', handleWheel);
+      if (unlockTimer) window.clearTimeout(unlockTimer);
+      if (rafId) window.cancelAnimationFrame(rafId);
     };
   }, []);
 
@@ -173,6 +246,9 @@ const Homepage = () => {
           <a href="/resume">자기소개서</a>
           <a href="/portfolio">포트폴리오</a>
           <a href="/interview/prep">면접연습</a>
+          <button type="button" onClick={() => moveTo('recruit')}>
+            채용공고
+          </button>
         </div>
 
         <div className="nav-auth">
@@ -293,6 +369,44 @@ const Homepage = () => {
               <h3>수정 및 완성</h3>
               <p>AI가 만든 결과를 다듬고 면접 질문까지 이어갑니다.</p>
             </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="recruit" className="recruit-section snap-section">
+        <div className="section-bg" />
+        <div className="recruit-inner">
+          <div className="job-link-section">
+            <div className="job-link-header">
+              <span className="job-kicker">Recruit</span>
+              <h2>지원할 채용공고를 먼저 확인해보세요</h2>
+              <p>
+                관심 있는 공고를 찾은 뒤, FONE에서 자기소개서와 포트폴리오를 AI와 함께 준비할 수 있어요.
+              </p>
+            </div>
+
+            <div className="job-site-grid">
+              {jobSites.map((site) => (
+                <a
+                  key={site.name}
+                  className="job-site-card"
+                  href={site.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${site.name} 채용공고 페이지로 이동`}
+                >
+                  <div className="job-site-top">
+                    <span className="job-site-tag">{site.tag}</span>
+                    <span className="job-site-arrow">↗</span>
+                  </div>
+
+                  <h3>{site.name}</h3>
+                  <p>{site.desc}</p>
+
+                  <span className="job-site-button">채용공고 보러가기</span>
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </section>

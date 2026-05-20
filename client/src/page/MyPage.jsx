@@ -7,7 +7,6 @@ import '../css/HomePage.css';
 import '../css/MyPage.css';
 
 import mainLogo from '../assets/logo.png';
-import CareerProfileModal from '../components/CareerProfileModal';
 
 const API_BASE = process.env.REACT_APP_API_BASE;
 
@@ -19,8 +18,6 @@ export default function MyPage() {
   const [resumes, setResumes] = useState([]);
   const [experiences, setExperiences] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  const [isCareerModalOpen, setIsCareerModalOpen] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -89,21 +86,6 @@ export default function MyPage() {
     setUser(null);
     alert('성공적으로 로그아웃 되었습니다.');
     navigate('/');
-  };
-
-  const handleSaveCareerProfile = (profileData) => {
-    const updatedUser = {
-      ...user,
-      careerProfile: profileData,
-    };
-
-    setUser(updatedUser);
-    localStorage.setItem('user', JSON.stringify(updatedUser));
-
-    console.log('저장된 커리어 프로필:', profileData);
-
-    setIsCareerModalOpen(false);
-    alert('커리어 프로필이 저장되었습니다.');
   };
 
   if (!user) return null;
@@ -183,11 +165,6 @@ export default function MyPage() {
                 </p>
 
                 <p>
-                  <strong>희망 기업</strong>
-                  <span>{user.careerProfile.companyTypes?.length || 0}개 선택</span>
-                </p>
-
-                <p>
                   <strong>희망 직무</strong>
                   <span>{user.careerProfile.jobs?.length || 0}개 선택</span>
                 </p>
@@ -195,9 +172,8 @@ export default function MyPage() {
             )}
 
             <button
-              className="bento-btn-outline"
-              style={{ marginTop: 'auto' }}
-              onClick={() => setIsCareerModalOpen(true)}
+              className="profile-edit-btn"
+              onClick={() => navigate('/profile/edit')}
             >
               커리어 프로필 설정
             </button>
@@ -344,13 +320,6 @@ export default function MyPage() {
           </div>
         </div>
       </div>
-
-      {isCareerModalOpen && (
-        <CareerProfileModal
-          onClose={() => setIsCareerModalOpen(false)}
-          onSave={handleSaveCareerProfile}
-        />
-      )}
     </div>
   );
 }
