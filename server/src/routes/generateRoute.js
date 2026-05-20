@@ -1,55 +1,109 @@
-// src/routes/generate.js
+// server/src/routes/generateRoute.js
 import { Router } from 'express';
-import { generateCoverLetter, generatePortfolioJson, generateFollowupQuestions } from '../services/llm.js';
 import axios from 'axios';
+import {
+  generateCoverLetter,
+  generatePortfolioJson,
+  generateFollowupQuestions,
+  evaluateAnswerQuality,
+  improveUserAnswer,
+  suggestStrongAnswer,
+  polishResumeText,
+} from '../services/llm.js';
+import { analyzeJobPost } from '../services/jobPostParser.js';
 
 const router = Router();
 
-// ✨ 2. 기존 '/' 경로를 '/cover-letter'로 수정하여 최종 자소서 생성 요청을 처리합니다.
+// 채용공고 URL/텍스트 분석
+router.post('/analyze-job-post', async (req, res) => {
+  try {
+    const { input, userProfile } = req.body;
+
+    if (!input || !String(input).trim()) {
+      return res.status(400).json({
+        success: false,
+        isJobPost: false,
+        needsMoreDetail: true,
+        showJobHelp: true,
+        message: '분석할 채용공고 URL이나 공고 내용을 입력해 주세요.',
+      });
+    }
+
+    const result = await analyzeJobPost({ input, userProfile });
+    return res.json(result);
+  } catch (err) {
+    console.error('❌ /api/generate/analyze-job-post 에러:', err);
+    return res.status(500).json({
+      success: false,
+      isJobPost: false,
+      needsMoreDetail: true,
+      showJobHelp: true,
+      message: err.message || '채용공고 분석 중 서버 오류가 발생했습니다.',
+    });
+  }
+});
+
+// 자기소개서 생성
 router.post('/cover-letter', async (req, res) => {
   try {
     const { resume, jobPost, options } = req.body;
 
-    // 필수 값 체크
     if (!resume?.experience || !jobPost) {
       return res.status(400).json({
+        success: false,
+        canGenerate: false,
         error: 'resume.experience 와 jobPost는 필수입니다.',
       });
     }
 
-    console.log('🔥 /api/generate/cover-letter 요청 도착:', { resume, jobPost, options });
+    console.log(' /api/generate/cover-letter 요청 도착:', {
+      hasExperience: Boolean(resume?.experience),
+      usableAnswers: resume?.interviewAnswers?.length || 0,
+      rejectedAnswers: resume?.rejectedAnswers?.length || 0,
+      options,
+    });
 
-    // llm.js에 있는 자소서 생성 함수 호출
-    const text = await generateCoverLetter({ resume, jobPost, options });
+    const result = await generateCoverLetter({ resume, jobPost, options });
 
-    // 프론트엔드가 res.data.content 로 읽을 수 있도록 반환
-    return res.json({ success: true, content: text });
+    if (typeof result === 'string') {
+      return res.json({ success: true, canGenerate: true, content: result });
+    }
+
+    return res.json({
+      success: true,
+      canGenerate: result.canGenerate !== false,
+      content: result.content || '',
+      missingFields: result.missingFields || [],
+      message: result.message || '',
+      nextQuestion: result.nextQuestion || '',
+      lengthInfo: result.lengthInfo || null,
+    });
   } catch (err) {
     console.error('❌ /api/generate/cover-letter 에러:', err);
     return res.status(500).json({
+      success: false,
+      canGenerate: false,
       error: err.message || '서버 내부 오류가 발생했습니다.',
     });
   }
 });
 
-// ✨ 3. '/followup' 라우터를 새로 추가하여 꼬리 질문 생성 요청을 처리합니다.
+// 꼬리 질문 생성
 router.post('/followup', async (req, res) => {
   try {
     const { experienceText, companyQuestion } = req.body;
 
     if (!experienceText || !companyQuestion) {
-      return res.status(400).json({ 
-        error: 'experienceText와 companyQuestion이 필요합니다.' 
+      return res.status(400).json({
+        error: 'experienceText와 companyQuestion이 필요합니다.',
       });
     }
 
-    console.log('🔥 /api/generate/followup 요청 도착');
+    console.log(' /api/generate/followup 요청 도착');
 
-    // llm.js에 있는 꼬리 질문 생성 함수 호출
     const questions = await generateFollowupQuestions({ experienceText, companyQuestion });
 
-    // 프론트엔드가 res.data.questions 로 읽을 수 있도록 반환
-    return res.json({ success: true, questions: questions });
+    return res.json({ success: true, questions });
   } catch (err) {
     console.error('❌ /api/generate/followup 에러:', err);
     return res.status(500).json({
@@ -58,83 +112,228 @@ router.post('/followup', async (req, res) => {
   }
 });
 
-/**
- * [추가] AI 포트폴리오 생성 API
- * POST /api/generate/portfolio
- * Body: { userPrompt: "사용자의 경험 내역" }
- */
+// 답변 품질 평가
+router.post('/evaluate-answer', async (req, res) => {
+  try {
+    const { jobPost, baseExperience, question, answer, previousAnswers, userProfile, turnCount } = req.body;
+
+    if (!answer || !String(answer).trim()) {
+      return res.status(400).json({
+        success: false,
+        usable: false,
+        readyToGenerate: false,
+        message: '평가할 답변이 필요합니다.',
+      });
+    }
+
+    const result = await evaluateAnswerQuality({
+      jobPost,
+      baseExperience,
+      question,
+      answer,
+      previousAnswers,
+      userProfile,
+      turnCount,
+    });
+
+    return res.json({
+      success: true,
+      ...result,
+    });
+  } catch (err) {
+    console.error('❌ /api/generate/evaluate-answer 에러:', err);
+    return res.status(500).json({
+      success: false,
+      usable: false,
+      readyToGenerate: false,
+      shouldAskAgain: true,
+      message: err.message || '답변 평가 중 오류가 발생했습니다.',
+      nextQuestion: '조금 더 구체적으로 본인이 직접 한 일과 결과를 알려주실 수 있을까요?',
+    });
+  }
+});
+
+// 사용자 답변 다듬기
+router.post('/improve-answer', async (req, res) => {
+  try {
+    const { jobPost, baseExperience, question, answer, userProfile } = req.body;
+
+    if (!answer || !String(answer).trim()) {
+      return res.status(400).json({
+        success: false,
+        canImprove: false,
+        message: '다듬을 답변이 필요합니다.',
+      });
+    }
+
+    const result = await improveUserAnswer({
+      jobPost,
+      baseExperience,
+      question,
+      answer,
+      userProfile,
+    });
+
+    return res.json({
+      success: true,
+      ...result,
+    });
+  } catch (err) {
+    console.error('❌ /api/generate/improve-answer 에러:', err);
+    return res.status(500).json({
+      success: false,
+      canImprove: false,
+      message: err.message || '답변 다듬기 중 오류가 발생했습니다.',
+    });
+  }
+});
+
+
+// 통과에 필요한 답변 가이드 생성
+router.post('/suggest-answer', async (req, res) => {
+  try {
+    const { jobPost, baseExperience, question, currentInput, previousAnswers, userProfile } = req.body;
+
+    if (!question || !String(question).trim()) {
+      return res.status(400).json({
+        success: false,
+        suggestedAnswer: '',
+        checklist: [],
+        note: '추천 답변을 만들 질문이 필요합니다.',
+      });
+    }
+
+    const result = await suggestStrongAnswer({
+      jobPost,
+      baseExperience,
+      question,
+      currentInput,
+      previousAnswers,
+      userProfile,
+    });
+
+    return res.json({
+      success: true,
+      ...result,
+    });
+  } catch (err) {
+    console.error('❌ /api/generate/suggest-answer 에러:', err);
+    return res.status(500).json({
+      success: false,
+      suggestedAnswer: '',
+      checklist: [],
+      note: err.message || '추천 답변 생성 중 오류가 발생했습니다.',
+    });
+  }
+});
+
+
+// 저장된 자기소개서 전체 글 다듬기
+router.post('/polish-resume', async (req, res) => {
+  try {
+    const { title, content, mode, targetLength } = req.body;
+
+    if (!content || !String(content).trim()) {
+      return res.status(400).json({
+        success: false,
+        polishedText: '',
+        note: '다듬을 자기소개서 내용이 필요합니다.',
+      });
+    }
+
+    const result = await polishResumeText({
+      title,
+      content,
+      mode,
+      targetLength,
+    });
+
+    return res.json({
+      success: true,
+      ...result,
+    });
+  } catch (err) {
+    console.error('❌ /api/generate/polish-resume 에러:', err);
+    return res.status(500).json({
+      success: false,
+      polishedText: '',
+      note: err.message || '자기소개서 글 다듬기 중 오류가 발생했습니다.',
+    });
+  }
+});
+
+// AI 포트폴리오 생성
 router.post('/portfolio', async (req, res) => {
   try {
     const { userPrompt } = req.body;
 
     if (!userPrompt) {
-      // 💡 [수정 포인트 1] error 객체 대신 success: false 와 message로 통일
       return res.status(400).json({
         success: false,
-        message: 'userPrompt(사용자 입력)가 필요합니다.'
+        message: 'userPrompt(사용자 입력)가 필요합니다.',
       });
     }
 
-    console.log('🤖 포트폴리오 생성 요청:', userPrompt.substring(0, 20) + '...');
+    console.log(' 포트폴리오 생성 요청:', userPrompt.substring(0, 20) + '...');
 
     const portfolioData = await generatePortfolioJson({ userPrompt });
 
     return res.json({ success: true, data: portfolioData });
-
   } catch (err) {
     console.error('❌ 포트폴리오 생성 에러:', err);
-    // 💡 [수정 포인트 2] 서버 에러 시에도 success: false 와 message로 통일
     return res.status(500).json({
       success: false,
-      message: err.message || '서버 에러 발생'
+      message: err.message || '서버 에러 발생',
     });
   }
 });
 
+// 프로필 문장 스트리밍
 router.post('/profile-stream', async (req, res) => {
   const { userPrompt } = req.body;
 
-  // 💡 스트리밍을 위한 헤더 설정
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
 
   try {
-    const response = await axios.post('https://api.deepseek.com/chat/completions', {
-      model: "deepseek-chat",
-      messages: [
-        {
-          role: "system",
-          // 💡 수정: JSON 형식이 아닌 '순수 텍스트'만 출력하도록 하여 입력창에 글자만 바로 써지게 합니다.
-          content: "너는 전문 커리어 컨설턴트야. 반드시 한국어로 대답해. 다른 설명이나 JSON 형식 없이 오직 매력적인 자기소개 문장만 2문장 이내로 출력해."
+    const response = await axios.post(
+      'https://api.deepseek.com/chat/completions',
+      {
+        model: 'deepseek-chat',
+        messages: [
+          {
+            role: 'system',
+            content:
+              '너는 전문 커리어 컨설턴트야. 반드시 한국어로 대답해. 다른 설명이나 JSON 형식 없이 오직 매력적인 자기소개 문장만 2문장 이내로 출력해.',
+          },
+          { role: 'user', content: userPrompt },
+        ],
+        stream: true,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
         },
-        { role: "user", content: userPrompt }
-      ],
-      stream: true
-    }, {
-      headers: { 'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}` },
-      responseType: 'stream'
-    });
+        responseType: 'stream',
+      }
+    );
 
-    // 데이터 조각(chunk)이 들어올 때마다 프론트로 전송
-    response.data.on('data', chunk => {
+    response.data.on('data', (chunk) => {
       res.write(chunk);
     });
 
     response.data.on('end', () => {
-      res.write('data: [DONE]\n\n'); // 종료 신호 명시
+      res.write('data: [DONE]\n\n');
       res.end();
     });
 
-    // 💡 연결 오류 시 처리
     response.data.on('error', (err) => {
-      console.error("Stream Data Error:", err);
+      console.error('Stream Data Error:', err);
       res.end();
     });
-
   } catch (error) {
-    console.error("Stream Request Error:", error);
-    // 💡 이미 헤더가 전송된 경우 status를 바꿀 수 없으므로 end로 마감
+    console.error('Stream Request Error:', error);
     if (!res.headersSent) {
       res.status(500).end();
     } else {
