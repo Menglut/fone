@@ -1,24 +1,21 @@
 /* src/css/ReverseInterviewPrep.css */
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Oswald:wght@400;700&family=Rajdhani:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Oswald:wght@400;700&family=Rajdhani:wght@700;800&display=swap');
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
-/* 전체 컨테이너 (밝은 배경) */
 .rip-container {
   min-height: 100vh;
   width: 100%;
-  background-color: #f8fafc; /* 부드러운 밝은 회색/흰색 배경 */
-  color: #0f172a; /* 텍스트는 진한 다크 네이비/블랙 */
+  background:
+    radial-gradient(circle at 8% 8%, rgba(225, 6, 0, 0.07), transparent 26%),
+    #f8fafc;
+  color: #0f172a;
   font-family: 'Pretendard', sans-serif;
   padding-bottom: 100px;
 }
 
-/* =========================================
-   헤더 (기존 다크 테마 완벽 유지)
-========================================= */
 .rip-header {
   height: 80px;
-  background: #000; /* ✨ 투명도를 완전히 없애고 다른 화면과 똑같은 딥블랙 색상 적용 */
+  background: #000;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -29,7 +26,6 @@
   z-index: 1000;
 }
 
-/* 1. 로고 버튼 컨테이너 */
 .rip-logo-btn {
   display: flex;
   align-items: center;
@@ -38,15 +34,12 @@
   outline: none !important;
   border: none !important;
   cursor: pointer;
-  
-  /* 위치 및 애니메이션 완벽 고정 */
   margin: 0 !important;
   padding: 0 !important;
   transition: none !important;
   transform: none !important;
 }
 
-/* 호버 시 덜컹거림, 배경색, 테두리 생성 완벽 방어 */
 .rip-logo-btn:hover,
 .rip-logo-btn:focus,
 .rip-logo-btn:active {
@@ -54,188 +47,206 @@
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
-  transform: none !important; 
+  transform: none !important;
 }
 
-/* ✨ 2. 로고 이미지 본체 */
 .rip-logo-img {
-  height: 60px; /* 기존 헤더들과 동일한 높이 */
+  height: 60px;
   width: auto;
   display: block;
-  
-  /* 검은 배경 투명화 */
-  mix-blend-mode: screen; 
-  
-  /* 빈 공간 무시 확대 (왼쪽 기준) */
-  transform: scale(1.5) !important; 
+  mix-blend-mode: screen;
+  transform: scale(1.5) !important;
   transform-origin: left center;
-  
-  /* 흔들림 및 애니메이션 방지 */
   backface-visibility: hidden;
   transition: none !important;
 }
 
-/* 호버 시에도 크기/투명도 강제 고정 */
 .rip-logo-btn:hover .rip-logo-img {
   transform: scale(1.5) !important;
   opacity: 1 !important;
   filter: none !important;
 }
 
-/* --- 뒤로가기 버튼 유지 --- */
 .rip-back-btn {
-  background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.8);
-  color: #fff; padding: 8px 20px; font-weight: 600; font-family: 'Oswald', sans-serif;
-  cursor: pointer; transition: all 0.3s ease; letter-spacing: 1px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  color: #fff;
+  padding: 8px 20px;
+  font-weight: 600;
+  font-family: 'Oswald', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
 }
-.rip-back-btn:hover { background-color: #fff; color: #000; border-color: #fff; }
 
-/* ----------------------------------------- */
-/* =========================================
-   메인 콘텐츠 (화이트/라이트 테마)
-========================================= */
+.rip-back-btn:hover {
+  background-color: #fff;
+  color: #000;
+  border-color: #fff;
+}
+
 .rip-wrap {
-  max-width: 1100px;
+  max-width: 1180px;
   margin: 0 auto;
   padding: 60px 50px;
 }
 
-/* 타이틀 섹션 */
 .rip-title-section {
-  margin-bottom: 40px;
+  margin-bottom: 34px;
 }
 
 .rip-chip {
   display: inline-block;
   font-family: 'Rajdhani', sans-serif;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 0.9rem;
-  color: #E10600;
+  color: #e10600;
   background: rgba(225, 6, 0, 0.08);
   padding: 6px 16px;
-  border-radius: 20px;
+  border-radius: 999px;
   letter-spacing: 1.5px;
   margin-bottom: 15px;
 }
 
 .rip-main-title {
   font-family: 'Oswald', sans-serif;
-  font-size: 3.5rem;
+  font-size: 3.4rem;
   font-weight: 700;
-  margin: 0 0 10px 0;
+  margin: 0 0 10px;
   color: #0f172a;
+  letter-spacing: -0.04em;
 }
 
 .rip-sub-title {
+  max-width: 780px;
   color: #64748b;
-  font-size: 1.1rem;
-  line-height: 1.6;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  margin: 0;
+  word-break: keep-all;
 }
 
-/* 데이터 선택 및 분석 패널 */
-.rip-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
-}
-
-@media (max-width: 900px) {
-  .rip-grid { grid-template-columns: 1fr; }
-}
-
-.rip-card {
-  background: #ffffff; /* 깨끗한 흰색 카드 */
-  border: 1px solid #e2e8f0; /* 연한 회색 테두리 */
-  border-radius: 12px;
-  padding: 40px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-}
-
-.rip-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-  border-color: #cbd5e1;
-}
-
-.rip-card-header {
-  font-family: 'Oswald', sans-serif;
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 25px;
-  border-bottom: 2px solid #f1f5f9;
-  padding-bottom: 15px;
-}
-
-/* 입력 폼 */
-.rip-select-group {
-  margin-bottom: 30px;
-}
-
-.rip-select-group label {
-  display: block;
-  color: #475569;
+.rip-error-box,
+.room-error-box {
+  margin-bottom: 20px;
+  padding: 15px 18px;
+  border-radius: 14px;
+  background: #fff1f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
   font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 10px;
+  font-weight: 800;
+  line-height: 1.5;
 }
 
-.rip-select {
-  width: 100%;
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
-  padding: 16px;
-  color: #0f172a;
-  font-size: 1rem;
-  border-radius: 6px;
-  font-family: 'Pretendard', sans-serif;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  cursor: pointer;
+.prep-step-card {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  padding: 30px;
+  margin-bottom: 24px;
+  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.06);
 }
 
-.rip-select:focus {
-  border-color: #E10600;
-  box-shadow: 0 0 0 3px rgba(225, 6, 0, 0.1);
+.prep-step-head {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding-bottom: 22px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #edf2f7;
 }
 
-/* 스캔 버튼 */
-.rip-scan-btn {
-  width: 100%;
-  background: #E10600;
+.prep-step-head > span {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  background: #111827;
   color: #fff;
-  border: none;
-  padding: 18px;
-  font-family: 'Oswald', sans-serif;
-  font-size: 1.2rem;
-  letter-spacing: 1px;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: all 0.3s;
-  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  flex-shrink: 0;
 }
 
-.rip-scan-btn:hover:not(:disabled) {
-  background: #b30500;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(225, 6, 0, 0.2);
+.prep-step-head h2 {
+  margin: 0 0 6px;
+  color: #0f172a;
+  font-size: 1.3rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
 }
 
-.rip-scan-btn:disabled {
-  background: #e2e8f0;
-  color: #94a3b8;
-  cursor: not-allowed;
-  box-shadow: none;
+.prep-step-head p {
+  margin: 0;
+  color: #64748b;
+  line-height: 1.55;
+  word-break: keep-all;
 }
 
-/* 로딩 애니메이션 */
+.company-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.prep-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.prep-field.full {
+  grid-column: 1 / -1;
+}
+
+.prep-field span {
+  color: #334155;
+  font-size: 0.86rem;
+  font-weight: 900;
+}
+
+.prep-field input,
+.prep-field textarea {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.prep-field input:focus,
+.prep-field textarea:focus {
+  border-color: #e10600;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(225, 6, 0, 0.08);
+}
+
+.source-loading-card {
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+  color: #64748b;
+  font-weight: 800;
+}
+
 .rip-scanner-line {
   height: 3px;
   width: 100%;
-  background: #E10600;
+  background: #e10600;
   box-shadow: 0 0 10px rgba(225, 6, 0, 0.5);
-  margin-top: 25px;
   border-radius: 2px;
   animation: f1Scan 1.2s infinite ease-in-out;
 }
@@ -247,70 +258,514 @@
   100% { opacity: 0; transform: scaleX(0); transform-origin: right; }
 }
 
-/* 추출된 공격 리스트 */
-.rip-attack-list {
+.source-group-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.source-group {
+  min-width: 0;
   display: flex;
   flex-direction: column;
+  gap: 12px;
+}
+
+.source-group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #0f172a;
+  font-weight: 900;
+}
+
+.source-group-title span {
+  font-size: 1.1rem;
+}
+
+.source-empty {
+  margin: 0;
+  padding: 18px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  color: #94a3b8;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.source-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 360px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.source-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.source-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+.source-card {
+  width: 100%;
+  min-height: 110px;
+  padding: 15px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.source-card:hover {
+  transform: translateY(-2px);
+  border-color: #94a3b8;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
+}
+
+.source-card.selected {
+  border-color: #e10600;
+  background: #fff7f7;
+  box-shadow: 0 12px 30px rgba(225, 6, 0, 0.11);
+}
+
+.source-card-top {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.source-card strong {
+  min-width: 0;
+  color: #0f172a;
+  font-size: 0.94rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.source-card-top span {
+  flex-shrink: 0;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+}
+
+.source-card.selected .source-card-top span {
+  background: #e10600;
+  color: #fff;
+}
+
+.source-card small {
+  display: block;
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 0.76rem;
+}
+
+
+.mode-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
 
-.rip-attack-item {
-  background: #f8fafc;
+.mode-card {
+  min-height: 180px;
+  padding: 22px;
+  border-radius: 20px;
   border: 1px solid #e2e8f0;
-  border-left: 4px solid #E10600;
-  padding: 20px;
-  border-radius: 4px 8px 8px 4px;
-  color: #334155;
-  line-height: 1.6;
-  font-size: 0.95rem;
-  animation: slideIn 0.5s ease forwards;
-  opacity: 0;
-  transform: translateX(-10px);
+  background: #f8fafc;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
 }
 
-.rip-attack-item:nth-child(1) { animation-delay: 0.1s; }
-.rip-attack-item:nth-child(2) { animation-delay: 0.25s; }
-.rip-attack-item:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes slideIn {
-  to { opacity: 1; transform: translateX(0); }
+.mode-card:hover {
+  transform: translateY(-2px);
+  background: #fff;
+  border-color: #94a3b8;
 }
 
-.rip-attack-tag {
-  display: inline-block;
+.mode-card.active {
+  border-color: #111827;
+  background:
+    radial-gradient(circle at right top, rgba(225, 6, 0, 0.1), transparent 35%),
+    #ffffff;
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.09);
+}
+
+.mode-card span {
+  display: inline-flex;
+  min-height: 26px;
+  align-items: center;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #111827;
+  color: #fff;
   font-family: 'Rajdhani', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #E10600;
-  margin-bottom: 8px;
-  background: rgba(225, 6, 0, 0.08);
-  padding: 4px 10px;
-  border-radius: 4px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin-bottom: 14px;
 }
 
-/* 면접 시작 버튼 */
-.rip-start-btn-wrap {
-  text-align: center;
-  margin-top: 50px;
+.mode-card strong {
+  display: block;
+  color: #0f172a;
+  font-size: 1.08rem;
+  font-weight: 900;
+  margin-bottom: 10px;
 }
 
-.rip-start-btn {
-  background: #ffffff;
-  color: #E10600;
-  border: 2px solid #E10600;
-  padding: 18px 60px;
+.mode-card p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+
+.prep-summary-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 30px;
+  border-radius: 24px;
+  background: #111827;
+  color: #ffffff;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.22);
+}
+
+.summary-badge {
+  display: inline-flex;
+  min-height: 26px;
+  align-items: center;
+  padding: 0 10px;
+  margin-bottom: 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.prep-summary-card h2 {
+  margin: 0 0 8px;
+  font-size: 1.4rem;
+  font-weight: 900;
+}
+
+.prep-summary-card p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.6;
+}
+
+.rip-start-btn.v2 {
+  flex-shrink: 0;
+  min-width: 210px;
+  min-height: 58px;
+  border: none;
+  border-radius: 999px;
+  background: #e10600;
+  color: #fff;
+  padding: 0 28px;
   font-family: 'Oswald', sans-serif;
+  font-size: 1.06rem;
   font-weight: 700;
-  font-size: 1.2rem;
   letter-spacing: 1px;
   cursor: pointer;
-  transition: all 0.3s;
-  border-radius: 6px;
+  transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
 }
 
-.rip-start-btn:hover {
-  background-color: #E10600;
-  color: #fff;
-  box-shadow: 0 8px 20px rgba(225, 6, 0, 0.2);
+.rip-start-btn.v2:hover:not(:disabled) {
+  background: #ff1d14;
   transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(225, 6, 0, 0.26);
+}
+
+.rip-start-btn.v2:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 980px) {
+  .rip-wrap {
+    padding: 42px 24px;
+  }
+
+  .company-form-grid,
+  .source-group-grid,
+  .mode-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .prep-summary-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .rip-start-btn.v2 {
+    width: 100%;
+  }
+}
+
+@media (max-width: 720px) {
+  .rip-header {
+    height: 74px;
+    padding: 0 18px;
+  }
+
+  .rip-logo-img {
+    transform: scale(1.2) !important;
+  }
+
+  .rip-back-btn {
+    padding: 8px 12px;
+    font-size: 0.76rem;
+  }
+
+  .rip-main-title {
+    font-size: 2.4rem;
+  }
+
+  .prep-step-card {
+    padding: 22px;
+    border-radius: 18px;
+  }
+}
+
+/* =========================================================
+   채용공고 URL 입력 / Preview 스크롤 보정
+========================================================= */
+html,
+body,
+#root {
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+.rip-container.interview-prep-v2 {
+  min-height: 100dvh;
+  height: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.interview-prep-v2 .rip-wrap {
+  min-height: 0;
+}
+
+.job-url-field small {
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.job-url-input-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 138px;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.job-url-input-row input {
+  min-width: 0;
+}
+
+.job-url-import-btn {
+  border: none;
+  border-radius: 14px;
+  background: #111827;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform 0.18s ease, background 0.18s ease, opacity 0.18s ease;
+}
+
+.job-url-import-btn:hover:not(:disabled) {
+  background: #e10600;
+  transform: translateY(-1px);
+}
+
+.job-url-import-btn:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 980px) {
+  .job-url-input-row {
+    grid-template-columns: 1fr;
+  }
+
+  .job-url-import-btn {
+    min-height: 46px;
+  }
+}
+
+/* =========================================================
+   채용 사이트 바로가기
+========================================================= */
+.job-site-shortcuts {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.job-site-shortcuts-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.job-site-shortcuts-head strong {
+  color: #0f172a;
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.job-site-shortcuts-head button {
+  flex-shrink: 0;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #334155;
+  font-family: inherit;
+  font-size: 0.76rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.job-site-shortcuts-head button:hover {
+  background: #111827;
+  color: #ffffff;
+  border-color: #111827;
+  transform: translateY(-1px);
+}
+
+.job-site-button-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.job-site-btn {
+  min-width: 0;
+  min-height: 76px;
+  padding: 13px 14px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.job-site-btn:hover {
+  transform: translateY(-2px);
+  background: #ffffff;
+  border-color: #111827;
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.09);
+}
+
+.job-site-btn strong {
+  display: block;
+  color: #0f172a;
+  font-size: 0.9rem;
+  font-weight: 900;
+  margin-bottom: 5px;
+}
+
+.job-site-btn span {
+  display: block;
+  color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 800;
+  line-height: 1.35;
+  word-break: keep-all;
+}
+
+.job-site-btn.jasoseol:hover {
+  border-color: #2563eb;
+}
+
+.job-site-btn.jobkorea:hover {
+  border-color: #38bdf8;
+}
+
+.job-site-btn.saramin:hover {
+  border-color: #4876ef;
+}
+
+.job-site-guide {
+  margin: 12px 0 0;
+  color: #64748b;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  word-break: keep-all;
+}
+
+.job-site-guide b {
+  color: #111827;
+}
+
+@media (max-width: 980px) {
+  .job-site-button-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================================
+   역면접 준비 화면 v3
+   - 모드 선택은 면접방으로 이동
+========================================================= */
+.reverse-summary-card {
+  background:
+    radial-gradient(circle at right top, rgba(225, 6, 0, 0.18), transparent 38%),
+    #111827;
+}
+
+.reverse-summary-card .summary-badge {
+  background: rgba(225, 6, 0, 0.22);
 }

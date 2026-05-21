@@ -1,21 +1,31 @@
 /* src/css/ReverseInterviewRoom.css */
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Oswald:wght@400;700&family=Rajdhani:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Oswald:wght@400;700&family=Rajdhani:wght@700;800&display=swap');
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
 .room-container {
-  height: 100vh; max-height: 100vh; overflow: hidden;
-  background-color: #f8fafc; color: #0f172a;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  background-color: #f8fafc;
+  color: #0f172a;
   font-family: 'Pretendard', sans-serif;
-  display: flex; flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
-/* 헤더 */
 .room-header {
-  height: 80px; background: #111111; display: flex; align-items: center; justify-content: space-between;
-  padding: 0 50px; border-bottom: 2px solid #E10600; flex-shrink: 0; z-index: 1000;
+  height: 80px;
+  background: #111111;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 50px;
+  border-bottom: 2px solid #e10600;
+  flex-shrink: 0;
+  z-index: 1000;
+  gap: 20px;
 }
-/* ✨ 1. 로고 버튼 컨테이너 */
+
 .room-logo-btn {
   display: flex;
   align-items: center;
@@ -24,15 +34,12 @@
   outline: none !important;
   border: none !important;
   cursor: pointer;
-  
-  /* 위치 및 애니메이션 완벽 고정 */
   margin: 0 !important;
   padding: 0 !important;
   transition: none !important;
   transform: none !important;
 }
 
-/* 호버 시 덜컹거림, 배경색, 테두리 생성 완벽 방어 */
 .room-logo-btn:hover,
 .room-logo-btn:focus,
 .room-logo-btn:active {
@@ -40,158 +47,2088 @@
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
-  transform: none !important; 
+  transform: none !important;
 }
 
-/* ✨ 2. 로고 이미지 본체 */
 .room-logo-img {
-  height: 60px; /* 기존 헤더들과 동일한 높이 */
+  height: 60px;
   width: auto;
   display: block;
-  
-  /* 검은 배경 투명화 */
-  mix-blend-mode: screen; 
-  
-  /* 빈 공간 무시 확대 (왼쪽 기준) */
-  transform: scale(1.5) !important; 
+  mix-blend-mode: screen;
+  transform: scale(1.5) !important;
   transform-origin: left center;
-  
-  /* 흔들림 및 애니메이션 방지 */
   backface-visibility: hidden;
   transition: none !important;
 }
 
-/* 호버 시에도 크기/투명도 강제 고정 */
 .room-logo-btn:hover .room-logo-img {
   transform: scale(1.5) !important;
   opacity: 1 !important;
   filter: none !important;
 }
 
-/* --- 퇴장 버튼 유지 --- */
+.room-header-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.room-header-info span {
+  color: #e10600;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.room-header-info strong {
+  max-width: 560px;
+  color: #ffffff;
+  font-size: 0.98rem;
+  font-weight: 900;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .room-exit-btn {
-  background: transparent; border: 1px solid rgba(255, 255, 255, 0.5);
-  color: #fff; padding: 8px 20px; font-weight: 600; font-family: 'Oswald', sans-serif;
-  cursor: pointer; transition: all 0.3s ease; letter-spacing: 1px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  color: #fff;
+  padding: 8px 20px;
+  font-weight: 600;
+  font-family: 'Oswald', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
+  white-space: nowrap;
 }
-.room-exit-btn:hover { background-color: #E10600; color: #fff; border-color: #E10600; }
 
-/* 메인 레이아웃 */
-.room-layout {
-  display: grid; grid-template-columns: 380px 1fr; gap: 20px;
-  flex-grow: 1; padding: 20px 50px; overflow: hidden;
+.room-exit-btn:hover {
+  background-color: #e10600;
+  color: #fff;
+  border-color: #e10600;
 }
 
-/* 좌측: 면접관 질문 패널 */
+.room-layout.interview-layout-v2 {
+  display: grid;
+  grid-template-columns: 410px 1fr;
+  gap: 20px;
+  flex-grow: 1;
+  min-height: 0;
+  padding: 20px 50px;
+  overflow: hidden;
+}
+
 .room-attack-panel {
-  background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px;
-  display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.02); overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+  overflow: hidden;
+  min-height: 0;
 }
 
-.panel-header { padding: 25px 25px 15px; border-bottom: 1px solid #f1f5f9; flex-shrink: 0; }
-.panel-chip { font-family: 'Rajdhani', sans-serif; font-size: 0.8rem; font-weight: 700; color: #2563eb; letter-spacing: 1px; }
-.panel-title { font-family: 'Oswald', sans-serif; font-size: 1.6rem; font-weight: 700; color: #0f172a; margin-top: 5px; }
+.panel-header {
+  padding: 25px 25px 15px;
+  border-bottom: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+
+.panel-chip {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #e10600;
+  letter-spacing: 1px;
+}
+
+.panel-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-top: 5px;
+}
+
+.panel-header p {
+  margin: 8px 0 0;
+  color: #64748b;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  word-break: keep-all;
+}
+
+.interview-progress-box {
+  margin: 18px 25px 0;
+  padding: 15px;
+  border-radius: 16px;
+  background: #f8fafc;
+  border: 1px solid #edf2f7;
+}
+
+.interview-progress-box span {
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.interview-progress-box strong {
+  display: block;
+  margin-top: 4px;
+  color: #0f172a;
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+
+.progress-track {
+  height: 8px;
+  margin-top: 10px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-track div {
+  height: 100%;
+  background: linear-gradient(90deg, #e10600, #ff7a18);
+  border-radius: inherit;
+  transition: width 0.25s ease;
+}
+
+.analysis-box {
+  margin: 12px 25px 0;
+  padding: 14px;
+  border-radius: 14px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+}
+
+.analysis-box strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #9a3412;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.analysis-box p {
+  margin: 0;
+  color: #9a3412;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  word-break: keep-all;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
 .question-list-scroller {
-  flex-grow: 1; overflow-y: auto; padding: 20px 25px; display: flex; flex-direction: column; gap: 12px;
+  flex-grow: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
-.question-list-scroller::-webkit-scrollbar, .sim-chat-history::-webkit-scrollbar { width: 6px; }
-.question-list-scroller::-webkit-scrollbar-thumb, .sim-chat-history::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
-/* 질문 카드 버튼 */
+.question-list-scroller::-webkit-scrollbar,
+.sim-chat-history::-webkit-scrollbar {
+  width: 6px;
+}
+
+.question-list-scroller::-webkit-scrollbar-thumb,
+.sim-chat-history::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
 .question-btn {
-  background: #ffffff; border: 1px solid #cbd5e1; color: #334155;
-  padding: 18px; border-radius: 8px; text-align: left; cursor: pointer;
-  transition: all 0.2s; position: relative;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  padding: 18px;
+  border-radius: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
   box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  font-family: inherit;
 }
-.question-btn:hover:not(:disabled) {
-  border-color: #2563eb; background: #eff6ff; transform: translateY(-2px);
-}
-.question-btn.follow-up {
-  border-left: 4px solid #E10600; /* 꼬리 질문은 빨간색 포인트 */
-  background: #fffafa;
-}
-.question-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.q-type { font-family: 'Rajdhani', sans-serif; font-size: 0.75rem; font-weight: 700; color: #2563eb; margin-bottom: 8px; display: block; }
-.question-btn.follow-up .q-type { color: #E10600; }
-.q-text { font-size: 0.95rem; line-height: 1.5; font-weight: 600; }
-
-/* 핵심 질문으로 돌아가기 버튼 */
-.return-core-btn {
-  background: #f1f5f9; color: #475569; border: 1px dashed #cbd5e1;
-  padding: 15px; border-radius: 8px; font-weight: 700; cursor: pointer;
-  transition: all 0.2s; margin-top: 10px; text-align: center;
+.question-btn:hover {
+  border-color: #2563eb;
+  background: #eff6ff;
+  transform: translateY(-2px);
 }
-.return-core-btn:hover { background: #e2e8f0; color: #0f172a; border-style: solid; }
 
-/* 우측: 시뮬레이션 디스플레이 (채팅창) */
+.question-btn.active {
+  border-color: #111827;
+  background: #f8fafc;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.question-btn.done {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+
+.q-type {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #2563eb;
+  margin-bottom: 8px;
+  display: block;
+  letter-spacing: 0.08em;
+}
+
+.question-btn.done .q-type {
+  color: #16a34a;
+}
+
+.q-text {
+  display: block;
+  font-size: 0.94rem;
+  line-height: 1.55;
+  font-weight: 700;
+  word-break: keep-all;
+}
+
+.question-btn small {
+  display: block;
+  margin-top: 8px;
+  color: #64748b;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  word-break: keep-all;
+}
+
+.free-question-box {
+  flex-shrink: 0;
+  padding: 18px 25px 24px;
+  border-top: 1px solid #f1f5f9;
+  background: #fbfdff;
+}
+
+.free-question-box label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.free-question-box label span {
+  color: #334155;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.free-question-box textarea {
+  width: 100%;
+  resize: none;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 12px;
+  font-family: inherit;
+  line-height: 1.5;
+  outline: none;
+}
+
+.free-question-box textarea:focus {
+  border-color: #e10600;
+  box-shadow: 0 0 0 4px rgba(225, 6, 0, 0.08);
+}
+
+.free-question-box button {
+  width: 100%;
+  margin-top: 10px;
+  min-height: 42px;
+  border: none;
+  border-radius: 999px;
+  background: #111827;
+  color: #fff;
+  font-family: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.free-question-box button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .room-sim-display {
-  display: flex; flex-direction: column; background: #ffffff;
-  border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+  overflow: hidden;
 }
 
-.sim-chat-history { flex-grow: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 30px; }
+.sim-chat-history {
+  flex-grow: 1;
+  min-height: 0;
+  padding: 36px 40px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  background:
+    radial-gradient(circle at top right, rgba(37, 99, 235, 0.05), transparent 32%),
+    #ffffff;
+}
 
-/* 말풍선 공통 */
-.msg-wrap.ai { align-self: flex-start; display: flex; gap: 15px; max-width: 85%; }
+.system-notice {
+  align-self: center;
+  max-width: 780px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 0.86rem;
+  font-weight: 800;
+  text-align: center;
+  word-break: keep-all;
+}
+
+.msg-wrap.ai {
+  align-self: flex-start;
+  display: flex;
+  gap: 15px;
+  max-width: min(92%, 980px);
+}
+
 .ai-avatar-icon {
-  width: 45px; height: 45px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;
+  width: 45px;
+  height: 45px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
 }
-.ai-bubble-wrap { display: flex; flex-direction: column; gap: 5px; }
-.ai-name { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 0.8rem; color: #64748b; }
+
+.ai-bubble-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ai-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 800;
+  font-size: 0.8rem;
+  color: #64748b;
+  letter-spacing: 0.06em;
+}
+
 .ai-bubble {
-  background: #f1f5f9; color: #334155; padding: 20px 25px; border-radius: 2px 12px 12px 12px;
-  line-height: 1.7; font-size: 1.05rem; border: 1px solid #e2e8f0;
-}
-.ai-bubble.stutter { /* 당황했을 때의 스타일 */
-  background: #fff1f2; border-color: #fecaca; color: #991b1b;
+  background: #f1f5f9;
+  color: #334155;
+  padding: 20px 24px;
+  border-radius: 4px 16px 16px 16px;
+  line-height: 1.7;
+  font-size: 1.02rem;
+  border: 1px solid #e2e8f0;
 }
 
-.msg-wrap.user { align-self: flex-end; max-width: 80%; display: flex; flex-direction: column; align-items: flex-end; }
-.user-tag { font-family: 'Oswald', sans-serif; font-size: 0.75rem; color: #2563eb; margin-bottom: 5px; letter-spacing: 1px; }
+.ai-bubble p {
+  margin: 0;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.question-intent {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.question-intent strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #2563eb;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.question-intent span {
+  color: #475569;
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.msg-wrap.user {
+  align-self: flex-end;
+  max-width: min(82%, 860px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.user-tag {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.75rem;
+  color: #2563eb;
+  margin-bottom: 5px;
+  letter-spacing: 1px;
+}
+
 .user-bubble {
-  background: #2563eb; color: #fff; padding: 15px 22px; border-radius: 12px 2px 12px 12px;
-  font-weight: 600; font-size: 1rem; line-height: 1.5; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15);
+  background: #2563eb;
+  color: #fff;
+  padding: 16px 22px;
+  border-radius: 16px 4px 16px 16px;
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.65;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15);
+  white-space: pre-wrap;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 
-/* AI 로딩 애니메이션 */
-.defense-loading { display: flex; gap: 8px; padding: 10px 0; }
+.defense-loading {
+  display: flex;
+  gap: 8px;
+  padding: 14px 0 0;
+}
+
 .defense-dot {
-  width: 10px; height: 10px; background: #94a3b8; border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  background: #94a3b8;
+  border-radius: 50%;
   animation: defenseBounce 1.4s infinite ease-in-out both;
 }
+
 .defense-dot:nth-child(1) { animation-delay: -0.32s; }
 .defense-dot:nth-child(2) { animation-delay: -0.16s; }
-@keyframes defenseBounce { 0%, 80%, 100% { transform: scale(0); opacity: 0.3; } 40% { transform: scale(1); opacity: 1; } }
 
-/* ✨ 모범 답안 가이드 박스 추가 */
-.model-answer-box {
+@keyframes defenseBounce {
+  0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+.feedback-card {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.score-circle {
+  width: 96px;
+  height: 96px;
+  border-radius: 26px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+}
+
+.score-circle strong {
+  font-size: 2.1rem;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.score-circle span {
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.score-circle.excellent {
+  background: #ecfdf5;
+  border-color: #86efac;
+  color: #15803d;
+}
+
+.score-circle.good {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #2563eb;
+}
+
+.score-circle.normal {
+  background: #fff7ed;
+  border-color: #fed7aa;
+  color: #c2410c;
+}
+
+.score-circle.danger {
+  background: #fff1f2;
+  border-color: #fecaca;
+  color: #be123c;
+}
+
+.feedback-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.feedback-head {
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.feedback-head span {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  padding: 0 9px;
+  margin-bottom: 8px;
+  border-radius: 999px;
+  background: #111827;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.feedback-head strong {
+  display: block;
+  color: #0f172a;
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1.55;
+  word-break: keep-all;
+}
+
+.feedback-section {
+  margin-top: 14px;
+}
+
+.feedback-section strong,
+.improved-answer-box strong,
+.followup-box strong {
+  display: block;
+  margin-bottom: 7px;
+  color: #0f172a;
+  font-size: 0.88rem;
+  font-weight: 900;
+}
+
+.feedback-section ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #475569;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.feedback-section li {
+  margin: 3px 0;
+  word-break: keep-all;
+}
+
+.improved-answer-box {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 14px;
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
+}
+
+.improved-answer-box p {
+  margin: 0;
   color: #166534;
-  padding: 18px 22px;
-  border-radius: 8px;
-  margin-top: 10px;
-  font-size: 0.95rem;
-  line-height: 1.6;
-  box-shadow: 0 4px 10px rgba(22, 101, 52, 0.05);
-  animation: fadeIn 0.5s ease;
+  line-height: 1.75;
+  font-size: 0.92rem;
+  white-space: pre-wrap;
+  word-break: keep-all;
 }
 
-.model-answer-title {
-  display: block;
+.followup-box {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.followup-box button {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  text-align: left;
+  font-family: inherit;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  cursor: pointer;
+}
+
+.followup-box button:hover {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.room-error-box {
+  margin: 0 24px 12px;
+}
+
+.answer-compose {
+  flex-shrink: 0;
+  padding: 18px 24px 22px;
+  border-top: 1px solid #e2e8f0;
+  background: rgba(248, 250, 252, 0.96);
+}
+
+.current-question-mini {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.current-question-mini span {
+  color: #e10600;
   font-family: 'Rajdhani', sans-serif;
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: #15803d;
-  margin-bottom: 8px;
-  letter-spacing: 0.5px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
+.current-question-mini strong {
+  color: #0f172a;
+  font-size: 0.92rem;
+  font-weight: 900;
+  line-height: 1.45;
+  word-break: keep-all;
+}
+
+.answer-compose textarea {
+  width: 100%;
+  min-height: 92px;
+  max-height: 180px;
+  resize: vertical;
+  border: 1px solid #cbd5e1;
+  border-radius: 16px;
+  padding: 14px 16px;
+  font-family: inherit;
+  font-size: 0.96rem;
+  line-height: 1.6;
+  color: #0f172a;
+  outline: none;
+  background: #ffffff;
+}
+
+.answer-compose textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.09);
+}
+
+.answer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.return-core-btn,
+.submit-answer-btn {
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform 0.18s ease, background 0.18s ease, opacity 0.18s ease;
+}
+
+.return-core-btn {
+  background: #ffffff;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.submit-answer-btn {
+  border: none;
+  background: #111827;
+  color: #ffffff;
+}
+
+.return-core-btn:hover:not(:disabled),
+.submit-answer-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.submit-answer-btn:hover:not(:disabled) {
+  background: #e10600;
+}
+
+.return-core-btn:disabled,
+.submit-answer-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 1180px) {
+  .room-layout.interview-layout-v2 {
+    grid-template-columns: 360px 1fr;
+    padding: 20px 24px;
+  }
+
+  .feedback-card {
+    flex-direction: column;
+  }
+
+  .score-circle {
+    width: 100%;
+    height: 74px;
+    border-radius: 18px;
+    flex-direction: row;
+    gap: 6px;
+  }
+}
+
+@media (max-width: 900px) {
+  .room-container {
+    height: auto;
+    max-height: none;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .room-layout.interview-layout-v2 {
+    grid-template-columns: 1fr;
+    overflow: visible;
+  }
+
+  .room-attack-panel,
+  .room-sim-display {
+    min-height: 520px;
+  }
+
+  .question-list-scroller {
+    max-height: 360px;
+  }
+}
+
+@media (max-width: 720px) {
+  .room-header {
+    height: auto;
+    min-height: 74px;
+    padding: 12px 18px;
+    gap: 10px;
+  }
+
+  .room-logo-img {
+    transform: scale(1.18) !important;
+  }
+
+  .room-header-info {
+    display: none;
+  }
+
+  .room-exit-btn {
+    padding: 8px 12px;
+    font-size: 0.76rem;
+  }
+
+  .room-layout.interview-layout-v2 {
+    padding: 16px;
+  }
+
+  .sim-chat-history {
+    padding: 24px 18px;
+  }
+
+  .msg-wrap.ai,
+  .msg-wrap.user {
+    max-width: 100%;
+  }
+
+  .answer-actions {
+    flex-direction: column;
+  }
+
+  .return-core-btn,
+  .submit-answer-btn {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   역면접 컨셉 복구 v3
+   - 약점/강점: 사용자가 질문, AI가 지원자처럼 답변
+   - 자유: 사용자가 답변, AI가 0~100점 평가
+========================================================= */
+.reverse-room-v2 .reverse-layout-v2 {
+  grid-template-columns: 430px minmax(0, 1fr);
+}
+
+.reverse-control-panel {
+  overflow: hidden;
+}
+
+.mode-switch-list {
+  padding: 18px 25px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.room-mode-card {
+  width: 100%;
+  padding: 15px 16px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.room-mode-card:hover {
+  transform: translateY(-1px);
+  background: #ffffff;
+  border-color: #94a3b8;
+}
+
+.room-mode-card.active {
+  border-color: #111827;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+.room-mode-card.weakness.active {
+  border-color: #e10600;
+  box-shadow: 0 14px 30px rgba(225, 6, 0, 0.12);
+}
+
+.room-mode-card.strength.active {
+  border-color: #2563eb;
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.12);
+}
+
+.room-mode-card.free.active {
+  border-color: #16a34a;
+  box-shadow: 0 14px 30px rgba(22, 163, 74, 0.12);
+}
+
+.room-mode-card span {
+  display: inline-flex;
+  min-height: 22px;
+  align-items: center;
+  padding: 0 8px;
+  margin-bottom: 8px;
+  border-radius: 999px;
+  background: #111827;
+  color: #ffffff;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.room-mode-card strong {
+  display: block;
+  color: #0f172a;
+  font-size: 0.96rem;
+  font-weight: 900;
+  margin-bottom: 5px;
+}
+
+.room-mode-card p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+.reverse-info-box p {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.source-mini-panel {
+  flex: 1;
+  min-height: 0;
+  margin: 12px 25px 20px;
+  padding: 14px;
+  border-radius: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.source-mini-panel > strong {
+  display: block;
+  margin-bottom: 10px;
+  color: #0f172a;
+  font-size: 0.86rem;
+  font-weight: 900;
+}
+
+.source-mini-list {
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding-right: 4px;
+}
+
+.source-mini-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.source-mini-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+.source-mini-list article {
+  padding: 12px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid #edf2f7;
+}
+
+.source-mini-list article span {
+  display: inline-flex;
+  min-height: 20px;
+  align-items: center;
+  padding: 0 7px;
+  margin-bottom: 6px;
+  border-radius: 999px;
+  background: #fff1f2;
+  color: #e10600;
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.source-mini-list article b {
+  display: block;
+  color: #0f172a;
+  font-size: 0.84rem;
+  line-height: 1.42;
+  overflow-wrap: anywhere;
+}
+
+.source-mini-list article p {
+  margin: 7px 0 0;
+  color: #64748b;
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.reverse-company-box p {
+  -webkit-line-clamp: 5;
+}
+
+.reverse-result-wrap .ai-bubble.weakness {
+  background: #fff7ed;
+  border-color: #fed7aa;
+  color: #7c2d12;
+}
+
+.reverse-result-wrap .ai-bubble.strength {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1e3a8a;
+}
+
+.reverse-feedback-card {
+  margin-top: 10px;
+  padding: 18px;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.reverse-feedback-card.weakness {
+  border-color: #fed7aa;
+  background:
+    radial-gradient(circle at top right, rgba(249, 115, 22, 0.08), transparent 32%),
+    #ffffff;
+}
+
+.reverse-feedback-card.strength {
+  border-color: #bfdbfe;
+  background:
+    radial-gradient(circle at top right, rgba(37, 99, 235, 0.08), transparent 32%),
+    #ffffff;
+}
+
+.reverse-feedback-head {
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.reverse-feedback-head span {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  padding: 0 9px;
+  margin-bottom: 8px;
+  border-radius: 999px;
+  background: #111827;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.reverse-feedback-head strong {
+  display: block;
+  color: #0f172a;
+  font-size: 0.96rem;
+  line-height: 1.55;
+  font-weight: 900;
+  word-break: keep-all;
+}
+
+.feedback-section p {
+  margin: 0;
+  color: #475569;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  word-break: keep-all;
+  white-space: pre-wrap;
+}
+
+.quality-pill {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.quality-pill b {
+  color: #0f172a;
+}
+
+.reverse-compose .current-question-mini p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+.compose-tip {
+  display: block;
+  margin-top: 9px;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.free-practice-compose {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.free-practice-compose label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.free-practice-compose label span {
+  color: #334155;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.free-question-review {
+  padding: 16px;
+  border-radius: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.free-question-review strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #0f172a;
+  font-size: 0.84rem;
+  font-weight: 900;
+}
+
+.free-question-review p {
+  margin: 0 0 12px;
+  color: #475569;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: keep-all;
+}
+
+.free-question-review p:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 1180px) {
+  .reverse-room-v2 .reverse-layout-v2 {
+    grid-template-columns: 360px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .reverse-room-v2 .reverse-layout-v2 {
+    grid-template-columns: 1fr;
+  }
+
+  .source-mini-panel {
+    max-height: 260px;
+    flex: 0 0 auto;
+  }
+}
+
+
+/* =========================================================
+   역면접 추천 질문 칩
+========================================================= */
+.reverse-suggestion-box {
+  margin-bottom: 12px;
+  padding: 14px;
+  border-radius: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.reverse-suggestion-box.weakness {
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+
+.reverse-suggestion-box.strength {
+  background: #ecfdf5;
+  border-color: #bbf7d0;
+}
+
+.reverse-suggestion-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.reverse-suggestion-head strong {
+  color: #0f172a;
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.reverse-suggestion-head span {
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.reverse-suggestion-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  max-height: 150px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.reverse-suggestion-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.reverse-suggestion-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+.reverse-suggestion-list button {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: rgba(255, 255, 255, 0.9);
+  color: #334155;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 800;
+  line-height: 1.42;
+  text-align: left;
+  cursor: pointer;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.reverse-suggestion-list button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: #111827;
+  border-color: #111827;
+  color: #ffffff;
+}
+
+.reverse-suggestion-list button:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+@media (max-width: 980px) {
+  .reverse-suggestion-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .reverse-suggestion-head span {
+    white-space: normal;
+  }
+
+  .reverse-suggestion-list {
+    grid-template-columns: 1fr;
+    max-height: 180px;
+  }
+}
+
+
+/* =========================================================
+   기업 맞춤 역면접 추천 질문 - 최종 보정
+   - 기존 공통 CSS와 충돌하지 않도록 reverse-room-v2 하위로 강제 제한
+========================================================= */
+.room-container.reverse-room-v2 {
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  overflow: hidden !important;
+  background:
+    radial-gradient(circle at 7% 10%, rgba(225, 6, 0, 0.08), transparent 24%),
+    #f4f6f8 !important;
+  color: #0f172a !important;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+}
+
+.room-container.reverse-room-v2 .room-layout.reverse-layout-v2 {
+  display: grid !important;
+  grid-template-columns: 410px minmax(0, 1fr) !important;
+  gap: 20px !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  padding: 20px 50px !important;
+  overflow: hidden !important;
+}
+
+.room-container.reverse-room-v2 .reverse-control-panel,
+.room-container.reverse-room-v2 .reverse-sim-display {
+  min-height: 0 !important;
+  overflow: hidden !important;
+  border-radius: 22px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: rgba(255, 255, 255, 0.98) !important;
+  box-shadow: 0 18px 46px rgba(15, 23, 42, 0.08) !important;
+}
+
+.room-container.reverse-room-v2 .reverse-chat-history {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  padding: 34px 38px !important;
+}
+
+.room-container.reverse-room-v2 .reverse-compose {
+  flex: 0 0 auto !important;
+  padding: 18px 22px 20px !important;
+  border-top: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-box {
+  margin: 0 0 14px !important;
+  padding: 16px !important;
+  border-radius: 18px !important;
+  border: 1px solid #e2e8f0 !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.96)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-box.weakness {
+  border-color: #fed7aa !important;
+  background:
+    radial-gradient(circle at top left, rgba(234, 88, 12, 0.12), transparent 34%),
+    #fff7ed !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-box.strength {
+  border-color: #bbf7d0 !important;
+  background:
+    radial-gradient(circle at top left, rgba(22, 163, 74, 0.12), transparent 34%),
+    #ecfdf5 !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-head {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  margin-bottom: 12px !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-head > div {
+  min-width: 0 !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-head strong {
+  display: block !important;
+  color: #0f172a !important;
+  font-size: 0.95rem !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-head p {
+  margin: 5px 0 0 !important;
+  color: #64748b !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  line-height: 1.5 !important;
+  word-break: keep-all !important;
+  overflow-wrap: anywhere !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-head > span {
+  flex-shrink: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 28px !important;
+  padding: 0 10px !important;
+  border-radius: 999px !important;
+  background: #111827 !important;
+  color: #ffffff !important;
+  font-size: 0.72rem !important;
+  font-weight: 900 !important;
+  white-space: nowrap !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-list {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  max-height: 260px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding-right: 5px !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-list::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-list::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.45) !important;
+  border-radius: 999px !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-list button {
+  width: 100% !important;
+  min-height: 118px !important;
+  padding: 13px 14px !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(148, 163, 184, 0.35) !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  color: #0f172a !important;
+  font-family: inherit !important;
+  text-align: left !important;
+  cursor: pointer !important;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  overflow: hidden !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-list button:hover:not(:disabled) {
+  transform: translateY(-2px) !important;
+  border-color: #111827 !important;
+  background: #ffffff !important;
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.14) !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-list button:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+}
+
+.room-container.reverse-room-v2 .suggestion-pressure {
+  align-self: flex-start !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  min-height: 22px !important;
+  padding: 0 8px !important;
+  border-radius: 999px !important;
+  background: #eff6ff !important;
+  color: #1d4ed8 !important;
+  font-size: 0.68rem !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.room-container.reverse-room-v2 .weakness .suggestion-pressure,
+.room-container.reverse-room-v2 .suggestion-pressure.high {
+  background: #fee2e2 !important;
+  color: #b91c1c !important;
+}
+
+.room-container.reverse-room-v2 .suggestion-pressure.medium {
+  background: #ffedd5 !important;
+  color: #c2410c !important;
+}
+
+.room-container.reverse-room-v2 .strength .suggestion-pressure,
+.room-container.reverse-room-v2 .suggestion-pressure.normal {
+  background: #dcfce7 !important;
+  color: #15803d !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-list button b {
+  display: block !important;
+  color: #0f172a !important;
+  font-size: 0.88rem !important;
+  font-weight: 950 !important;
+  line-height: 1.46 !important;
+  word-break: keep-all !important;
+  overflow-wrap: anywhere !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-list button small {
+  display: block !important;
+  color: #64748b !important;
+  font-size: 0.74rem !important;
+  font-weight: 700 !important;
+  line-height: 1.45 !important;
+  word-break: keep-all !important;
+  overflow-wrap: anywhere !important;
+}
+
+@media (max-width: 1180px) {
+  .room-container.reverse-room-v2 .room-layout.reverse-layout-v2 {
+    grid-template-columns: 360px minmax(0, 1fr) !important;
+    padding: 18px 24px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .room-container.reverse-room-v2 {
+    height: auto !important;
+    max-height: none !important;
+    min-height: 100dvh !important;
+    overflow-y: auto !important;
+  }
+
+  .room-container.reverse-room-v2 .room-layout.reverse-layout-v2 {
+    grid-template-columns: 1fr !important;
+    overflow: visible !important;
+  }
+
+  .room-container.reverse-room-v2 .reverse-suggestion-list {
+    grid-template-columns: 1fr !important;
+    max-height: 320px !important;
+  }
+}
+
+/* =========================================================
+   역면접 추천 질문 접기/펼치기 패널
+   - 추천 영역이 면접방을 너무 많이 가리지 않도록 기본 접힘 상태
+   - 화살표 버튼으로 위/아래 토글
+========================================================= */
+.room-container.reverse-room-v2 .reverse-compose {
+  max-height: min(48dvh, 540px) !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+}
+
+.room-container.reverse-room-v2 .reverse-compose::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.room-container.reverse-room-v2 .reverse-compose::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.35) !important;
+  border-radius: 999px !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-box {
+  margin: 0 0 10px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-radius: 16px !important;
+  flex-shrink: 0 !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-toggle {
+  width: 100% !important;
+  min-height: 58px !important;
+  padding: 12px 14px !important;
+  border: none !important;
+  background: transparent !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  text-align: left !important;
+  font-family: inherit !important;
+  cursor: pointer !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-toggle > div {
+  min-width: 0 !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-toggle strong {
+  display: block !important;
+  color: #0f172a !important;
+  font-size: 0.92rem !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-toggle p {
+  margin: 4px 0 0 !important;
+  color: #64748b !important;
+  font-size: 0.76rem !important;
+  font-weight: 750 !important;
+  line-height: 1.45 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.room-container.reverse-room-v2 .suggestion-toggle-right {
+  flex-shrink: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  min-height: 32px !important;
+  padding: 0 10px !important;
+  border-radius: 999px !important;
+  background: #111827 !important;
+  color: #ffffff !important;
+  font-size: 0.74rem !important;
+  font-weight: 900 !important;
+  white-space: nowrap !important;
+}
+
+.room-container.reverse-room-v2 .suggestion-toggle-right b {
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(255, 255, 255, 0.16) !important;
+  color: #ffffff !important;
+  font-size: 1rem !important;
+  line-height: 1 !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-panel {
+  display: grid !important;
+  grid-template-rows: 0fr !important;
+  transition: grid-template-rows 0.24s ease, padding 0.24s ease, border-top-color 0.24s ease !important;
+  padding: 0 14px !important;
+  border-top: 1px solid transparent !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-panel > .reverse-suggestion-list {
+  min-height: 0 !important;
+  overflow-y: auto !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-box.open .reverse-suggestion-panel {
+  grid-template-rows: 1fr !important;
+  padding: 0 14px 14px !important;
+  border-top-color: rgba(148, 163, 184, 0.22) !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-box.collapsed .reverse-suggestion-panel {
+  pointer-events: none !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-box.open .reverse-suggestion-list {
+  max-height: min(26dvh, 220px) !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-box.open .reverse-suggestion-list button {
+  min-height: 92px !important;
+  padding: 11px 12px !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-box.open .reverse-suggestion-list button b {
+  font-size: 0.84rem !important;
+  line-height: 1.42 !important;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-box.open .reverse-suggestion-list button small {
+  font-size: 0.7rem !important;
+  line-height: 1.38 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+@media (max-width: 900px) {
+  .room-container.reverse-room-v2 .reverse-compose {
+    max-height: none !important;
+  }
+
+  .room-container.reverse-room-v2 .reverse-suggestion-box.open .reverse-suggestion-list {
+    grid-template-columns: 1fr !important;
+    max-height: 260px !important;
+  }
+}
+
+
+/* 추천 질문 패널 전체 */
+.room-container.reverse-room-v2 .reverse-suggestion-box {
+  min-width: 0;
+  max-width: 100%;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+/* 추천 질문 헤더 영역 */
+.room-container.reverse-room-v2 .reverse-suggestion-head,
+.room-container.reverse-room-v2 .reverse-suggestion-header {
+  min-width: 0;
+  gap: 10px;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-head h3,
+.room-container.reverse-room-v2 .reverse-suggestion-header h3,
+.room-container.reverse-room-v2 .reverse-suggestion-title {
+  margin: 0;
+  color: #111827;
+  font-size: 0.98rem;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: -0.03em;
+}
+
+/* 상단 설명 문구가 너무 길 때 한 줄에서 뭉개지지 않게 처리 */
+.room-container.reverse-room-v2 .reverse-suggestion-desc,
+.room-container.reverse-room-v2 .reverse-suggestion-subtitle,
+.room-container.reverse-room-v2 .reverse-suggestion-summary {
+  min-width: 0;
+  max-width: 100%;
+  margin-top: 4px;
+  color: #475569;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: -0.025em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 추천 질문 리스트: 카드가 너무 낮아져 글자가 잘리는 문제 방지 */
+.room-container.reverse-room-v2 .reverse-suggestion-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  max-height: min(34vh, 330px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 2px 6px 2px 0;
+  align-items: stretch;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.room-container.reverse-room-v2 .reverse-suggestion-list::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.55);
+  border-radius: 999px;
+}
+
+/* 추천 질문 카드/버튼 공통 */
+.room-container.reverse-room-v2 .reverse-suggestion-list button,
+.room-container.reverse-room-v2 .reverse-suggestion-card,
+.room-container.reverse-room-v2 .suggestion-card {
+  width: 100%;
+  min-width: 0;
+  min-height: 92px;
+  height: auto;
+  padding: 13px 14px;
+  border-radius: 14px;
+  text-align: left;
+  align-items: flex-start;
+  justify-content: flex-start;
+  background: #ffffff;
+  border: 1px solid rgba(203, 213, 225, 0.9);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.055);
+  box-sizing: border-box;
+
+  color: #0f172a;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 650;
+  line-height: 1.62;
+  letter-spacing: -0.035em;
+
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  word-wrap: break-word;
+  overflow: hidden;
+}
+
+/* 내부 텍스트도 부모 폭을 넘지 않게 강제 */
+.room-container.reverse-room-v2 .reverse-suggestion-list button *,
+.room-container.reverse-room-v2 .reverse-suggestion-card *,
+.room-container.reverse-room-v2 .suggestion-card * {
+  max-width: 100%;
+  min-width: 0;
+  line-height: inherit;
+  letter-spacing: -0.035em;
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+/* 질문 본문: 최대 3줄까지만 자연스럽게 표시 */
+.room-container.reverse-room-v2 .reverse-suggestion-list button p,
+.room-container.reverse-room-v2 .reverse-suggestion-list button strong,
+.room-container.reverse-room-v2 .reverse-suggestion-text,
+.room-container.reverse-room-v2 .suggestion-text,
+.room-container.reverse-room-v2 .question-text {
+  margin: 6px 0 0;
+  color: #0f172a;
+  font-size: 0.88rem;
+  font-weight: 650;
+  line-height: 1.62;
+  letter-spacing: -0.035em;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+/* 배지: 본문보다 작고 또렷하게 */
+.room-container.reverse-room-v2 .suggestion-pressure,
+.room-container.reverse-room-v2 .suggestion-type,
+.room-container.reverse-room-v2 .suggestion-badge,
+.room-container.reverse-room-v2 .reverse-suggestion-list button > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 22px;
+  padding: 3px 8px;
+  margin: 0 0 4px;
+  border-radius: 999px;
+  background: #fff1f2;
+  color: #be123c;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+/* hover 시 텍스트가 밀리거나 흔들리지 않도록 */
+.room-container.reverse-room-v2 .reverse-suggestion-list button:hover,
+.room-container.reverse-room-v2 .reverse-suggestion-card:hover,
+.room-container.reverse-room-v2 .suggestion-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(30, 64, 175, 0.35);
+  box-shadow: 0 12px 28px rgba(30, 64, 175, 0.1);
+}
+
+/* 접힘 상태에서는 헤더만 깔끔하게 표시 */
+.room-container.reverse-room-v2 .reverse-suggestion-box.is-collapsed .reverse-suggestion-list,
+.room-container.reverse-room-v2 .reverse-suggestion-box.collapsed .reverse-suggestion-list {
+  display: none;
+}
+
+/* 작은 화면 대응 */
+@media (max-width: 980px) {
+  .room-container.reverse-room-v2 .reverse-suggestion-list {
+    grid-template-columns: 1fr;
+    max-height: 300px;
+  }
+
+  .room-container.reverse-room-v2 .reverse-suggestion-list button,
+  .room-container.reverse-room-v2 .reverse-suggestion-card,
+  .room-container.reverse-room-v2 .suggestion-card {
+    min-height: auto;
+  }
+}
+
+
+/* =========================================================
+   자유 면접 질문 입력 접기/펼치기
+   - 질문 입력칸을 접어서 답변/피드백 공간을 더 넓게 사용
+========================================================= */
+.room-container.reverse-room-v2 .free-question-panel {
+  width: 100% !important;
+  overflow: hidden !important;
+  border-radius: 16px !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+.room-container.reverse-room-v2 .free-question-toggle {
+  width: 100% !important;
+  min-height: 58px !important;
+  padding: 12px 14px !important;
+  border: none !important;
+  background: transparent !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  text-align: left !important;
+  font-family: inherit !important;
+  cursor: pointer !important;
+}
+
+.room-container.reverse-room-v2 .free-question-toggle > div {
+  min-width: 0 !important;
+  flex: 1 !important;
+}
+
+.room-container.reverse-room-v2 .free-question-toggle span {
+  display: block !important;
+  margin-bottom: 4px !important;
+  color: #2563eb !important;
+  font-size: 0.75rem !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.room-container.reverse-room-v2 .free-question-toggle strong {
+  display: -webkit-box !important;
+  color: #0f172a !important;
+  font-size: 0.9rem !important;
+  font-weight: 850 !important;
+  line-height: 1.45 !important;
+  letter-spacing: -0.03em !important;
+  word-break: keep-all !important;
+  overflow-wrap: anywhere !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+.room-container.reverse-room-v2 .free-question-toggle b {
+  flex-shrink: 0 !important;
+  min-height: 32px !important;
+  padding: 0 10px !important;
+  border-radius: 999px !important;
+  background: #111827 !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.74rem !important;
+  font-weight: 900 !important;
+  font-style: normal !important;
+  white-space: nowrap !important;
+}
+
+.room-container.reverse-room-v2 .free-question-field {
+  display: block !important;
+  padding: 0 14px 14px !important;
+  border-top: 1px solid rgba(148, 163, 184, 0.22) !important;
+}
+
+.room-container.reverse-room-v2 .free-question-field textarea {
+  margin-top: 12px !important;
+  min-height: 86px !important;
+  max-height: 160px !important;
+}
+
+.room-container.reverse-room-v2 .free-question-panel.collapsed {
+  background: #ffffff !important;
+}
+
+.room-container.reverse-room-v2 .free-practice-compose > label textarea {
+  min-height: 130px !important;
+}
+
+@media (max-width: 720px) {
+  .room-container.reverse-room-v2 .free-question-toggle {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+
+  .room-container.reverse-room-v2 .free-question-toggle b {
+    align-self: flex-end !important;
+  }
+}
+
+/* =========================================================
+   자유 면접 평가 기준 그래프 복구
+   - scoreBreakdown 막대가 보이지 않는 문제 수정
+   - 성과와 배운 점(result) 항목까지 6개 기준 표시
+========================================================= */
+.room-container.reverse-room-v2 .score-breakdown-card {
+  margin: 14px 0 18px !important;
+  padding: 16px !important;
+  border-radius: 16px !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+.room-container.reverse-room-v2 .score-breakdown-title {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin-bottom: 12px !important;
+}
+
+.room-container.reverse-room-v2 .score-breakdown-title strong {
+  color: #0f172a !important;
+  font-size: 0.94rem !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.03em !important;
+}
+
+.room-container.reverse-room-v2 .score-breakdown-title span {
+  flex-shrink: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 26px !important;
+  padding: 0 10px !important;
+  border-radius: 999px !important;
+  background: #111827 !important;
+  color: #ffffff !important;
+  font-size: 0.72rem !important;
+  font-weight: 900 !important;
+}
+
+.room-container.reverse-room-v2 .score-breakdown-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+.room-container.reverse-room-v2 .score-breakdown-row {
+  display: grid !important;
+  grid-template-columns: minmax(150px, 210px) minmax(120px, 1fr) !important;
+  align-items: center !important;
+  gap: 14px !important;
+  min-width: 0 !important;
+}
+
+.room-container.reverse-room-v2 .score-breakdown-label {
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+}
+
+.room-container.reverse-room-v2 .score-breakdown-label span {
+  min-width: 0 !important;
+  color: #334155 !important;
+  font-size: 0.84rem !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.03em !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.room-container.reverse-room-v2 .score-breakdown-label b {
+  flex-shrink: 0 !important;
+  color: #0f172a !important;
+  font-size: 0.82rem !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.02em !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.room-container.reverse-room-v2 .score-breakdown-track {
+  position: relative !important;
+  width: 100% !important;
+  height: 10px !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  border-radius: 999px !important;
+  background: #e2e8f0 !important;
+}
+
+.room-container.reverse-room-v2 .score-breakdown-track > div {
+  display: block !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  border-radius: inherit !important;
+  background: linear-gradient(90deg, #e10600, #ff7a18) !important;
+  transition: width 0.25s ease !important;
+}
+
+@media (max-width: 720px) {
+  .room-container.reverse-room-v2 .score-breakdown-row {
+    grid-template-columns: 1fr !important;
+    gap: 7px !important;
+  }
+
+  .room-container.reverse-room-v2 .score-breakdown-label span {
+    white-space: normal !important;
+  }
 }
