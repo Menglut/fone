@@ -1,0 +1,511 @@
+/* =========================================================
+   PortfolioEditPage.css
+   - PortfolioEditPage.jsx 전용 스타일
+   - BuilderResultPage.css와 분리해서 결과 페이지 fixed/scroll 스타일이
+     편집 페이지에 섞이지 않도록 보호
+========================================================= */
+
+.portfolio-edit-page {
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #f4f5f7;
+  color: var(--text, #1e293b);
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+.portfolio-edit-page.theme-modern {
+  --bg: #f1f5f9;
+  --paper-bg: #ffffff;
+  --text: #1e293b;
+  --text-sub: #64748b;
+  --accent: #1e40af;
+  --border: #e2e8f0;
+  --shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+}
+
+.portfolio-edit-page.theme-dark {
+  --bg: #0a0a0a;
+  --paper-bg: #141414;
+  --text: #f3f4f6;
+  --text-sub: #9ca3af;
+  --accent: #e10600;
+  --border: #2a2a2a;
+  --shadow: 0 20px 50px rgba(225, 6, 0, 0.15);
+}
+
+.portfolio-edit-page.theme-minimal {
+  --bg: #ffffff;
+  --paper-bg: #ffffff;
+  --text: #000000;
+  --text-sub: #555555;
+  --accent: #000000;
+  --border: #000000;
+  --shadow: none;
+}
+
+/* 헤더 */
+.portfolio-edit-page .room-header {
+  width: 100%;
+  height: 80px;
+  min-height: 80px;
+  flex: 0 0 80px;
+  background: rgba(14, 14, 14, 0.95) !important;
+  border-bottom: 2px solid #e10600 !important;
+  box-shadow: none;
+  box-sizing: border-box;
+  z-index: 100;
+}
+
+.portfolio-edit-page .room-logo-btn {
+  min-width: 180px;
+  justify-content: flex-start;
+}
+
+.portfolio-edit-page .builder-logo-img {
+  height: 60px;
+  width: auto;
+  display: block;
+  mix-blend-mode: screen;
+  transform: scale(1.5) !important;
+  transform-origin: left center;
+  backface-visibility: hidden;
+}
+
+.portfolio-edit-page .title-pill-input::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.portfolio-edit-page .room-exit-btn {
+  min-height: 38px;
+  padding: 8px 15px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.18s ease, opacity 0.18s ease, box-shadow 0.18s ease;
+}
+
+.portfolio-edit-page .room-exit-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.16);
+}
+
+.portfolio-edit-page .room-exit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 전체 레이아웃 */
+.portfolio-edit-page .modern-layout {
+  flex: 1;
+  min-height: 0;
+  height: calc(100vh - 80px);
+  display: flex;
+  overflow: hidden;
+}
+
+.portfolio-edit-page .modern-draft-panel {
+  width: 35%;
+  min-width: 380px;
+  max-width: 560px;
+  height: 100%;
+  overflow: hidden !important;
+  background: #ffffff;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.portfolio-edit-page .draft-header {
+  flex: 0 0 auto;
+  padding: 24px 32px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.portfolio-edit-page .draft-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #2563eb;
+  background: #eff6ff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.portfolio-edit-page .draft-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.portfolio-edit-page .draft-scroller {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 24px 32px 60px;
+}
+
+.portfolio-edit-page .draft-scroller::-webkit-scrollbar {
+  width: 6px;
+}
+
+.portfolio-edit-page .draft-scroller::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+.portfolio-edit-page .exp-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  opacity: 0.72;
+  transition: opacity 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.portfolio-edit-page .exp-card.active-card {
+  opacity: 1;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  border-color: #cbd5e1;
+}
+
+.portfolio-edit-page .exp-card-title {
+  font-size: 1.05rem;
+  color: #1e293b;
+  margin: 0 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.portfolio-edit-page .pulse-dot {
+  width: 8px;
+  height: 8px;
+  background: #ef4444;
+  border-radius: 50%;
+  animation: portfolioEditPulse 1.5s infinite;
+}
+
+@keyframes portfolioEditPulse {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.portfolio-edit-page .draft-input-group {
+  margin-bottom: 16px;
+  position: relative;
+  transition: all 0.25s ease;
+}
+
+.portfolio-edit-page .draft-input-group::before {
+  content: '';
+  position: absolute;
+  left: -20px;
+  top: 5px;
+  bottom: 5px;
+  width: 3px;
+  border-radius: 3px;
+  background-color: var(--accent, #1e40af);
+  opacity: 0.45;
+}
+
+.portfolio-edit-page .draft-input-group label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.portfolio-edit-page .draft-input-group textarea {
+  width: 100%;
+  border: 1px solid transparent;
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: #334155;
+  resize: vertical;
+  min-height: 42px;
+  transition: all 0.2s;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.portfolio-edit-page .draft-input-group textarea:focus,
+.portfolio-edit-page .draft-input-group.active-glow textarea {
+  background: #ffffff;
+  border-color: var(--accent, #1e40af);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.08);
+}
+
+.portfolio-edit-page .draft-input-group.active-glow label {
+  color: var(--accent, #1e40af);
+}
+
+/* 우측 미리보기 */
+.portfolio-edit-page .modern-chat-section {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  overflow: auto !important;
+  box-sizing: border-box;
+}
+
+.portfolio-edit-page .modern-chat-section::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.portfolio-edit-page .modern-chat-section::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.38);
+  border-radius: 999px;
+}
+
+.portfolio-edit-page #portfolio-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: max-content;
+  min-width: 297mm;
+  box-sizing: border-box;
+}
+
+/* 슬라이드 */
+.portfolio-edit-page .portfolio-slide {
+  width: 297mm;
+  height: 209mm;
+  min-height: 209mm;
+  max-height: 209mm;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  page-break-after: always;
+}
+
+.portfolio-edit-page .project-header {
+  height: 15mm;
+  flex: 0 0 15mm;
+  border-bottom: 2px solid var(--accent, #1e40af);
+  margin-bottom: 5mm;
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 3mm;
+  box-sizing: border-box;
+}
+
+.portfolio-edit-page .project-title {
+  min-width: 0;
+  margin: 0;
+  color: var(--text, #1e293b);
+  font-size: 1.8rem;
+  font-weight: 900;
+  line-height: 1.22;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.portfolio-edit-page .project-title-num {
+  color: var(--accent, #1e40af);
+  margin-right: 10px;
+  font-size: 2rem;
+}
+
+.portfolio-edit-page .project-body {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  min-height: 0;
+  gap: 10mm;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.portfolio-edit-page .project-text-area {
+  width: 45%;
+  min-width: 0;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4mm;
+}
+
+.portfolio-edit-page .project-visual-area {
+  width: 55%;
+  min-width: 0;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4mm;
+}
+
+.portfolio-edit-page .text-box {
+  height: calc(33.33% - 3mm);
+  min-height: 0;
+  padding: 4mm;
+  background-color: rgba(128, 128, 128, 0.05);
+  border-radius: 8px;
+  border-left: 4px solid #000;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.portfolio-edit-page .text-box.red {
+  border-left-color: #dc2626;
+}
+
+.portfolio-edit-page .text-box.green {
+  border-left-color: #16a34a;
+}
+
+.portfolio-edit-page .text-box.orange {
+  border-left-color: #f59e0b;
+}
+
+.portfolio-edit-page .text-box-title {
+  margin-bottom: 2mm;
+  font-weight: 900;
+  font-size: 1.05rem;
+}
+
+.portfolio-edit-page .text-box-content {
+  color: var(--text, #1e293b);
+  font-size: 0.92rem;
+  line-height: 1.52;
+  white-space: pre-wrap;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+
+.portfolio-edit-page .project-text-area .text-box:nth-child(1) .text-box-content,
+.portfolio-edit-page .project-text-area .text-box:nth-child(2) .text-box-content {
+  -webkit-line-clamp: 5;
+}
+
+.portfolio-edit-page .project-text-area .text-box:nth-child(3) .text-box-content {
+  -webkit-line-clamp: 4;
+}
+
+.portfolio-edit-page .text-box-content.bold {
+  font-weight: 800;
+}
+
+.portfolio-edit-page .visual-box {
+  flex: 7 1 0;
+  min-height: 0;
+  width: 100%;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 8px;
+  padding: 4mm;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.portfolio-edit-page .chart-box {
+  flex: 3 1 0;
+  min-height: 0;
+  width: 100%;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 8px;
+  padding: 10px 20px 0 0;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.portfolio-edit-page .chart-container-wrapper {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+/* 플로팅 어시스턴트가 작은 화면에서 너무 많이 가리지 않게 */
+@media (max-width: 1180px) {
+  .portfolio-edit-page {
+    overflow-y: auto;
+  }
+
+  .portfolio-edit-page .modern-layout {
+    flex-direction: column;
+    height: auto;
+    min-height: calc(100vh - 80px);
+    overflow: visible;
+  }
+
+  .portfolio-edit-page .modern-draft-panel {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    min-height: 420px;
+    border-right: none;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .portfolio-edit-page .modern-chat-section {
+    min-height: 680px;
+  }
+}
+
+@media (max-width: 720px) {
+  .portfolio-edit-page .room-header {
+    height: auto;
+    min-height: 74px;
+    padding: 14px 16px !important;
+    gap: 12px;
+  }
+
+  .portfolio-edit-page .builder-logo-img {
+    transform: scale(1.2) !important;
+  }
+
+  .portfolio-edit-page .room-header > div:last-child {
+    gap: 6px !important;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .portfolio-edit-page .title-pill-input {
+    width: 220px !important;
+    font-size: 0.82rem !important;
+  }
+
+  .portfolio-edit-page .room-exit-btn {
+    min-height: 34px;
+    padding: 7px 10px;
+    font-size: 0.76rem;
+  }
+}

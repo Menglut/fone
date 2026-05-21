@@ -7,8 +7,9 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import mermaid from 'mermaid';
 import mainLogo from '../assets/logo.png';
 
-import '../css/BuilderPage.css';
-import '../css/PortfolioEditor.css';
+import '../css/BuilderCommon.css';
+import '../css/PortfolioBuilder.css';
+import '../css/PortfolioEditPage.css';
 
 const API_BASE = process.env.REACT_APP_API_BASE;
 
@@ -72,7 +73,6 @@ export default function PortfolioEditPage() {
 
   const [profile, setProfile] = useState({
     name: '', jobTitle: 'AI 역량 추출 포트폴리오', email: '',
-    intro: '해당 문서는 AI 전문가 패널과의 심층 대화를 통해 추출된 핵심 경험 및 트러블슈팅 리포트입니다.'
   });
   const [projects, setProjects] = useState([]);
 
@@ -106,7 +106,6 @@ export default function PortfolioEditPage() {
               name: rawData.profile.name || userInfo.name,
               jobTitle: rawData.profile.jobTitle || 'AI 역량 추출 포트폴리오',
               email: rawData.profile.email || userInfo.email,
-              intro: rawData.profile.intro || '해당 문서는 AI 전문가 패널과의 심층 대화를 통해 추출된 핵심 경험 및 트러블슈팅 리포트입니다.'
             });
           } else {
             setProfile(prev => ({ ...prev, name: userInfo.name, email: userInfo.email }));
@@ -279,8 +278,8 @@ export default function PortfolioEditPage() {
 
   return (
     <div
-      /* ✨ 핵심 수정 1: 최상위 태그에 theme-${theme} 클래스를 주입하여 CSS 변수 연동 */
-      className={`room-container theme-${theme}`}
+      /* ✨ 최상위 태그에 전용 클래스 + modern-theme + theme-${theme}를 함께 적용 */
+      className={`portfolio-edit-page room-container modern-theme theme-${theme}`}
       style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}
     >
 

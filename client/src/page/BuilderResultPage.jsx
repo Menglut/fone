@@ -7,8 +7,8 @@ import axios from 'axios';
 import mainLogo from '../assets/logo.png';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
-import '../css/BuilderPage.css';
 import '../css/PortfolioEditor.css';
+import '../css/BuilderResultPage.css';
 
 const API_BASE = process.env.REACT_APP_API_BASE;
 
@@ -35,12 +35,15 @@ const MermaidViewer = ({ code, themeMode }) => {
       flowchart: {
         useMaxWidth: true, // ✅ 핵심: 축소 비활성화
         htmlLabels: true,
-      }});
+      }
+    });
 
     const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+
     mermaid.render(id, cleanCode)
       .then(({ svg }) => {
         if (!ref.current) return;
+
         ref.current.innerHTML = svg;
 
         const svgEl = ref.current.querySelector('svg');
@@ -68,7 +71,7 @@ const MermaidViewer = ({ code, themeMode }) => {
       style={{
         width: '100%',
         height: '100%',
-        overflowX: 'auto',  // 가로 스크롤
+        overflowX: 'auto', // 가로 스크롤
         overflowY: 'hidden',
         display: 'flex',
         alignItems: 'center',
@@ -84,31 +87,97 @@ export default function BuilderResultPage() {
   const [theme, setTheme] = useState('modern');
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
+  useEffect(() => {
+    const rootEl = document.getElementById('root');
+    const scrollEl = document.querySelector('.portfolio-result-page');
+
+    const prevBodyOverflow = document.body.style.overflow;
+    const prevHtmlOverflow = document.documentElement.style.overflow;
+    const prevRootOverflow = rootEl?.style.overflow;
+    const prevRootHeight = rootEl?.style.height;
+
+    /*
+      결과 페이지는 부모/이전 페이지의 overflow 설정 영향을 받지 않도록
+      페이지 자체를 독립 스크롤 컨테이너로 사용한다.
+    */
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+
+    if (rootEl) {
+      rootEl.style.height = '100vh';
+      rootEl.style.overflow = 'hidden';
+    }
+
+    requestAnimationFrame(() => {
+      if (scrollEl) scrollEl.scrollTo({ top: 0, left: 0 });
+    });
+
+    return () => {
+      document.body.style.overflow = prevBodyOverflow;
+      document.documentElement.style.overflow = prevHtmlOverflow;
+
+      if (rootEl) {
+        rootEl.style.overflow = prevRootOverflow || '';
+        rootEl.style.height = prevRootHeight || '';
+      }
+    };
+  }, []);
+
   const rawData = location.state?.portfolioData;
+  const passedUserInfo = location.state?.userInfo;
+
+  const compactText = (value, maxLength) => {
+    const text = String(value || '').replace(/\s+/g, ' ').trim();
+    if (text.length <= maxLength) return text;
+    return `${text.slice(0, maxLength).trim()}...`;
+  };
+
+  const getStoredUserInfo = () => {
+    try {
+      const userStr = localStorage.getItem('user');
+      return userStr ? JSON.parse(userStr) : { name: '지원자', email: '' };
+    } catch (error) {
+      return { name: '지원자', email: '' };
+    }
+  };
+
+  const normalizeResultProject = (project = {}) => ({
+    ...project,
+    title: compactText(project.title, 60),
+    techStack: compactText(project.techStack, 120),
+    why: compactText(project.why, 230),
+    how: compactText(project.how, 260),
+    then: compactText(project.then, 180)
+  });
+
   const initialProjectList = Array.isArray(rawData) ? rawData : (rawData ? [rawData] : []);
 
   const projectList = initialProjectList.map(proj => {
     if (proj.troubleshootings && proj.troubleshootings.length > 0) {
       const first = proj.troubleshootings[0];
-      return { ...proj, why: first.why || proj.why, how: first.how || proj.how, then: first.then || proj.then, architectureCode: first.architectureCode || proj.architectureCode, chartData: first.chartData || proj.chartData };
+      return normalizeResultProject({
+        ...proj,
+        why: first.why || proj.why,
+        how: first.how || proj.how,
+        then: first.then || proj.then,
+        architectureCode: first.architectureCode || proj.architectureCode,
+        chartData: first.chartData || proj.chartData
+      });
     }
-    return proj;
+
+    return normalizeResultProject(proj);
   });
 
-  const getUserInfo = () => {
-    const userStr = localStorage.getItem('user');
-    return userStr ? JSON.parse(userStr) : { name: "지원자", email: "" };
-  };
-  const userInfo = getUserInfo();
+  const userInfo = passedUserInfo || getStoredUserInfo();
 
   // 완벽하게 동작하는 PDF 다운로드 로직 (유지)
   const handleDownloadPdf = async () => {
     setIsGeneratingPdf(true);
-
     await new Promise(resolve => setTimeout(resolve, 800));
 
     try {
       const slides = document.querySelectorAll('#portfolio-content .portfolio-slide');
+
       if (!slides || slides.length === 0) {
         setIsGeneratingPdf(false);
         return;
@@ -163,40 +232,46 @@ export default function BuilderResultPage() {
   const handleSaveToDashboard = async () => {
     const userId = userInfo?.id || userInfo?._id || userInfo?.email || 'guest';
     const payload = { userId, title: `${userInfo.name}의 포트폴리오`, content: projectList };
+
     try {
       await axios.post(`${API_BASE}/api/builder/save`, { userId, title: payload.title, portfolioData: projectList });
       const res = await axios.post(`${API_BASE}/api/portfolio`, payload);
-      if (res.data.success) { alert('저장 성공! 🎉'); navigate('/mypage'); }
-    } catch (e) { alert('저장 중 오류 발생'); }
+
+      if (res.data.success) {
+        alert('저장 성공! ');
+        navigate('/mypage');
+      }
+    } catch (e) {
+      alert('저장 중 오류 발생');
+    }
   };
 
   if (!projectList || projectList.length === 0) return null;
+
   const currentThemeColor = THEME_COLORS[theme];
 
   return (
-    <div className={`portfolio-wrapper theme-${theme}`}>
-
+    <div className={`portfolio-result-page portfolio-wrapper theme-${theme}`}>
       {/* ✨ 수정됨: width: '100%' 추가로 쪼그라드는 현상 완벽 방어 */}
-        <header className="room-header" style={{
-          width: '100%', /* 🔥 핵심: 화면 전체 너비 강제 고정 */
-          boxSizing: 'border-box',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '16px 32px',
-          flexShrink: 0,
-          position: 'relative',
-          borderBottom: '1px solid #e2e8f0',
-          backgroundColor: '#000',
-          zIndex: 100
-        }}>
+      <header className="room-header" style={{
+        width: '100%', /* 핵심: 화면 전체 너비 강제 고정 */
+        boxSizing: 'border-box',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '16px 32px',
+        flexShrink: 0,
+        position: 'relative',
+        borderBottom: '1px solid #e2e8f0',
+        backgroundColor: '#000',
+        zIndex: 100
+      }}>
+        {/* 좌측: 로고 */}
+        <div className="room-logo-btn" onClick={() => navigate('/')} style={{ position: 'relative', zIndex: 20 }}>
+          <img src={mainLogo} alt="로고" className="builder-logo-img" style={{ mixBlendMode: 'unset' }} />
+        </div>
 
-          {/* 좌측: 로고 */}
-          <div className="room-logo-btn" onClick={() => navigate('/')} style={{ position: 'relative', zIndex: 20 }}>
-            <img src={mainLogo} alt="로고" className="builder-logo-img" style={{ mixBlendMode: 'unset' }} />
-          </div>
-
-          {/* 우측: 컨트롤 버튼들 */}
+        {/* 우측: 컨트롤 버튼들 */}
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', position: 'relative', zIndex: 20 }}>
           <select value={theme} onChange={(e) => setTheme(e.target.value)} style={{ padding: '8px 12px', borderRadius: '4px', border: '1px solid #cbd5e1', outline: 'none', cursor: 'pointer', backgroundColor: '#fff' }}>
             <option value="modern">Modern (Blue)</option>
@@ -211,7 +286,7 @@ export default function BuilderResultPage() {
             disabled={isGeneratingPdf}
             style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: '#fff' }}
           >
-            {isGeneratingPdf ? '⏳ 캡처중...' : '📄 PDF'}
+            {isGeneratingPdf ? '⏳ 캡처중...' : ' PDF'}
           </button>
 
           <button
@@ -219,30 +294,33 @@ export default function BuilderResultPage() {
             onClick={handleSaveToDashboard}
             style={{ backgroundColor: '#fff', color: '#111' }}
           >
-            📊 대시보드로 이동
+            대시보드로 이동
           </button>
         </div>
-        </header>
+      </header>
 
       <div className={`pdf-scale-container ${isGeneratingPdf ? 'print-mode' : 'preview-mode'}`}>
         <div id="portfolio-content" className={`portfolio-content-list theme-${theme} ${isGeneratingPdf ? 'print-mode' : 'preview-mode'}`}>
-
           <section className="portfolio-slide cover-slide">
             <div className="cover-header">
               <h1 className="cover-title">{userInfo.name}</h1>
               <h2 className="cover-subtitle">AI 역량 추출 포트폴리오</h2>
             </div>
+
             <div className="cover-info">
               {userInfo.email && <p>Email: {userInfo.email}</p>}
-              <p className="cover-desc">해당 문서는 AI 전문가 패널과의 심층 대화를 통해 추출된 핵심 경험 리포트입니다.</p>
+              {userInfo.intro && <p>{compactText(userInfo.intro, 120)}</p>}
             </div>
           </section>
 
           {projectList.map((project, idx) => {
             let safeChartData = [];
+
             try {
               let rawChart = project.chartData;
+
               if (typeof rawChart === 'string' && rawChart.trim() !== '') rawChart = JSON.parse(rawChart);
+
               if (Array.isArray(rawChart)) {
                 safeChartData = rawChart.map(item => ({ ...item, value: Number(item.value) })).slice(0, 5);
               }
@@ -279,15 +357,17 @@ export default function BuilderResultPage() {
                 <div className="project-body">
                   <div className="project-text-area">
                     <div className="text-box red">
-                      <div className="text-box-title" style={{ color: currentThemeColor.accent }}>📌 배경</div>
+                      <div className="text-box-title" style={{ color: currentThemeColor.accent }}> 배경</div>
                       <div className="text-box-content">{project.why}</div>
                     </div>
+
                     <div className="text-box green">
-                      <div className="text-box-title" style={{ color: currentThemeColor.accent }}>🚀 전략</div>
+                      <div className="text-box-title" style={{ color: currentThemeColor.accent }}> 전략</div>
                       <div className="text-box-content">{project.how}</div>
                     </div>
+
                     <div className="text-box orange">
-                      <div className="text-box-title" style={{ color: currentThemeColor.accent }}>🏆 성과</div>
+                      <div className="text-box-title" style={{ color: currentThemeColor.accent }}> 성과</div>
                       <div className="text-box-content bold">{project.then}</div>
                     </div>
                   </div>
@@ -302,7 +382,7 @@ export default function BuilderResultPage() {
 
                       {safeChartData.length > 0 && (
                         <div className="chart-box">
-                          <h5 style={{ margin: '0 0 10px 10px', color: currentThemeColor.textSub, fontSize: '1rem', fontWeight: 'bold' }}>📈 성과 지표</h5>
+                          <h5 style={{ margin: '0 0 10px 10px', color: currentThemeColor.textSub, fontSize: '1rem', fontWeight: 'bold' }}> 성과 지표</h5>
                           <div className="chart-container-wrapper">
                             <ResponsiveContainer width="100%" height="100%">
                               <AreaChart data={safeChartData} margin={{ top: 10, right: 10, left: 15, bottom: 0 }}>

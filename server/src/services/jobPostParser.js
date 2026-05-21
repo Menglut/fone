@@ -62,6 +62,14 @@ const JOB_TEXT_KEYWORDS = [
 
 const BLOCKED_PAGE_PATTERNS = /접근이 제한|비정상적인 접근|보안문자|captcha|로봇|자동화|잠시 후 다시|서비스 이용에 불편|too many requests|access denied/i;
 
+const MULTI_POSITION_PATTERNS =
+  /각\s*부문|전\s*직군|전\s*분야|부문별|분야별|직군별|대규모\s*채용|공개\s*채용|수시\s*채용|신입\s*\/\s*경력|신입\s*및\s*경력|모집\s*부문|모집\s*분야|채용\s*분야|모집\s*직무|직무별/i;
+
+const POSITION_TITLE_PATTERNS = [
+  /(?:모집\s*부문|모집\s*분야|채용\s*분야|모집\s*직무|직무)\s*[:：]\s*([^\n]+)/gi,
+  /(?:^|\n)\s*[-•ㆍ]\s*([^\n]{2,40}(?:개발자|엔지니어|디자이너|기획자|마케터|분석가|매니저|운영|영업|관리|회계|인사|총무|프론트엔드|백엔드|풀스택|데이터|AI|QA|DevOps)[^\n]{0,30})/gi,
+];
+
 const jobPostCache = new Map();
 let sharedBrowser = null;
 
@@ -106,6 +114,116 @@ function toArray(value) {
     .split(/[|,\r\nㆍ·•\-]+/)
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+function normalizePositionOption(value, index = 0) {
+  if (!value) return null;
+
+  if (typeof value === 'string' || typeof value === 'number') {
+    const title = String(value).trim();
+    if (!title) return null;
+
+    return {
+      id: `position-${index + 1}`,
+      title,
+      jobDetails: [],
+      requiredQualifications: [],
+      preferredQualifications: [],
+      keywords: [],
+    };
+  }
+
+  if (typeof value !== 'object') return null;
+
+  const title = String(
+    value.title ||
+      value.name ||
+      value.positionTitle ||
+      value.jobTitle ||
+      value.department ||
+      value.role ||
+      ''
+  ).trim();
+
+  if (!title) return null;
+
+  return {
+    id: String(value.id || `position-${index + 1}`).trim(),
+    title,
+    jobDetails: toArray(value.jobDetails || value.keyDuties || value.duties || value.tasks),
+    requiredQualifications: toArray(
+      value.requiredQualifications || value.requiredRequirements || value.requirements
+    ),
+    preferredQualifications: toArray(
+      value.preferredQualifications || value.preferredRequirements || value.preferred
+    ),
+    keywords: toArray(value.keywords || value.skills || value.techStack),
+  };
+}
+
+function toPositionOptions(value) {
+  const raw = Array.isArray(value) ? value : value ? [value] : [];
+  const seen = new Set();
+
+  return raw
+    .map((item, index) => normalizePositionOption(item, index))
+    .filter(Boolean)
+    .filter((item) => {
+      const key = item.title.replace(/\s+/g, '').toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, 12);
+}
+
+function extractPositionTitlesFromText(text = '') {
+  const normalized = normalizeText(text);
+  if (!normalized) return [];
+
+  const candidates = [];
+
+  for (const pattern of POSITION_TITLE_PATTERNS) {
+    for (const match of normalized.matchAll(pattern)) {
+      const raw = String(match[1] || '').trim();
+      if (!raw) continue;
+
+      raw
+        .split(/[|,\/·ㆍ•]+/)
+        .map((item) => item.replace(/[\[\](){}]/g, ' ').replace(/\s+/g, ' ').trim())
+        .filter((item) => item.length >= 2 && item.length <= 50)
+        .forEach((item) => candidates.push(item));
+    }
+  }
+
+  return Array.from(new Set(candidates)).slice(0, 8);
+}
+
+function looksLikeMultiPositionJob({ text = '', title = '', positionOptions = [] } = {}) {
+  if (positionOptions.length >= 2) return true;
+
+  const combined = `${title}\n${text}`;
+  if (MULTI_POSITION_PATTERNS.test(combined)) return true;
+
+  return extractPositionTitlesFromText(combined).length >= 2;
+}
+
+function buildPositionOptionsText(positionOptions = []) {
+  if (!positionOptions.length) return '';
+
+  return `모집 분야 후보:\n${positionOptions
+    .map((option, index) =>
+      [
+        `${index + 1}. ${option.title}`,
+        option.jobDetails.length && `   담당업무: ${option.jobDetails.join(', ')}`,
+        option.requiredQualifications.length && `   지원자격: ${option.requiredQualifications.join(', ')}`,
+        option.preferredQualifications.length && `   우대사항: ${option.preferredQualifications.join(', ')}`,
+        option.keywords.length && `   키워드: ${option.keywords.join(', ')}`,
+      ]
+        .filter(Boolean)
+        .join('\n')
+    )
+    .join('\n')}`;
 }
 
 function extractSaraminRecIdx(url = '') {
@@ -647,8 +765,18 @@ function normalizeParsedResult(parsed, sourceUrl = '', originalInput = '') {
       summary.preferredQualifications || summary.preferredRequirements || summary.preferred
     ),
     coverLetterQuestions: toArray(summary.coverLetterQuestions || summary.questions),
+    positionOptions: toPositionOptions(summary.positionOptions || summary.recruitmentFields || summary.positions),
+    selectedPosition: summary.selectedPosition || '',
     sourceUrls: summary.sourceUrls || (sourceUrl ? [sourceUrl] : []),
   };
+
+  const heuristicPositionTitles = extractPositionTitlesFromText(
+    [jobSummary.positionTitle, jobSummary.summaryText, parsed?.jobPostText, originalInput].filter(Boolean).join('\n')
+  );
+
+  if (jobSummary.positionOptions.length === 0 && heuristicPositionTitles.length >= 2) {
+    jobSummary.positionOptions = toPositionOptions(heuristicPositionTitles);
+  }
 
   const hasBasicJobInfo = Boolean(jobSummary.companyName || jobSummary.positionTitle || jobSummary.summaryText);
   const hasCoreDetails =
@@ -658,6 +786,16 @@ function normalizeParsedResult(parsed, sourceUrl = '', originalInput = '') {
 
   const isJobPost = Boolean(parsed?.isJobPost || hasBasicJobInfo || hasCoreDetails);
   const needsMoreDetail = Boolean(parsed?.needsMoreDetail || (isJobPost && !hasCoreDetails));
+  const needsPositionSelection = Boolean(
+    parsed?.needsPositionSelection ||
+      (isJobPost &&
+        !jobSummary.selectedPosition &&
+        looksLikeMultiPositionJob({
+          text: [parsed?.jobPostText, originalInput, jobSummary.summaryText].filter(Boolean).join('\n'),
+          title: jobSummary.positionTitle,
+          positionOptions: jobSummary.positionOptions,
+        }))
+  );
 
   const jobPostText = normalizeText(
     parsed?.jobPostText ||
@@ -675,6 +813,11 @@ function normalizeParsedResult(parsed, sourceUrl = '', originalInput = '') {
           `우대 자격/우대 사항:\n- ${jobSummary.preferredQualifications.join('\n- ')}`,
         jobSummary.coverLetterQuestions.length &&
           `자기소개서 문항:\n- ${jobSummary.coverLetterQuestions.join('\n- ')}`,
+        jobSummary.positionOptions.length && buildPositionOptionsText(jobSummary.positionOptions),
+        needsPositionSelection &&
+          !jobSummary.selectedPosition &&
+          '지원 분야 확인 필요: 이 공고는 여러 모집 분야가 있을 수 있으므로 사용자가 지원할 분야를 먼저 선택하거나 입력해야 합니다.',
+        jobSummary.selectedPosition && `선택한 지원 분야: ${jobSummary.selectedPosition}`,
         sourceUrl && `원본 URL: ${sourceUrl}`,
       ]
         .filter(Boolean)
@@ -683,7 +826,10 @@ function normalizeParsedResult(parsed, sourceUrl = '', originalInput = '') {
   );
 
   let message = parsed?.message || '';
-  if (!message && isJobPost && needsMoreDetail) {
+  if (!message && isJobPost && needsPositionSelection) {
+    message =
+      '공고에서 여러 모집 분야가 있을 수 있어요. 자기소개서가 엉뚱한 직무 기준으로 작성되지 않도록, 먼저 지원하려는 분야를 선택하거나 직접 입력해 주세요.';
+  } else if (!message && isJobPost && needsMoreDetail) {
     message =
       '공고의 기본 정보는 확인했어요. 다만 사이트 구조상 직무 상세/지원 자격/우대 사항 일부가 부족할 수 있어요. 현재 확인된 정보로 먼저 방향을 잡고, 필요하면 해당 항목을 추가로 붙여넣어 주세요.';
   } else if (!message && isJobPost) {
@@ -696,6 +842,7 @@ function normalizeParsedResult(parsed, sourceUrl = '', originalInput = '') {
     success: true,
     isJobPost,
     needsMoreDetail,
+    needsPositionSelection,
     showJobHelp: !isJobPost,
     message,
     jobPostText,
@@ -712,6 +859,7 @@ async function analyzeWithDeepSeek({ rawInput, renderedText, sourceUrl, userProf
 반드시 JSON 객체만 출력한다. 마크다운 코드블록은 금지한다.
 
 중요도 순서:
+0. positionOptions: 모집 분야/모집 부문/채용 분야/직무 후보. 한 공고 안에 여러 분야가 있으면 반드시 배열로 분리한다.
 1. jobDetails: 직무 상세, 담당업무, 주요업무, 수행업무
 2. requiredQualifications: 지원 자격, 자격요건, 필수요건, 필요역량
 3. preferredQualifications: 우대 자격, 우대사항, 우대조건
@@ -719,15 +867,20 @@ async function analyzeWithDeepSeek({ rawInput, renderedText, sourceUrl, userProf
 
 규칙:
 - 원문에 없는 내용은 지어내지 않는다.
+- 공고 제목이나 본문에 "각 부문", "전 직군", "모집 부문", "모집 분야", "채용 분야", "신입/경력"처럼 여러 지원 분야가 있을 가능성이 보이면 needsPositionSelection은 true로 둔다.
+- 여러 모집 분야가 명확하면 jobSummary.positionOptions에 분야별 title, jobDetails, requiredQualifications, preferredQualifications를 분리해 넣는다.
+- 모집 분야 이름은 보이지만 상세 조건을 분야별로 분리할 수 없으면 title만 넣어도 된다.
+- 모집 분야를 하나로 특정할 수 없으면 selectedPosition은 빈 문자열로 둔다.
 - 공고명/회사명/경력/마감일만 확인되고 직무 상세나 자격요건이 부족하면 isJobPost는 true, needsMoreDetail은 true로 둔다.
 - 채용 사이트 목록 페이지나 검색 결과 페이지라면 isJobPost는 false로 둔다.
 - URL을 분석한 경우 sourceUrls에 원본 URL을 넣는다.
-- jobPostText에는 자기소개서 생성에 넣을 수 있도록 확인된 정보를 정리한다.
+- jobPostText에는 자기소개서 생성에 넣을 수 있도록 확인된 정보를 정리하되, 여러 모집 분야가 있으면 "지원 분야 확인 필요" 문구도 포함한다.
 
 응답 형식:
 {
   "isJobPost": true,
   "needsMoreDetail": false,
+  "needsPositionSelection": false,
   "showJobHelp": false,
   "message": "사용자에게 보여줄 안내 문장",
   "jobPostText": "자기소개서 생성에 사용할 공고 정리 텍스트",
@@ -743,6 +896,17 @@ async function analyzeWithDeepSeek({ rawInput, renderedText, sourceUrl, userProf
     "requiredQualifications": ["지원 자격/필수 요건"],
     "preferredQualifications": ["우대 자격/우대 사항"],
     "coverLetterQuestions": ["자기소개서 문항"],
+    "positionOptions": [
+      {
+        "id": "position-1",
+        "title": "모집 분야명",
+        "jobDetails": ["해당 분야 담당업무"],
+        "requiredQualifications": ["해당 분야 지원자격"],
+        "preferredQualifications": ["해당 분야 우대사항"],
+        "keywords": ["해당 분야 핵심 키워드"]
+      }
+    ],
+    "selectedPosition": "",
     "sourceUrls": ["원본 URL"]
   }
 }
@@ -800,8 +964,11 @@ function fallbackAnalyze({ input, sourceUrl, error }) {
       requiredQualifications: [],
       preferredQualifications: [],
       coverLetterQuestions: [],
+      positionOptions: [],
+      selectedPosition: '',
       sourceUrls: sourceUrl ? [sourceUrl] : [],
     },
+    needsPositionSelection: false,
     parserError: error?.message || String(error || ''),
   };
 }

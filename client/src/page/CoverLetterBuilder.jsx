@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import '../css/BuilderPage.css';
+import '../css/CoverLetterBuilder.css';
 import mainLogo from '../assets/logo.png';
 
 const API_BASE = process.env.REACT_APP_API_BASE;
@@ -98,6 +98,10 @@ function buildInputPlaceholder(currentStep, user) {
       : '지원할 채용공고, 자소서 문항, 공고 URL을 붙여넣어 주세요.';
   }
 
+  if (currentStep === 1.5) {
+    return '지원하려는 모집 분야를 입력하거나 위 선택지를 눌러주세요. 예: 백엔드 개발, 프론트엔드 개발';
+  }
+
   if (currentStep === 2) {
     return '관련 경험을 자유롭게 적어주세요. 예: 프로젝트명, 역할, 문제, 해결 과정, 결과';
   }
@@ -159,6 +163,155 @@ function getSummaryList(value) {
     .slice(0, 4);
 }
 
+function normalizePositionOptions(summary) {
+  const raw = Array.isArray(summary?.positionOptions) ? summary.positionOptions : [];
+
+  return raw
+    .map((option, index) => {
+      if (!option) return null;
+
+      if (typeof option === 'string') {
+        const title = option.trim();
+        return title ? { id: `position-${index + 1}`, title } : null;
+      }
+
+      const title = String(option.title || option.name || option.positionTitle || option.jobTitle || '').trim();
+      if (!title) return null;
+
+      return {
+        id: option.id || `position-${index + 1}`,
+        title,
+        jobDetails: getSummaryList(option.jobDetails || option.keyDuties || option.duties),
+        requiredQualifications: getSummaryList(
+          option.requiredQualifications || option.requiredRequirements || option.requirements
+        ),
+        preferredQualifications: getSummaryList(
+          option.preferredQualifications || option.preferredRequirements || option.preferred
+        ),
+        keywords: getSummaryList(option.keywords || option.skills || option.techStack),
+      };
+    })
+    .filter(Boolean)
+    .slice(0, 8);
+}
+
+function findPositionOptionByTitle(options = [], title = '') {
+  const normalizedTitle = String(title || '').replace(/\s+/g, '').toLowerCase();
+  if (!normalizedTitle) return null;
+
+  return options.find((option) => {
+    const optionTitle = String(option.title || '').replace(/\s+/g, '').toLowerCase();
+    return optionTitle === normalizedTitle || optionTitle.includes(normalizedTitle) || normalizedTitle.includes(optionTitle);
+  });
+}
+
+function buildSelectedPositionJobPost(baseJobPost, selectedPosition, selectedOption) {
+  const sections = [
+    baseJobPost,
+    selectedPosition && `\n\n[사용자가 선택한 지원 분야]\n${selectedPosition}`,
+  ];
+
+  if (selectedOption) {
+    const details = [
+      selectedOption.jobDetails?.length && `담당업무:\n- ${selectedOption.jobDetails.join('\n- ')}`,
+      selectedOption.requiredQualifications?.length &&
+        `지원자격:\n- ${selectedOption.requiredQualifications.join('\n- ')}`,
+      selectedOption.preferredQualifications?.length &&
+        `우대사항:\n- ${selectedOption.preferredQualifications.join('\n- ')}`,
+      selectedOption.keywords?.length && `핵심 키워드: ${selectedOption.keywords.join(', ')}`,
+    ]
+      .filter(Boolean)
+      .join('\n\n');
+
+    if (details) {
+      sections.push(`\n\n[선택 분야 세부 정보]\n${details}`);
+    }
+  }
+
+  return sections.filter(Boolean).join('').trim();
+}
+
+function buildPositionSelectionMessage(analyzeData, positionOptions = []) {
+  const serverMessage = String(analyzeData?.message || '').trim();
+  const optionGuide = positionOptions.length
+    ? '아래 후보 중 지원할 분야를 눌러 입력하거나, 실제 지원 분야명을 직접 적어주세요.'
+    : '자동으로 후보를 충분히 분리하지 못했어요. 실제 지원하려는 모집 분야명을 직접 적어주세요.';
+
+  return `${serverMessage || '공고에서 여러 모집 분야가 있을 수 있어요.'}
+
+자기소개서가 엉뚱한 직무 기준으로 작성되지 않도록, 먼저 지원하려는 분야를 확인할게요.
+
+${optionGuide}`;
+}
+
+
+function isInvalidPositionInput(value = '') {
+  const text = String(value || '').trim();
+  const compact = text.replace(/[\s.,!?~…]+/g, '').toLowerCase();
+
+  if (!compact) return true;
+  if (compact.length < 2) return true;
+
+  if (
+    /^(몰라|모름|모르겠|모르겠어|모르겠습니다|잘모르겠|잘모름|잘몰라|없어|없음|없습니다|모른다|글쎄|글쎄요)$/.test(compact) ||
+    /(잘모르|모르겠|모릅니다|아무거나|상관없|대충|추천해줘|정해줘|알아서|너가|네가|ai가|직접골라)/i.test(compact)
+  ) {
+    return true;
+  }
+
+  if (/^(신입|경력|신입경력|인턴|정규직|계약직|수시채용|공채|채용|모집|지원|직무|분야|부문|전체)$/.test(compact)) {
+    return true;
+  }
+
+  if (/^https?:\/\//i.test(text)) return true;
+
+  return false;
+}
+
+function buildInvalidPositionMessage(positionOptions = []) {
+  const optionText = positionOptions.length
+    ? `현재 확인된 후보는 ${positionOptions.map((item) => item.title).join(', ')} 입니다. 이 중 하나를 선택하거나, 실제 지원 분야명을 직접 적어주세요.`
+    : `원본 공고에서 “모집부문”, “채용분야”, “직무”, “담당업무” 항목을 확인한 뒤 지원하려는 분야명을 적어주세요.
+예: 생산관리, 품질관리, 연구개발, 영업관리, 백엔드 개발`;
+
+  return `지원 분야를 아직 확정하지 못한 것으로 이해했어요.
+
+다만 이 단계에서 “몰라”, “아무거나”, “상관없어” 같은 답변으로 넘어가면 자기소개서가 엉뚱한 직무 기준으로 작성될 수 있어요.
+
+${optionText}`;
+}
+
+function PositionSelectionCard({ options = [], onSelect }) {
+  return (
+    <div className="position-selection-card">
+      <div className="position-selection-head">
+        <span>지원 분야 선택</span>
+        <strong>어떤 모집 분야에 지원하시나요?</strong>
+      </div>
+
+      {options.length ? (
+        <div className="position-option-list">
+          {options.map((option) => (
+            <button
+              key={option.id || option.title}
+              type="button"
+              className="position-option-btn"
+              onClick={() => onSelect(option.title)}
+            >
+              <strong>{option.title}</strong>
+              {!!option.keywords?.length && <small>{option.keywords.join(', ')}</small>}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <p className="position-selection-empty">
+          공고 제목만으로는 모집 분야를 정확히 나누기 어려워요. 입력창에 지원하려는 분야를 직접 적어주세요.
+        </p>
+      )}
+    </div>
+  );
+}
+
 function JobPostSummary({ summary, sourceUrls = [] }) {
   if (!summary) return null;
 
@@ -170,6 +323,7 @@ function JobPostSummary({ summary, sourceUrls = [] }) {
     summary.preferredQualifications || summary.preferredRequirements || summary.preferred
   );
   const questions = getSummaryList(summary.coverLetterQuestions || summary.questions);
+  const positionOptions = normalizePositionOptions(summary);
   const sources = summary.sourceUrls || sourceUrls || [];
 
   return (
@@ -217,6 +371,13 @@ function JobPostSummary({ summary, sourceUrls = [] }) {
         <div className="job-summary-list">
           <span>자소서 문항</span>
           <ul>{questions.map((item) => <li key={item}>{item}</li>)}</ul>
+        </div>
+      )}
+
+      {!!positionOptions.length && (
+        <div className="job-summary-list">
+          <span>모집 분야 후보</span>
+          <ul>{positionOptions.map((item) => <li key={item.id || item.title}>{item.title}</li>)}</ul>
         </div>
       )}
 
@@ -379,6 +540,7 @@ export default function CoverLetterBuilder() {
   const [isImprovingInput, setIsImprovingInput] = useState(false);
   const [suggestedAnswerDraft, setSuggestedAnswerDraft] = useState(null);
   const [isSuggestingAnswer, setIsSuggestingAnswer] = useState(false);
+  const [pendingJobPostData, setPendingJobPostData] = useState(null);
 
   const [resultText, setResultText] = useState('');
   const [resultLengthInfo, setResultLengthInfo] = useState(null);
@@ -542,6 +704,10 @@ export default function CoverLetterBuilder() {
   };
 
 const getCurrentInputQuestionText = () => {
+  if (currentStep === 1.5) {
+    return '지원하려는 모집 분야를 선택하거나 입력해 주세요.';
+  }
+
   if (currentStep === 2) {
     return '이 직무와 연결할 수 있는 핵심 경험이나 어필하고 싶은 이력을 알려주세요.';
   }
@@ -703,11 +869,12 @@ const handleDismissSuggestedAnswer = () => {
     addAiMessage(`${messagePrefix}\n\n${safeQuestion.text}`);
   };
 
-  const generateCoverLetterFromEvidence = async (answers) => {
+  const generateCoverLetterFromEvidence = async (answers, options = {}) => {
+    const forceGenerate = options.force === true;
     const usableAnswers = getStrongUsableAnswers(answers);
     const rejectedAnswers = Array.isArray(answers) ? answers.filter((answer) => !hasStrongEvidence(answer)) : [];
 
-    if (usableAnswers.length < MIN_USABLE_ANSWERS || answers.length < MIN_FOLLOWUP_TURNS_BEFORE_GENERATE) {
+    if (!forceGenerate && (usableAnswers.length < MIN_USABLE_ANSWERS || answers.length < MIN_FOLLOWUP_TURNS_BEFORE_GENERATE)) {
       addAiMessage(
         `${buildInsufficientEvidenceMessage([
           'role',
@@ -726,7 +893,13 @@ const handleDismissSuggestedAnswer = () => {
     }
 
     setCurrentStep(4);
-    addAiMessage('확인된 실제 경험 근거만 사용해서 우측 자기소개서 캔버스에 초안을 작성해볼게요.');
+    addAiMessage(
+      forceGenerate
+        ? `질문을 여기서 종료하고 지금까지 입력된 내용만으로 자기소개서 초안을 작성해볼게요.
+
+단, 추가 질문을 모두 답하지 않은 상태라 역할, 행동, 결과, 직무 연결성이 부족하면 초안의 정확도와 완성도가 낮을 수 있어요. 생성된 초안은 우측에서 꼭 확인하고 수정해 주세요.`
+        : '확인된 실제 경험 근거만 사용해서 우측 자기소개서 캔버스에 초안을 작성해볼게요.'
+    );
 
     const finalRes = await axios.post(`${API_BASE}/api/generate/cover-letter`, {
       resume: {
@@ -774,6 +947,42 @@ ${data.message || ''}`.trim());
     return true;
   };
 
+  const handleForceGenerateDraft = async () => {
+    if (isAiThinking || isProfileLoading || currentStep !== 3) return;
+
+    const usableCount = getStrongUsableAnswers(interviewAnswers).length;
+    const pendingInputNotice = userInput.trim()
+      ? '\n\n입력창에 작성 중인 답변은 아직 반영되지 않았습니다. 반영하려면 먼저 전송해 주세요.'
+      : '';
+
+    const confirmed = window.confirm(
+      `추가 질문을 여기서 종료하고 지금까지 답변한 내용만으로 자기소개서 초안을 만들까요?
+
+질문을 모두 답하지 않으면 역할, 행동, 결과, 직무 연결성이 부족해져 초안의 정확도와 완성도가 낮을 수 있습니다.
+현재까지 답변한 추가 질문: ${interviewAnswers.length}개
+자기소개서에 바로 활용 가능한 답변: ${usableCount}개${pendingInputNotice}
+
+그래도 지금 바로 생성하시겠어요?`
+    );
+
+    if (!confirmed) return;
+
+    setInputImproveDraft(null);
+    setSuggestedAnswerDraft(null);
+    setIsAiThinking(true);
+
+    try {
+      await generateCoverLetterFromEvidence(interviewAnswers, { force: true });
+    } catch (error) {
+      console.error('강제 자기소개서 생성 실패:', error);
+      setCurrentStep(3);
+      addAiMessage('자기소개서 초안 생성 중 오류가 발생했어요. 입력한 경험을 조금 더 구체적으로 적은 뒤 다시 시도해 주세요.');
+    } finally {
+      setIsAiThinking(false);
+    }
+  };
+
+
   const handleSaveAndExit = async () => {
     if (!resultText.trim()) {
       navigate('/mypage');
@@ -805,6 +1014,37 @@ ${data.message || ''}`.trim());
       console.error('저장 실패:', error);
       alert('저장 중 오류가 발생했습니다. 글이 날아가지 않게 본문을 복사해 두세요.');
     }
+  };
+
+  const handlePositionOptionClick = (positionTitle) => {
+    setUserInput(positionTitle);
+
+    requestAnimationFrame(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+        textareaRef.current.style.height = 'auto';
+        textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+      }
+    });
+  };
+
+  const confirmSelectedPosition = async (selectedPosition) => {
+    const pending = pendingJobPostData;
+    const positionOptions = normalizePositionOptions(pending?.jobSummary);
+    const selectedOption = findPositionOptionByTitle(positionOptions, selectedPosition);
+    const nextJobPost = buildSelectedPositionJobPost(
+      pending?.jobPost || '',
+      selectedPosition,
+      selectedOption
+    );
+
+    setJobPost(nextJobPost);
+    setPendingJobPostData(null);
+    setCurrentStep(2);
+
+    addAiMessage(`좋아요. ${selectedPosition} 분야 기준으로 자기소개서 방향을 잡아볼게요.
+
+이제 이 분야와 연결할 수 있는 핵심 경험이나 어필하고 싶은 이력을 편하게 적어주세요. 프로젝트, 수업, 대외활동, 인턴, 팀플, 아르바이트 경험 모두 괜찮아요.`);
   };
 
   const handleSendMessage = async (e) => {
@@ -864,6 +1104,33 @@ ${data.message || ''}`.trim());
 
         const normalizedJobPost = analyzeData.jobPostText || currentInput;
         const jobSummary = analyzeData.jobSummary || analyzeData.summary || null;
+        const positionOptions = normalizePositionOptions(jobSummary);
+        const shouldAskPosition = analyzeData.needsPositionSelection || positionOptions.length >= 2;
+
+        if (shouldAskPosition) {
+          setPendingJobPostData({
+            jobPost: normalizedJobPost,
+            jobSummary,
+            sourceUrls: analyzeData.sourceUrls || [],
+            analyzeData,
+          });
+          setCurrentStep(1.5);
+
+          setTimeout(() => {
+            addAiMessage(
+              buildPositionSelectionMessage(analyzeData, positionOptions),
+              {
+                jobSummary,
+                sourceUrls: analyzeData.sourceUrls || [],
+                needsPositionSelection: true,
+                positionOptions,
+              }
+            );
+            setIsAiThinking(false);
+          }, 600);
+
+          return;
+        }
 
         setJobPost(normalizedJobPost);
         setCurrentStep(2);
@@ -879,6 +1146,26 @@ ${data.message || ''}`.trim());
           setIsAiThinking(false);
         }, 600);
 
+        return;
+      }
+
+      if (currentStep === 1.5) {
+        const pending = pendingJobPostData;
+        const positionOptions = normalizePositionOptions(pending?.jobSummary);
+
+        if (isInvalidPositionInput(currentInput)) {
+          addAiMessage(buildInvalidPositionMessage(positionOptions), {
+            jobSummary: pending?.jobSummary || null,
+            sourceUrls: pending?.sourceUrls || [],
+            needsPositionSelection: true,
+            positionOptions,
+          });
+          setIsAiThinking(false);
+          return;
+        }
+
+        await confirmSelectedPosition(currentInput);
+        setIsAiThinking(false);
         return;
       }
 
@@ -1049,6 +1336,7 @@ ${questions[0].text}`);
 
         <div className="cover-step-status">
           <span className={currentStep >= 1 ? 'active' : ''}>공고</span>
+          <span className={currentStep >= 1.5 ? 'active' : ''}>분야</span>
           <span className={currentStep >= 2 ? 'active' : ''}>경험</span>
           <span className={currentStep >= 3 ? 'active' : ''}>질문</span>
           <span className={currentStep >= 4 ? 'active' : ''}>완성</span>
@@ -1150,6 +1438,13 @@ ${questions[0].text}`);
                       <JobPostSummary summary={msg.jobSummary} sourceUrls={msg.sourceUrls} />
                     )}
 
+                    {msg.needsPositionSelection && (
+                      <PositionSelectionCard
+                        options={msg.positionOptions || normalizePositionOptions(msg.jobSummary)}
+                        onSelect={handlePositionOptionClick}
+                      />
+                    )}
+
                     {msg.showJobHelp && <JobSiteHelp compact />}
                   </div>
                 </div>
@@ -1202,6 +1497,17 @@ ${questions[0].text}`);
                   >
                     {isSuggestingAnswer ? '추천 생성 중...' : '추천 답변 가이드'}
                   </button>
+
+                  {currentStep === 3 && (
+                    <button
+                      type="button"
+                      className="input-ai-improve-btn input-suggest-btn"
+                      onClick={handleForceGenerateDraft}
+                      disabled={isAiThinking || isProfileLoading}
+                    >
+                      질문 종료하고 초안 만들기
+                    </button>
+                  )}
                 </div>
               )}
 

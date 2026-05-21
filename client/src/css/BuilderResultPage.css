@@ -1,0 +1,472 @@
+/* =========================================================
+   BuilderResultPage.css
+   - 결과 페이지 전용 CSS
+   - .portfolio-result-page 클래스가 JSX에 있으면 가장 안전함
+   - 혹시 JSX 수정 전이라도 .portfolio-wrapper 루트에 적용되도록 fallback 포함
+========================================================= */
+
+:is(.portfolio-result-page, .portfolio-wrapper).theme-modern {
+  --bg: #f1f5f9;
+  --paper-bg: #ffffff;
+  --text: #1e293b;
+  --text-sub: #64748b;
+  --accent: #1e40af;
+  --border: #e2e8f0;
+  --shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+  --tag-bg: #1e40af;
+  --tag-text: #ffffff;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper).theme-dark {
+  --bg: #0a0a0a;
+  --paper-bg: #141414;
+  --text: #f3f4f6;
+  --text-sub: #9ca3af;
+  --accent: #e10600;
+  --border: #2a2a2a;
+  --shadow: 0 20px 50px rgba(225, 6, 0, 0.15);
+  --tag-bg: #e10600;
+  --tag-text: #ffffff;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper).theme-minimal {
+  --bg: #ffffff;
+  --paper-bg: #ffffff;
+  --text: #000000;
+  --text-sub: #555555;
+  --accent: #000000;
+  --border: #000000;
+  --shadow: none;
+  --tag-bg: #000000;
+  --tag-text: #ffffff;
+}
+
+/* 핵심 스크롤 수정:
+   body/root가 overflow hidden이어도 결과 페이지 자체에서 스크롤되도록 fixed 컨테이너로 분리 */
+:is(.portfolio-result-page, .portfolio-wrapper) {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  min-height: 100dvh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  background-color: var(--bg) !important;
+  color: var(--text);
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  padding: 0 !important;
+  margin: 0 !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper)::-webkit-scrollbar {
+  width: 10px;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper)::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.45);
+  border-radius: 999px;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper)::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 헤더 */
+:is(.portfolio-result-page, .portfolio-wrapper) .room-header {
+  position: sticky !important;
+  top: 0 !important;
+  flex: 0 0 auto !important;
+  width: 100% !important;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .room-logo-btn {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  cursor: pointer;
+  margin: 0 !important;
+  padding: 0 !important;
+  transition: none !important;
+  transform: none !important;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .builder-logo-img {
+  height: 60px;
+  width: auto;
+  display: block;
+  transform: scale(1.5) !important;
+  transform-origin: left center;
+  backface-visibility: hidden;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .room-exit-btn {
+  min-height: 38px;
+  padding: 8px 15px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.18s ease, opacity 0.18s ease, box-shadow 0.18s ease;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .room-exit-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.16);
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .room-exit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 결과 미리보기 영역 */
+:is(.portfolio-result-page, .portfolio-wrapper) .pdf-scale-container {
+  width: 100% !important;
+  flex: 0 0 auto !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  overflow: visible !important;
+  box-sizing: border-box !important;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .pdf-scale-container.preview-mode {
+  min-height: auto !important;
+  padding: 40px 16px 96px !important;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .pdf-scale-container.print-mode {
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: visible !important;
+}
+
+/* 컨테이너 */
+:is(.portfolio-result-page, .portfolio-wrapper) .portfolio-content-list {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 297mm !important;
+  max-width: none !important;
+  background-color: var(--bg) !important;
+  box-sizing: border-box !important;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .portfolio-content-list.preview-mode {
+  gap: 30px !important;
+  transform: scale(0.85) !important;
+  transform-origin: top center !important;
+  margin-bottom: 0 !important;
+  overflow: visible !important;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .portfolio-content-list.print-mode {
+  gap: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+  background-color: #ffffff !important;
+  overflow: visible !important;
+}
+
+/* 슬라이드 */
+:is(.portfolio-result-page, .portfolio-wrapper) .portfolio-slide {
+  width: 297mm !important;
+  height: 209mm !important;
+  min-height: 209mm !important;
+  max-height: 209mm !important;
+  margin: 0 auto !important;
+  padding: 12mm 15mm !important;
+  background: var(--paper-bg, #ffffff) !important;
+  color: var(--text);
+  box-sizing: border-box !important;
+  position: relative !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  border-radius: 0 !important;
+  box-shadow: var(--shadow) !important;
+  page-break-after: always !important;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .portfolio-content-list.print-mode .portfolio-slide {
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* 표지 */
+:is(.portfolio-result-page, .portfolio-wrapper) .cover-slide {
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .cover-header {
+  width: 80%;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 3px solid var(--accent);
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .cover-title {
+  margin: 0 0 15px;
+  color: var(--text);
+  font-size: 4rem;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .cover-subtitle {
+  margin: 0;
+  color: var(--accent);
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .cover-info {
+  color: var(--text-sub);
+  font-size: 1.16rem;
+  line-height: 1.65;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .cover-info p {
+  margin: 8px 0;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .cover-desc {
+  max-width: 720px;
+  margin-top: 22px !important;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+/* 프로젝트 레이아웃 */
+:is(.portfolio-result-page, .portfolio-wrapper) .project-header {
+  height: 15mm;
+  flex: 0 0 15mm;
+  border-bottom: 2px solid var(--accent);
+  margin-bottom: 5mm;
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 3mm;
+  box-sizing: border-box;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .project-title {
+  min-width: 0;
+  margin: 0;
+  color: var(--text);
+  font-size: 1.8rem;
+  font-weight: 900;
+  line-height: 1.22;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .project-title-num {
+  color: var(--accent);
+  margin-right: 10px;
+  font-size: 2rem;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .project-body {
+  display: flex !important;
+  flex-direction: row !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  gap: 10mm !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .project-text-area {
+  width: 45% !important;
+  min-width: 0 !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4mm !important;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .project-visual-area {
+  width: 55% !important;
+  min-width: 0 !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4mm !important;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .text-box {
+  height: calc(33.33% - 3mm) !important;
+  min-height: 0 !important;
+  padding: 4mm !important;
+  background-color: rgba(128, 128, 128, 0.05) !important;
+  border-radius: 8px !important;
+  border-left: 4px solid #000 !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .text-box.red {
+  border-left-color: #dc2626 !important;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .text-box.green {
+  border-left-color: #16a34a !important;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .text-box.orange {
+  border-left-color: #f59e0b !important;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .text-box-title {
+  margin-bottom: 2mm;
+  font-weight: 900;
+  font-size: 1.05rem;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .text-box-content {
+  color: var(--text);
+  font-size: 0.92rem;
+  line-height: 1.52;
+  white-space: pre-wrap;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  overflow: hidden;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .project-text-area .text-box:nth-child(1) .text-box-content,
+:is(.portfolio-result-page, .portfolio-wrapper) .project-text-area .text-box:nth-child(2) .text-box-content {
+  -webkit-line-clamp: 5;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .project-text-area .text-box:nth-child(3) .text-box-content {
+  -webkit-line-clamp: 4;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .text-box-content.bold {
+  font-weight: 800;
+}
+
+/* 시각화 */
+:is(.portfolio-result-page, .portfolio-wrapper) .visual-box {
+  flex: 7 1 0 !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  padding: 4mm !important;
+  background: transparent !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .chart-box {
+  flex: 3 1 0 !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  height: auto !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  padding: 10px 20px 0 0 !important;
+  background: transparent !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .chart-container-wrapper {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* 작은 화면에서는 스케일을 더 줄여 결과 페이지 내부 스크롤만 사용 */
+@media screen and (max-width: 1200px) {
+  :is(.portfolio-result-page, .portfolio-wrapper) .portfolio-slide {
+    width: 297mm !important;
+    height: 209mm !important;
+  }
+
+  :is(.portfolio-result-page, .portfolio-wrapper) .portfolio-content-list.preview-mode {
+    transform: scale(calc((100vw - 36px) / 1123)) !important;
+    transform-origin: top center !important;
+    margin-bottom: 0 !important;
+  }
+}
+
+@media screen and (max-width: 720px) {
+  :is(.portfolio-result-page, .portfolio-wrapper) .room-header {
+    padding: 14px 16px !important;
+    gap: 12px;
+  }
+
+  :is(.portfolio-result-page, .portfolio-wrapper) .builder-logo-img {
+    transform: scale(1.2) !important;
+  }
+
+  :is(.portfolio-result-page, .portfolio-wrapper) .room-header > div:last-child {
+    gap: 6px !important;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  :is(.portfolio-result-page, .portfolio-wrapper) .room-exit-btn {
+    min-height: 34px;
+    padding: 7px 10px;
+    font-size: 0.76rem;
+  }
+
+  :is(.portfolio-result-page, .portfolio-wrapper) .room-header select {
+    max-width: 140px;
+    font-size: 0.78rem;
+  }
+
+  :is(.portfolio-result-page, .portfolio-wrapper) .pdf-scale-container.preview-mode {
+    padding-top: 24px !important;
+  }
+}
+
+
+/* 결과 페이지 스크롤 최종 안전장치 */
+:is(.portfolio-result-page, .portfolio-wrapper) * {
+  box-sizing: border-box;
+}
+
+:is(.portfolio-result-page, .portfolio-wrapper) .pdf-scale-container.preview-mode::after {
+  content: '';
+  display: block;
+  flex: 0 0 72px;
+}
