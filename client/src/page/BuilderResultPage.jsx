@@ -8,7 +8,6 @@ import mainLogo from '../assets/logo.png';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 import '../css/PortfolioEditor.css';
-import '../css/BuilderResultPage.css';
 
 const API_BASE = process.env.REACT_APP_API_BASE;
 
@@ -88,48 +87,52 @@ export default function BuilderResultPage() {
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   useEffect(() => {
-    const rootEl = document.getElementById('root');
-    const scrollEl = document.querySelector('.portfolio-result-page');
-
     const prevBodyOverflow = document.body.style.overflow;
     const prevHtmlOverflow = document.documentElement.style.overflow;
-    const prevRootOverflow = rootEl?.style.overflow;
-    const prevRootHeight = rootEl?.style.height;
 
-    /*
-      결과 페이지는 부모/이전 페이지의 overflow 설정 영향을 받지 않도록
-      페이지 자체를 독립 스크롤 컨테이너로 사용한다.
-    */
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
-
-    if (rootEl) {
-      rootEl.style.height = '100vh';
-      rootEl.style.overflow = 'hidden';
-    }
-
-    requestAnimationFrame(() => {
-      if (scrollEl) scrollEl.scrollTo({ top: 0, left: 0 });
-    });
+    document.body.style.overflowY = 'auto';
+    document.documentElement.style.overflowY = 'auto';
 
     return () => {
       document.body.style.overflow = prevBodyOverflow;
       document.documentElement.style.overflow = prevHtmlOverflow;
-
-      if (rootEl) {
-        rootEl.style.overflow = prevRootOverflow || '';
-        rootEl.style.height = prevRootHeight || '';
-      }
     };
   }, []);
 
   const rawData = location.state?.portfolioData;
   const passedUserInfo = location.state?.userInfo;
 
+  const cleanText = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+
   const compactText = (value, maxLength) => {
-    const text = String(value || '').replace(/\s+/g, ' ').trim();
+    const text = cleanText(value);
     if (text.length <= maxLength) return text;
-    return `${text.slice(0, maxLength).trim()}...`;
+
+    const sliced = text.slice(0, maxLength).trim();
+    const lastSentenceEnd = Math.max(
+      sliced.lastIndexOf('.'),
+      sliced.lastIndexOf('!'),
+      sliced.lastIndexOf('?'),
+      sliced.lastIndexOf('다'),
+      sliced.lastIndexOf('요')
+    );
+
+    if (lastSentenceEnd > Math.floor(maxLength * 0.58)) {
+      return `${sliced.slice(0, lastSentenceEnd + 1).trim()}…`;
+    }
+
+    return `${sliced.replace(/[\s,.;:!?-]+$/g, '').trim()}…`;
+  };
+
+  // 포트폴리오 슬라이드는 A4 한 장 고정 레이아웃이라 원문이 너무 길면
+  // CSS가 중간에서 잘라 보일 수 있다. 그래서 표시용 문구만 문장 단위로 정리한다.
+  const fitPortfolioText = (value, maxLength) => compactText(value, maxLength);
+
+  const getPortfolioDensityClass = (project = {}) => {
+    const totalLength = [project.why, project.how, project.then].map(cleanText).join(' ').length;
+    if (totalLength > 620) return 'copy-ultra-dense';
+    if (totalLength > 480) return 'copy-dense';
+    return '';
   };
 
   const getStoredUserInfo = () => {
@@ -145,9 +148,9 @@ export default function BuilderResultPage() {
     ...project,
     title: compactText(project.title, 60),
     techStack: compactText(project.techStack, 120),
-    why: compactText(project.why, 230),
-    how: compactText(project.how, 260),
-    then: compactText(project.then, 180)
+    why: fitPortfolioText(project.why, 210),
+    how: fitPortfolioText(project.how, 230),
+    then: fitPortfolioText(project.then, 160)
   });
 
   const initialProjectList = Array.isArray(rawData) ? rawData : (rawData ? [rawData] : []);
@@ -251,7 +254,7 @@ export default function BuilderResultPage() {
   const currentThemeColor = THEME_COLORS[theme];
 
   return (
-    <div className={`portfolio-result-page portfolio-wrapper theme-${theme}`}>
+    <div className={`portfolio-wrapper theme-${theme}`}>
       {/* ✨ 수정됨: width: '100%' 추가로 쪼그라드는 현상 완벽 방어 */}
       <header className="room-header" style={{
         width: '100%', /* 핵심: 화면 전체 너비 강제 고정 */
@@ -327,7 +330,7 @@ export default function BuilderResultPage() {
             } catch (e) {}
 
             return (
-              <section key={idx} className="portfolio-slide">
+              <section key={idx} className={`portfolio-slide ${getPortfolioDensityClass(project)}`}>
                 {/* 1. 프로젝트 제목 & 경계선 */}
                 <div className="project-header">
                   <h2 className="project-title">

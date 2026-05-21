@@ -1,11 +1,11 @@
 /* =========================================================
-   BuilderResultPage.css
-   - 결과 페이지 전용 CSS
-   - .portfolio-result-page 클래스가 JSX에 있으면 가장 안전함
-   - 혹시 JSX 수정 전이라도 .portfolio-wrapper 루트에 적용되도록 fallback 포함
+   BuilderResultPage 전용 CSS
+   - 결과 페이지 스크롤을 독립 컨테이너로 처리
+   - PortfolioEditor.css / BuilderPage.css의 전역 클래스 충돌을 방지하기 위해
+     .portfolio-result-page 하위로만 강하게 제한
 ========================================================= */
 
-:is(.portfolio-result-page, .portfolio-wrapper).theme-modern {
+.portfolio-result-page.theme-modern {
   --bg: #f1f5f9;
   --paper-bg: #ffffff;
   --text: #1e293b;
@@ -17,7 +17,7 @@
   --tag-text: #ffffff;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper).theme-dark {
+.portfolio-result-page.theme-dark {
   --bg: #0a0a0a;
   --paper-bg: #141414;
   --text: #f3f4f6;
@@ -29,7 +29,7 @@
   --tag-text: #ffffff;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper).theme-minimal {
+.portfolio-result-page.theme-minimal {
   --bg: #ffffff;
   --paper-bg: #ffffff;
   --text: #000000;
@@ -43,7 +43,7 @@
 
 /* 핵심 스크롤 수정:
    body/root가 overflow hidden이어도 결과 페이지 자체에서 스크롤되도록 fixed 컨테이너로 분리 */
-:is(.portfolio-result-page, .portfolio-wrapper) {
+.portfolio-result-page {
   position: fixed !important;
   inset: 0 !important;
   width: 100vw !important;
@@ -63,28 +63,28 @@
   -webkit-overflow-scrolling: touch;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper)::-webkit-scrollbar {
+.portfolio-result-page::-webkit-scrollbar {
   width: 10px;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper)::-webkit-scrollbar-thumb {
+.portfolio-result-page::-webkit-scrollbar-thumb {
   background: rgba(100, 116, 139, 0.45);
   border-radius: 999px;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper)::-webkit-scrollbar-track {
+.portfolio-result-page::-webkit-scrollbar-track {
   background: transparent;
 }
 
 /* 헤더 */
-:is(.portfolio-result-page, .portfolio-wrapper) .room-header {
+.portfolio-result-page .room-header {
   position: sticky !important;
   top: 0 !important;
   flex: 0 0 auto !important;
   width: 100% !important;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .room-logo-btn {
+.portfolio-result-page .room-logo-btn {
   display: flex;
   align-items: center;
   text-decoration: none;
@@ -98,7 +98,7 @@
   transform: none !important;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .builder-logo-img {
+.portfolio-result-page .builder-logo-img {
   height: 60px;
   width: auto;
   display: block;
@@ -107,7 +107,7 @@
   backface-visibility: hidden;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .room-exit-btn {
+.portfolio-result-page .room-exit-btn {
   min-height: 38px;
   padding: 8px 15px;
   border-radius: 999px;
@@ -119,18 +119,18 @@
   transition: transform 0.18s ease, opacity 0.18s ease, box-shadow 0.18s ease;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .room-exit-btn:hover:not(:disabled) {
+.portfolio-result-page .room-exit-btn:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 8px 18px rgba(15, 23, 42, 0.16);
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .room-exit-btn:disabled {
+.portfolio-result-page .room-exit-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
 /* 결과 미리보기 영역 */
-:is(.portfolio-result-page, .portfolio-wrapper) .pdf-scale-container {
+.portfolio-result-page .pdf-scale-container {
   width: 100% !important;
   flex: 0 0 auto !important;
   display: flex !important;
@@ -140,12 +140,12 @@
   box-sizing: border-box !important;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .pdf-scale-container.preview-mode {
+.portfolio-result-page .pdf-scale-container.preview-mode {
   min-height: auto !important;
   padding: 40px 16px 96px !important;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .pdf-scale-container.print-mode {
+.portfolio-result-page .pdf-scale-container.print-mode {
   justify-content: flex-start !important;
   align-items: flex-start !important;
   padding: 0 !important;
@@ -154,7 +154,7 @@
 }
 
 /* 컨테이너 */
-:is(.portfolio-result-page, .portfolio-wrapper) .portfolio-content-list {
+.portfolio-result-page .portfolio-content-list {
   display: flex !important;
   flex-direction: column !important;
   width: 297mm !important;
@@ -163,15 +163,15 @@
   box-sizing: border-box !important;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .portfolio-content-list.preview-mode {
+.portfolio-result-page .portfolio-content-list.preview-mode {
   gap: 30px !important;
   transform: scale(0.85) !important;
   transform-origin: top center !important;
-  margin-bottom: 0 !important;
+  margin-bottom: -90px !important;
   overflow: visible !important;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .portfolio-content-list.print-mode {
+.portfolio-result-page .portfolio-content-list.print-mode {
   gap: 0 !important;
   margin: 0 !important;
   padding: 0 !important;
@@ -181,7 +181,7 @@
 }
 
 /* 슬라이드 */
-:is(.portfolio-result-page, .portfolio-wrapper) .portfolio-slide {
+.portfolio-result-page .portfolio-slide {
   width: 297mm !important;
   height: 209mm !important;
   min-height: 209mm !important;
@@ -200,27 +200,27 @@
   page-break-after: always !important;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .portfolio-content-list.print-mode .portfolio-slide {
+.portfolio-result-page .portfolio-content-list.print-mode .portfolio-slide {
   border-radius: 0 !important;
   border: none !important;
   box-shadow: none !important;
 }
 
 /* 표지 */
-:is(.portfolio-result-page, .portfolio-wrapper) .cover-slide {
+.portfolio-result-page .cover-slide {
   justify-content: center !important;
   align-items: center !important;
   text-align: center !important;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .cover-header {
+.portfolio-result-page .cover-header {
   width: 80%;
   padding-bottom: 20px;
   margin-bottom: 20px;
   border-bottom: 3px solid var(--accent);
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .cover-title {
+.portfolio-result-page .cover-title {
   margin: 0 0 15px;
   color: var(--text);
   font-size: 4rem;
@@ -228,24 +228,24 @@
   letter-spacing: -0.05em;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .cover-subtitle {
+.portfolio-result-page .cover-subtitle {
   margin: 0;
   color: var(--accent);
   font-size: 2rem;
   font-weight: 800;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .cover-info {
+.portfolio-result-page .cover-info {
   color: var(--text-sub);
   font-size: 1.16rem;
   line-height: 1.65;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .cover-info p {
+.portfolio-result-page .cover-info p {
   margin: 8px 0;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .cover-desc {
+.portfolio-result-page .cover-desc {
   max-width: 720px;
   margin-top: 22px !important;
   word-break: keep-all;
@@ -253,7 +253,7 @@
 }
 
 /* 프로젝트 레이아웃 */
-:is(.portfolio-result-page, .portfolio-wrapper) .project-header {
+.portfolio-result-page .project-header {
   height: 15mm;
   flex: 0 0 15mm;
   border-bottom: 2px solid var(--accent);
@@ -264,7 +264,7 @@
   box-sizing: border-box;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .project-title {
+.portfolio-result-page .project-title {
   min-width: 0;
   margin: 0;
   color: var(--text);
@@ -280,13 +280,13 @@
   overflow: hidden;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .project-title-num {
+.portfolio-result-page .project-title-num {
   color: var(--accent);
   margin-right: 10px;
   font-size: 2rem;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .project-body {
+.portfolio-result-page .project-body {
   display: flex !important;
   flex-direction: row !important;
   flex: 1 1 auto !important;
@@ -296,7 +296,7 @@
   box-sizing: border-box !important;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .project-text-area {
+.portfolio-result-page .project-text-area {
   width: 45% !important;
   min-width: 0 !important;
   height: 100% !important;
@@ -306,7 +306,7 @@
   gap: 4mm !important;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .project-visual-area {
+.portfolio-result-page .project-visual-area {
   width: 55% !important;
   min-width: 0 !important;
   height: 100% !important;
@@ -316,7 +316,7 @@
   gap: 4mm !important;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .text-box {
+.portfolio-result-page .text-box {
   height: calc(33.33% - 3mm) !important;
   min-height: 0 !important;
   padding: 4mm !important;
@@ -327,25 +327,25 @@
   overflow: hidden !important;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .text-box.red {
+.portfolio-result-page .text-box.red {
   border-left-color: #dc2626 !important;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .text-box.green {
+.portfolio-result-page .text-box.green {
   border-left-color: #16a34a !important;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .text-box.orange {
+.portfolio-result-page .text-box.orange {
   border-left-color: #f59e0b !important;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .text-box-title {
+.portfolio-result-page .text-box-title {
   margin-bottom: 2mm;
   font-weight: 900;
   font-size: 1.05rem;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .text-box-content {
+.portfolio-result-page .text-box-content {
   color: var(--text);
   font-size: 0.92rem;
   line-height: 1.52;
@@ -358,21 +358,21 @@
   -webkit-box-orient: vertical;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .project-text-area .text-box:nth-child(1) .text-box-content,
-:is(.portfolio-result-page, .portfolio-wrapper) .project-text-area .text-box:nth-child(2) .text-box-content {
+.portfolio-result-page .project-text-area .text-box:nth-child(1) .text-box-content,
+.portfolio-result-page .project-text-area .text-box:nth-child(2) .text-box-content {
   -webkit-line-clamp: 5;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .project-text-area .text-box:nth-child(3) .text-box-content {
+.portfolio-result-page .project-text-area .text-box:nth-child(3) .text-box-content {
   -webkit-line-clamp: 4;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .text-box-content.bold {
+.portfolio-result-page .text-box-content.bold {
   font-weight: 800;
 }
 
 /* 시각화 */
-:is(.portfolio-result-page, .portfolio-wrapper) .visual-box {
+.portfolio-result-page .visual-box {
   flex: 7 1 0 !important;
   min-height: 0 !important;
   width: 100% !important;
@@ -388,7 +388,7 @@
   overflow: hidden !important;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .chart-box {
+.portfolio-result-page .chart-box {
   flex: 3 1 0 !important;
   min-height: 0 !important;
   width: 100% !important;
@@ -405,7 +405,7 @@
   overflow: hidden !important;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .chart-container-wrapper {
+.portfolio-result-page .chart-container-wrapper {
   width: 100% !important;
   height: 100% !important;
   min-height: 0 !important;
@@ -415,58 +415,104 @@
 
 /* 작은 화면에서는 스케일을 더 줄여 결과 페이지 내부 스크롤만 사용 */
 @media screen and (max-width: 1200px) {
-  :is(.portfolio-result-page, .portfolio-wrapper) .portfolio-slide {
+  .portfolio-result-page .portfolio-slide {
     width: 297mm !important;
     height: 209mm !important;
   }
 
-  :is(.portfolio-result-page, .portfolio-wrapper) .portfolio-content-list.preview-mode {
+  .portfolio-result-page .portfolio-content-list.preview-mode {
     transform: scale(calc((100vw - 36px) / 1123)) !important;
     transform-origin: top center !important;
-    margin-bottom: 0 !important;
+    margin-bottom: -160px !important;
   }
 }
 
 @media screen and (max-width: 720px) {
-  :is(.portfolio-result-page, .portfolio-wrapper) .room-header {
+  .portfolio-result-page .room-header {
     padding: 14px 16px !important;
     gap: 12px;
   }
 
-  :is(.portfolio-result-page, .portfolio-wrapper) .builder-logo-img {
+  .portfolio-result-page .builder-logo-img {
     transform: scale(1.2) !important;
   }
 
-  :is(.portfolio-result-page, .portfolio-wrapper) .room-header > div:last-child {
+  .portfolio-result-page .room-header > div:last-child {
     gap: 6px !important;
     flex-wrap: wrap;
     justify-content: flex-end;
   }
 
-  :is(.portfolio-result-page, .portfolio-wrapper) .room-exit-btn {
+  .portfolio-result-page .room-exit-btn {
     min-height: 34px;
     padding: 7px 10px;
     font-size: 0.76rem;
   }
 
-  :is(.portfolio-result-page, .portfolio-wrapper) .room-header select {
+  .portfolio-result-page .room-header select {
     max-width: 140px;
     font-size: 0.78rem;
   }
 
-  :is(.portfolio-result-page, .portfolio-wrapper) .pdf-scale-container.preview-mode {
+  .portfolio-result-page .pdf-scale-container.preview-mode {
     padding-top: 24px !important;
   }
 }
 
-
-/* 결과 페이지 스크롤 최종 안전장치 */
-:is(.portfolio-result-page, .portfolio-wrapper) * {
-  box-sizing: border-box;
+/* =========================================================
+   포트폴리오 결과 텍스트 잘림 보정
+   - A4 슬라이드/카드 크기는 유지
+   - 긴 문장은 중간에서 잘려 보이지 않게 줄 간격과 글자 크기를 유동 조정
+   - 기존 line-clamp 때문에 마지막 문장이 도중에 끊기던 문제 제거
+========================================================= */
+.portfolio-result-page .portfolio-slide.copy-dense .text-box,
+.portfolio-result-page .portfolio-slide.copy-ultra-dense .text-box {
+  padding: 3.2mm !important;
 }
 
-:is(.portfolio-result-page, .portfolio-wrapper) .pdf-scale-container.preview-mode::after {
-  content: '';
-  display: block;
-  flex: 0 0 72px;
+.portfolio-result-page .portfolio-slide.copy-dense .text-box-title,
+.portfolio-result-page .portfolio-slide.copy-ultra-dense .text-box-title {
+  margin-bottom: 1.4mm !important;
+}
+
+.portfolio-result-page .text-box-content {
+  display: block !important;
+  -webkit-line-clamp: unset !important;
+  -webkit-box-orient: initial !important;
+  text-overflow: clip !important;
+  overflow: visible !important;
+}
+
+.portfolio-result-page .text-box {
+  overflow: hidden !important;
+}
+
+.portfolio-result-page .portfolio-slide.copy-dense .text-box-content {
+  font-size: 0.8rem !important;
+  line-height: 1.42 !important;
+  letter-spacing: -0.035em !important;
+}
+
+.portfolio-result-page .portfolio-slide.copy-ultra-dense .text-box-content {
+  font-size: 0.72rem !important;
+  line-height: 1.34 !important;
+  letter-spacing: -0.045em !important;
+}
+
+.portfolio-result-page .portfolio-slide.copy-dense .project-text-area,
+.portfolio-result-page .portfolio-slide.copy-ultra-dense .project-text-area {
+  gap: 3mm !important;
+}
+
+.portfolio-result-page .portfolio-slide.copy-dense .project-body,
+.portfolio-result-page .portfolio-slide.copy-ultra-dense .project-body {
+  gap: 7mm !important;
+}
+
+@media screen and (max-width: 900px) {
+  .portfolio-result-page .portfolio-slide.copy-dense .text-box-content,
+  .portfolio-result-page .portfolio-slide.copy-ultra-dense .text-box-content {
+    font-size: 0.7rem !important;
+    line-height: 1.34 !important;
+  }
 }
